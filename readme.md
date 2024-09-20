@@ -86,6 +86,26 @@ This module contains helper functions to preprocess the input data, ensuring it 
 - **`convert_date_to_iso_strings(date)`**: Converts date inputs to ISO 8601 strings (`'YYYY-MM-DD'`).
 - **`preprocess_inputs(lat, lon, date)`**: Combines the above functions to prepare `lat`, `lon`, and `date` inputs for API requests.
 
+## Nespresso-UI
+
+This module contains the Nespresso-UI for visualizing map coordinates (latitude and longitude).
+
+### Running the Nespresso-UI
+
+
+To start the Nespresso-UI, navigate to the `nespresso-ui` directory and run one of the following commands:
+
+
+
+```bash
+npm install # to install necessary dependencies
+npm start
+
+```
+
+
+
+
 ## Dependencies
 
 Ensure all dependencies are installed via `pip`:

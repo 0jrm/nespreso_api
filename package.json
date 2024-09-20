@@ -1,0 +1,10 @@
+{
+  "dependencies": {
+    "leaflet": "^1.9.4",
+    "leaflet-draw": "^1.0.4",
+    "mui": "^0.0.1",
+    "papaparse": "^5.4.1",
+    "react-leaflet": "^4.2.1",
+    "react-leaflet-draw": "^0.20.4"
+  }
+}

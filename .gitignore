@@ -1,9 +1,11 @@
 # Ignore Python cache files
 __pycache__/
 
-# Ignore logs  & vscode
+# Ignore logs, tiff & vscode
 log/
+tiff/
 vscode/
+
 
 # Ignore compiled Python files
 *.py[cod]

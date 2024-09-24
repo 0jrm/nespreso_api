@@ -21,13 +21,11 @@ dependencies:
   - httpx
   - mat73
   - scikit-learn
-  - uvicorn
-  - gunicorn
   - seaborn
   - ipykernel
   - flask
+  - rasterio
   - pip
   - pip:
       - torch
       - light-the-torch
-prefix: /conda/jmiranda/python miniconda3/envs/aieoastorch

@@ -48,6 +48,8 @@ torch.manual_seed(seed)
 random.seed(seed)
 np.random.seed(seed)
 
+DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
 coolwhitewarm = mcolors.LinearSegmentedColormap.from_list(name='red_white_blue', 
                                                  colors =[(0, 0, 1), 
                                                           (1, 1., 1), 
@@ -215,6 +217,7 @@ def prepare_inputs(time, lat, lon, sss, sst, ssh, input_params):
     inputs_tensor = torch.stack(inputs)
 
     return inputs_tensor
+
 class TemperatureSalinityDataset(torch.utils.data.Dataset):
     """
     Custom dataset for temperature and salinity profiles.
@@ -755,8 +758,8 @@ class TemperatureSalinityDataset(torch.utils.data.Dataset):
         # Initialize arrays to hold GEM profiles
         temp_GEM = np.empty((len(indices), self.max_depth+1-self.min_depth))
         sal_GEM = np.empty((len(indices), self.max_depth+1-self.min_depth))
-        temp_GEM[:] = np.NaN  # Initialize with NaNs
-        sal_GEM[:] = np.NaN
+        temp_GEM[:] = np.nan  # Initialize with NaNs
+        sal_GEM[:] = np.nan
 
         for idx, index in enumerate(indices):
             # Determine the month for the current index
@@ -1021,7 +1024,7 @@ def get_inputs(dataloader, device):
 
     return np.array(all_inputs)
 
-def predict_with_numpy(model, numpy_input, device="cuda"):
+def predict_with_numpy(model, numpy_input, device=DEVICE):
     # Convert numpy array to tensor
     tensor_input = torch.tensor(numpy_input, dtype=torch.float32)
     
@@ -1098,8 +1101,8 @@ class PCALoss(nn.Module):
         self.n_components = n_components
         self.n_samples = len(temp_pca)
         # convert PCS to tensors
-        self.temp_pca_components = torch.nn.Parameter(torch.from_numpy(temp_pca.temp_pcs).float().to('cuda'), requires_grad=False)
-        self.sal_pca_components = torch.nn.Parameter(torch.from_numpy(sal_pca.sal_pcs).float().to('cuda'), requires_grad=False)
+        self.temp_pca_components = torch.nn.Parameter(torch.from_numpy(np.asarray(temp_pca.temp_pcs)).float().to(DEVICE), requires_grad=False)
+        self.sal_pca_components = torch.nn.Parameter(torch.from_numpy(np.asarray(sal_pca.sal_pcs)).float().to(DEVICE), requires_grad=False)
 
     def inverse_transform(self, pcs, pca_components):
         # Perform the inverse transform using PyTorch operations
@@ -1147,8 +1150,8 @@ class maxPCALoss(nn.Module):
         self.n_components = n_components
         self.n_samples = len(temp_pca)
         # Convert PCA components to tensors
-        self.temp_pca_components = torch.nn.Parameter(torch.from_numpy(temp_pca.temp_pcs).float().to('cuda'), requires_grad=False)
-        self.sal_pca_components = torch.nn.Parameter(torch.from_numpy(sal_pca.sal_pcs).float().to('cuda'), requires_grad=False)
+        self.temp_pca_components = torch.nn.Parameter(torch.from_numpy(np.asarray(temp_pca.temp_pcs)).float().to(DEVICE), requires_grad=False)
+        self.sal_pca_components = torch.nn.Parameter(torch.from_numpy(np.asarray(sal_pca.sal_pcs)).float().to(DEVICE), requires_grad=False)
 
     def inverse_transform(self, pcs, pca_components):
         # Perform the inverse transform using PyTorch operations
@@ -1252,13 +1255,13 @@ def visualize_combined_results(true_values, gem_temp, gem_sal, predicted_values,
         axs[1][1].legend(loc='best')
         axs[1][1].grid(color='gray', linestyle='--', linewidth=0.5)
 
-        gem_temp_rmse_individual = np.sqrt(np.mean(gem_temp_dif**2))
-        gem_sal_rmse_individual = np.sqrt(np.mean(gem_sal_dif**2))
-        nn_temp_rmse_individual = np.sqrt(np.mean(nn_temp_dif**2))
-        nn_sal_rmse_individual = np.sqrt(np.mean(nn_sal_dif**2))
+        gem_temp_se_individual = np.sqrt(np.mean(gem_temp_dif**2))
+        gem_sal_se_individual = np.sqrt(np.mean(gem_sal_dif**2))
+        nn_temp_se_individual = np.sqrt(np.mean(nn_temp_dif**2))
+        nn_sal_se_individual = np.sqrt(np.mean(nn_sal_dif**2))
 
-        accuracy_gain_temp = 100*(gem_temp_rmse_individual - nn_temp_rmse_individual) / gem_temp_rmse_individual
-        accuracy_gain_sal = 100*(gem_sal_rmse_individual - nn_sal_rmse_individual) / gem_sal_rmse_individual
+        accuracy_gain_temp = 100*(gem_temp_se_individual - nn_temp_se_individual) / gem_temp_se_individual
+        accuracy_gain_sal = 100*(gem_sal_se_individual - nn_sal_se_individual) / gem_sal_se_individual
 
         # Add sst, ssh and accuracy gain information to the suptitle
         plt.suptitle(f"Profile {idx} - SST: {sst_values[idx]:.2f}, SSH (adt): {ssh_values[idx]:.2f}\n"
@@ -1274,19 +1277,19 @@ def visualize_combined_results(true_values, gem_temp, gem_sal, predicted_values,
     nn_temp_errors = (predicted_values[0][:, :] - true_values[:, 0, :]) ** 2
     nn_sal_errors = (predicted_values[1][:, :] - true_values[:, 1, :]) ** 2
         
-    gem_temp_rmse = np.sqrt(np.mean(gem_temp_errors))
-    gem_sal_rmse = np.sqrt(np.mean(gem_sal_errors))
+    gem_temp_se = np.sqrt(np.mean(gem_temp_errors))
+    gem_sal_se = np.sqrt(np.mean(gem_sal_errors))
 
-    nn_temp_rmse = np.sqrt(np.mean(nn_temp_errors))
-    nn_sal_rmse = np.sqrt(np.mean(nn_sal_errors))
+    nn_temp_se = np.sqrt(np.mean(nn_temp_errors))
+    nn_sal_se = np.sqrt(np.mean(nn_sal_errors))
 
-    accuracy_gain_temp = 100*(gem_temp_rmse-nn_temp_rmse)/gem_temp_rmse
-    accuracy_gain_sal = 100*(gem_sal_rmse-nn_sal_rmse)/gem_sal_rmse
+    accuracy_gain_temp = 100*(gem_temp_se-nn_temp_se)/gem_temp_se
+    accuracy_gain_sal = 100*(gem_sal_se-nn_sal_se)/gem_sal_se
     
-    print(f"NeSPReSO Average temperature RMSE: {nn_temp_rmse:.3f}°C")
-    print(f"NeSPReSO Average salinity RMSE: {nn_sal_rmse:.3f} PSU")
-    print(f"GEM Average temperature RMSE: {gem_temp_rmse:.3f}°C")
-    print(f"GEM Average salinity RMSE: {gem_sal_rmse:.3f} PSU")
+    print(f"NeSPReSO Average temperature RMSE: {nn_temp_se:.3f}°C")
+    print(f"NeSPReSO Average salinity RMSE: {nn_sal_se:.3f} PSU")
+    print(f"GEM Average temperature RMSE: {gem_temp_se:.3f}°C")
+    print(f"GEM Average salinity RMSE: {gem_sal_se:.3f} PSU")
     
     # print(f"Average temperature accuracy gain: {accuracy_gain_temp:.3f}% (entire depth range)")
     # print(f"Average salinity accuracy gain: {accuracy_gain_sal:.3f}% (entire depth range)")
@@ -1297,14 +1300,14 @@ def visualize_combined_results(true_values, gem_temp, gem_sal, predicted_values,
     nn_temp_errors = (predicted_values[0][150:, :] - true_values[150:, 0, :]) ** 2
     nn_sal_errors = (predicted_values[1][150:, :] - true_values[150:, 1, :]) ** 2
 
-    gem_temp_rmse = np.sqrt(np.mean(gem_temp_errors))
-    gem_sal_rmse = np.sqrt(np.mean(gem_sal_errors))
+    gem_temp_se = np.sqrt(np.mean(gem_temp_errors))
+    gem_sal_se = np.sqrt(np.mean(gem_sal_errors))
 
-    nn_temp_rmse = np.sqrt(np.mean(nn_temp_errors))
-    nn_sal_rmse = np.sqrt(np.mean(nn_sal_errors))
+    nn_temp_se = np.sqrt(np.mean(nn_temp_errors))
+    nn_sal_se = np.sqrt(np.mean(nn_sal_errors))
 
-    accuracy_gain_temp = 100*(gem_temp_rmse-nn_temp_rmse)/gem_temp_rmse
-    accuracy_gain_sal = 100*(gem_sal_rmse-nn_sal_rmse)/gem_sal_rmse
+    accuracy_gain_temp = 100*(gem_temp_se-nn_temp_se)/gem_temp_se
+    accuracy_gain_sal = 100*(gem_sal_se-nn_sal_se)/gem_sal_se
     # print(f"Average temperature accuracy gain: {accuracy_gain_temp:.3f}% (150m to max depth)")
     # print(f"Average salinity accuracy gain: {accuracy_gain_sal:.3f}% (150m to max depth)")
 
@@ -1357,24 +1360,35 @@ def calculate_bias(true_values, predicted_values, gem_temp, gem_sal):
     
     return nn_t_bias, nn_s_bias, gem_temp_bias, gem_sal_bias
     
-def calculate_average_rmse_per_bin(lon_bins, lat_bins, lon_val, lat_val, rmse_values, dpt_range = np.arange(0, 1801)):
+def calculate_average_in_bin(lon_bins, lat_bins, lon_val, lat_val, bias_values, dpt_range = np.arange(0, 1801), is_rmse=True):
     # dpt_min, dpt_max = dpt_range
     avg_rmse_grid = np.zeros((len(lat_bins)-1, len(lon_bins)-1))
     num_prof_grid = np.zeros((len(lat_bins)-1, len(lon_bins)-1))
+    
+    if is_rmse:
+        input_vals = bias_values**2
+    else:
+        input_vals = bias_values
+
 
     for i in range(len(lon_bins)-1):
         for j in range(len(lat_bins)-1):
             # Find points that fall into the current bin
-            in_bin = (lon_val == lon_bins[i]) & (lat_val == lat_bins[j])
+            # in_bin = (lon_val == lon_bins[i]) & (lat_val == lat_bins[j])
+            in_bin = (lon_val >= lon_bins[i]) & (lon_val < lon_bins[i+1]) & (lat_val >= lat_bins[j]) & (lat_val < lat_bins[j+1])
             # Calculate average RMSE for points in the bin
-            rmses = rmse_values[dpt_range,:]
+            rmses = input_vals[dpt_range,:]
             rmses = rmses[:,in_bin]
             avg_rmse_grid[j, i] = np.mean(rmses)
             num_prof_grid[j, i] = np.sum(in_bin)
+    
+    if is_rmse:
+        return np.sqrt(avg_rmse_grid), num_prof_grid
 
-    return avg_rmse_grid, num_prof_grid
+    else:
+        return avg_rmse_grid, num_prof_grid
 
-def plot_rmse_maps(lon_bins, lat_bins, avg_rmse_nn, num_prof, title_prefix, variable_plotted):
+def plot_bin_map(lon_bins, lat_bins, avg_rmse_nn, num_prof, title_prefix, variable_plotted):
     # Calculate centers of the bins
     lon_centers = (lon_bins[:-1] + lon_bins[1:]) / 2
     lat_centers = (lat_bins[:-1] + lat_bins[1:]) / 2
@@ -1382,7 +1396,7 @@ def plot_rmse_maps(lon_bins, lat_bins, avg_rmse_nn, num_prof, title_prefix, vari
     vmin = 0
 
     # Set up color maps and limits
-    if title_prefix == "Temperature":
+    if title_prefix.startswith("Temperature"):
         units = "[°C]"
         if variable_plotted == "Bias":
             cmap = "coolwarm"
@@ -1707,7 +1721,7 @@ if __name__ == "__main__":
     
     if load_trained_model:
         model_path = '/unity/g2/jmiranda/SubsurfaceFields/GEM_SubsurfaceFields/saved_models/model_Test Loss: 14.2710_2024-02-26 12:47:18_sat.pth'
-        trained_model = torch.load(model_path)
+        trained_model = torch.load(model_path, map_location=torch.device(DEVICE))
     else:
         for run in enumerate(np.arange(n_runs)):
             print(f"Run {run[0]}/{n_runs}")
@@ -1835,11 +1849,11 @@ if __name__ == "__main__":
     # nn_temp_errors = (val_predictions[0][:, :] - original_profiles[:, 0, :]) ** 2
     # nn_sal_errors = (val_predictions[1][:, :] - original_profiles[:, 1, :]) ** 2
 
-    gem_temp_rmse = np.sqrt(gems_T_resid**2)
-    gem_sal_rmse = np.sqrt(gems_S_resid**2)
+    gem_temp_se = gems_T_resid**2
+    gem_sal_se = gems_S_resid**2
 
-    nn_temp_rmse = np.sqrt(pred_T_resid**2)
-    nn_sal_rmse = np.sqrt(pred_S_resid**2)
+    nn_temp_se = pred_T_resid**2
+    nn_sal_se = pred_S_resid**2
     
     # plot_relative_errors(original_profiles, gem_temp, gem_sal, val_predictions, min_depth=min_depth, max_depth = 1800)
     
@@ -1850,37 +1864,37 @@ if __name__ == "__main__":
 
     our_depths = np.arange(0,1801)
     isop_depths = ist.depth.values
-    avg_gem_temp_rmse = np.mean(gem_temp_rmse, axis = 1)
-    gem_temp_rmse_mad = mad(gem_temp_rmse)
-    avg_nn_temp_rmse = np.mean(nn_temp_rmse, axis = 1)
-    nn_temp_rmse_mad = mad(nn_temp_rmse)
+    avg_gem_temp_rmse = np.sqrt(np.mean(gem_temp_se, axis = 1))
+    # gem_temp_se_mad = mad(gem_temp_se)
+    avg_nn_temp_rmse = np.sqrt(np.mean(nn_temp_se, axis = 1))
+    # nn_temp_se_mad = mad(nn_temp_se)
 
-    avg_gem_sal_rmse = np.mean(gem_sal_rmse, axis = 1)
-    gem_sal_rmse_mad = mad(gem_sal_rmse)
-    avg_nn_sal_rmse = np.mean(nn_sal_rmse, axis = 1)
-    nn_sal_rmse_mad = mad(nn_sal_rmse)
+    avg_gem_sal_rmse = np.sqrt(np.mean(gem_sal_se, axis = 1))
+    # gem_sal_se_mad = mad(gem_sal_se)
+    avg_nn_sal_rmse = np.sqrt(np.mean(nn_sal_se, axis = 1))
+    # nn_sal_se_mad = mad(nn_sal_se)
 
     avg_gem_temp_bias = np.mean(gems_T_resid, axis = 1)
-    gem_temp_bias_mad = mad(gems_T_resid)
+    # gem_temp_bias_mad = mad(gems_T_resid)
     avg_nn_temp_bias = np.mean(pred_T_resid, axis = 1)
-    nn_temp_bias_mad = mad(pred_T_resid)
+    # nn_temp_bias_mad = mad(pred_T_resid)
 
     avg_gem_sal_bias = np.mean(gems_S_resid, axis = 1)
-    gem_sal_bias_mad = mad(gems_S_resid)
+    # gem_sal_bias_mad = mad(gems_S_resid)
     avg_nn_sal_bias = np.mean(pred_S_resid, axis = 1)
-    nn_sal_bias_mad = mad(pred_S_resid)
+    # nn_sal_bias_mad = mad(pred_S_resid)
 
     fig = plt.figure(figsize=(18,18))
     ax = fig.add_subplot(2,2,1)
     ax.axvline(0, color='k', linestyle='--', linewidth=0.5)
     ax.grid(color='gray', linestyle='--', linewidth=0.5)
-    #     axs[0,0].fill_betweenx(depth_levels, nn_temp_rmse_depth - nn_temp_std_depth, nn_temp_rmse_depth + nn_temp_std_depth, color='xkcd:dark red', alpha=0.1, label='Avg T RMSE ± 1 std: NN')
+    #     axs[0,0].fill_betweenx(depth_levels, nn_temp_se_depth - nn_temp_std_depth, nn_temp_se_depth + nn_temp_std_depth, color='xkcd:dark red', alpha=0.1, label='Avg T RMSE ± 1 std: NN')
     plt.plot(ist.rmse.values, ist.depth.values, linewidth = 3, label = 'ISOP', color='xkcd:blue')
     # ax.fill_betweenx(ist.depth.values, ist.rmse.values - ist.mad.values, ist.rmse.values + ist.mad.values, color='xkcd:blue', alpha=0.1, label='± mad')
-    plt.plot(np.mean(gem_temp_rmse, axis = 1), np.arange(0,1801), linewidth = 3, label = 'GEM', color='xkcd:orange')
-    # ax.fill_betweenx(our_depths, avg_gem_temp_rmse - gem_temp_rmse_mad, avg_gem_temp_rmse + gem_temp_rmse_mad, color='xkcd:orange', alpha=0.1, label='± mad')
-    plt.plot(np.mean(nn_temp_rmse, axis = 1), np.arange(0,1801), linewidth = 3, label = 'NeSPReSO', color='xkcd:gray')
-    # ax.fill_betweenx(our_depths, avg_nn_temp_rmse - nn_temp_rmse_mad, avg_nn_temp_rmse + nn_temp_rmse_mad, color='xkcd:gray', alpha=0.1, label='± mad')
+    plt.plot(avg_gem_temp_rmse, np.arange(0,1801), linewidth = 3, label = 'GEM', color='xkcd:orange')
+    # ax.fill_betweenx(our_depths, avg_gem_temp_rmse - gem_temp_se_mad, avg_gem_temp_rmse + gem_temp_se_mad, color='xkcd:orange', alpha=0.1, label='± mad')
+    plt.plot(avg_nn_temp_rmse, np.arange(0,1801), linewidth = 3, label = 'NeSPReSO', color='xkcd:gray')
+    # ax.fill_betweenx(our_depths, avg_nn_temp_rmse - nn_temp_se_mad, avg_nn_temp_rmse + nn_temp_se_mad, color='xkcd:gray', alpha=0.1, label='± mad')
     ax.invert_yaxis()
     plt.legend()
     plt.xlabel("Temperature RMSE [°C]")
@@ -1890,12 +1904,12 @@ if __name__ == "__main__":
     ax = fig.add_subplot(2,2,2)
     ax.axvline(0, color='k', linestyle='--', linewidth=0.5)
     ax.grid(color='gray', linestyle='--', linewidth=0.5)
-    plt.plot(iss.rmse.values, iss.depth.values, linewidth = 3, label = 'ISOP', color='xkcd:green')
+    plt.plot(iss.rmse.values, iss.depth.values, linewidth = 3, label = 'ISOP', color='xkcd:blue')
     # ax.fill_betweenx(iss.depth.values, iss.rmse.values - iss.mad.values, iss.rmse.values + iss.mad.values, color='xkcd:green', alpha=0.1, label='± mad')
-    plt.plot(np.mean(gem_sal_rmse, axis = 1), np.arange(0,1801), linewidth = 3, label = 'GEM', color='xkcd:pink')
-    # ax.fill_betweenx(our_depths, avg_gem_sal_rmse - gem_sal_rmse_mad, avg_gem_sal_rmse + gem_sal_rmse_mad, color='xkcd:pink', alpha=0.1, label='± mad')
-    plt.plot(np.mean(nn_sal_rmse, axis = 1), np.arange(0,1801), linewidth = 3, label = 'NeSPReSO', color='xkcd:gray')
-    # ax.fill_betweenx(our_depths, avg_nn_sal_rmse - nn_sal_rmse_mad, avg_nn_sal_rmse + nn_sal_rmse_mad, color='xkcd:gray', alpha=0.1, label='± mad')
+    plt.plot(avg_gem_sal_rmse, np.arange(0,1801), linewidth = 3, label = 'GEM', color='xkcd:orange')
+    # ax.fill_betweenx(our_depths, avg_gem_sal_rmse - gem_sal_se_mad, avg_gem_sal_rmse + gem_sal_se_mad, color='xkcd:pink', alpha=0.1, label='± mad')
+    plt.plot(avg_nn_sal_rmse, np.arange(0,1801), linewidth = 3, label = 'NeSPReSO', color='xkcd:gray')
+    # ax.fill_betweenx(our_depths, avg_nn_sal_rmse - nn_sal_se_mad, avg_nn_sal_rmse + nn_sal_se_mad, color='xkcd:gray', alpha=0.1, label='± mad')
     ax.invert_yaxis()
     plt.legend()
     plt.xlabel("Salinity RMSE [PSU]")
@@ -1906,9 +1920,9 @@ if __name__ == "__main__":
     ax.grid(color='gray', linestyle='--', linewidth=0.5)
     plt.plot(ist.bias.values, ist.depth.values, linewidth = 3, label = 'ISOP', color='xkcd:blue')
     # ax.fill_betweenx(ist.depth.values, ist.bias.values - ist.mad.values, ist.bias.values + ist.mad.values, color='xkcd:blue', alpha=0.1, label='± mad')
-    plt.plot(np.mean(gems_T_resid, axis = 1), np.arange(0,1801), linewidth = 3, label = 'GEM', color='xkcd:orange')
+    plt.plot(avg_gem_temp_bias, np.arange(0,1801), linewidth = 3, label = 'GEM', color='xkcd:orange')
     # ax.fill_betweenx(our_depths, avg_gem_temp_bias - gem_temp_bias_mad, avg_gem_temp_bias + gem_temp_bias_mad, color='xkcd:orange', alpha=0.1, label='± mad')
-    plt.plot(np.mean(pred_T_resid, axis = 1), np.arange(0,1801), linewidth = 3, label = 'NeSPReSO', color='xkcd:gray')
+    plt.plot(avg_nn_temp_bias, np.arange(0,1801), linewidth = 3, label = 'NeSPReSO', color='xkcd:gray')
     # ax.fill_betweenx(our_depths, avg_nn_temp_bias - nn_temp_bias_mad, avg_nn_temp_bias + nn_temp_bias_mad, color='xkcd:gray', alpha=0.1, label='± mad')
     ax.invert_yaxis()
     plt.legend()
@@ -1919,11 +1933,11 @@ if __name__ == "__main__":
     ax = fig.add_subplot(2,2,4)
     ax.axvline(0, color='k', linestyle='--', linewidth=0.5)
     ax.grid(color='gray', linestyle='--', linewidth=0.5)
-    plt.plot(iss.bias.values, iss.depth.values, linewidth = 3, label = 'ISOP', color='xkcd:green')
+    plt.plot(iss.bias.values, iss.depth.values, linewidth = 3, label = 'ISOP', color='xkcd:blue')
     # ax.fill_betweenx(iss.depth.values, iss.bias.values - iss.mad.values, iss.bias.values + iss.mad.values, color='xkcd:green', alpha=0.1, label='± mad')
-    plt.plot(np.mean(gems_S_resid, axis = 1), np.arange(0,1801), linewidth = 3, label = 'GEM', color='xkcd:pink')
+    plt.plot(avg_gem_sal_bias, np.arange(0,1801), linewidth = 3, label = 'GEM', color='xkcd:orange')
     # ax.fill_betweenx(our_depths, avg_gem_sal_bias - gem_sal_bias_mad, avg_gem_sal_bias + gem_sal_bias_mad, color='xkcd:pink', alpha=0.1, label='± mad')
-    plt.plot(np.mean(pred_S_resid, axis = 1), np.arange(0,1801), linewidth = 3, label = 'NeSPReSO', color='xkcd:gray')
+    plt.plot(avg_nn_sal_bias, np.arange(0,1801), linewidth = 3, label = 'NeSPReSO', color='xkcd:gray')
     # ax.fill_betweenx(our_depths, avg_nn_sal_bias - nn_sal_bias_mad, avg_nn_sal_bias + nn_sal_bias_mad, color='xkcd:gray', alpha=0.1, label='± mad')
     ax.invert_yaxis()
     plt.legend()
@@ -1931,10 +1945,10 @@ if __name__ == "__main__":
     plt.title("Average salinity Bias")
 
 #     # Temperature RMSE
-#     axs[0,0].plot(nn_temp_rmse_depth, depth_levels, 'xkcd:dark red', linestyle='-', linewidth = 2.5, label='Avg T RMSE: NN')
-#     axs[0,0].fill_betweenx(depth_levels, nn_temp_rmse_depth - nn_temp_std_depth, nn_temp_rmse_depth + nn_temp_std_depth, color='xkcd:dark red', alpha=0.1, label='Avg T RMSE ± 1 std: NN')
-#     axs[0,0].plot(gem_temp_rmse_depth, depth_levels, 'xkcd:blue', linestyle='-', linewidth = 2.5, label='Avg T RMSE: GEM')
-#     axs[0,0].fill_betweenx(depth_levels, gem_temp_rmse_depth - gem_temp_std_depth, gem_temp_rmse_depth + gem_temp_std_depth, color='xkcd:blue', alpha=0.1, label='Avg T RMSE ± 1 std: GEM')
+#     axs[0,0].plot(nn_temp_se_depth, depth_levels, 'xkcd:dark red', linestyle='-', linewidth = 2.5, label='Avg T RMSE: NN')
+#     axs[0,0].fill_betweenx(depth_levels, nn_temp_se_depth - nn_temp_std_depth, nn_temp_se_depth + nn_temp_std_depth, color='xkcd:dark red', alpha=0.1, label='Avg T RMSE ± 1 std: NN')
+#     axs[0,0].plot(gem_temp_se_depth, depth_levels, 'xkcd:blue', linestyle='-', linewidth = 2.5, label='Avg T RMSE: GEM')
+#     axs[0,0].fill_betweenx(depth_levels, gem_temp_se_depth - gem_temp_std_depth, gem_temp_se_depth + gem_temp_std_depth, color='xkcd:blue', alpha=0.1, label='Avg T RMSE ± 1 std: GEM')
 #     axs[0,0].invert_yaxis()
 #     axs[0,0].legend(loc='lower right', fontsize=14)
 #     axs[0,0].set_title("Temperature RMSE by Depth", fontsize=24)
@@ -1947,20 +1961,19 @@ if __name__ == "__main__":
     dpt_range = isop_depths[isop_depths<=1800].astype(int)
 
     # Calculate average temperature RMSE for NN and GEM !
-    avg_temp_rmse_nn, num_prof_nn = calculate_average_rmse_per_bin(lon_centers, lat_centers, lon_val, lat_val, nn_temp_rmse, dpt_range)  # Replace nn_rmse with your RMSE values for NN
-    avg_temp_rmse_gem, num_prof_gem = calculate_average_rmse_per_bin(lon_centers, lat_centers, lon_val, lat_val, gem_temp_rmse, dpt_range)  # Replace gem_rmse with your RMSE values for GEM
-    avg_temp_rmse_gain = avg_temp_rmse_nn - avg_temp_rmse_gem
+    grid_avg_temp_rmse_nn, num_prof_nn = calculate_average_in_bin(lon_centers, lat_centers, lon_val, lat_val, pred_T_resid, dpt_range, is_rmse=True)  
+    grid_avg_temp_rmse_gem, num_prof_gem = calculate_average_in_bin(lon_centers, lat_centers, lon_val, lat_val, gems_T_resid, dpt_range, is_rmse=True)  
+    grid_avg_temp_rmse_gain = grid_avg_temp_rmse_nn - grid_avg_temp_rmse_gem
 
-    plot_rmse_maps(lon_bins, lat_bins, avg_temp_rmse_nn, num_prof_nn, "Temperature", "RMSE")
+    plot_bin_map(lon_bins, lat_bins, grid_avg_temp_rmse_nn, num_prof_nn, "Temperature", "RMSE")
     
     #now let's do the same for salinity
     # Calculate average temperature RMSE for NN and GEM
-    avg_sal_rmse_nn, num_prof_nn = calculate_average_rmse_per_bin(lon_centers, lat_centers, lon_val, lat_val, nn_sal_rmse, dpt_range)  # Replace nn_rmse with your RMSE values for NN
-    avg_sal_rmse_gem, num_prof_gem = calculate_average_rmse_per_bin(lon_centers, lat_centers, lon_val, lat_val, gem_sal_rmse, dpt_range)  # Replace gem_rmse with your RMSE values for GEM
-    avg_sal_rmse_gain = avg_sal_rmse_nn - avg_sal_rmse_gem
+    grid_avg_sal_rmse_nn, num_prof_nn = calculate_average_in_bin(lon_centers, lat_centers, lon_val, lat_val, pred_S_resid, dpt_range, is_rmse=True)
+    grid_avg_sal_rmse_gem, num_prof_gem = calculate_average_in_bin(lon_centers, lat_centers, lon_val, lat_val, gems_S_resid, dpt_range, is_rmse=True)
+    grid_avg_sal_rmse_gain = grid_avg_sal_rmse_nn - grid_avg_sal_rmse_gem
 
-
-    plot_rmse_maps(lon_bins, lat_bins, avg_sal_rmse_nn, num_prof_nn, "Salinity", "RMSE")
+    plot_bin_map(lon_bins, lat_bins, grid_avg_sal_rmse_nn, num_prof_nn, "Salinity", "RMSE")
     
     # same maps, but bias    
     # Calculate average temperature bias for NN, GEM and ISOP
@@ -1969,54 +1982,77 @@ if __name__ == "__main__":
     # gem_t_bias = np.mean(gem_temp.T - original_profiles[:, 0, :], axis = 0)
     # gem_s_bias = np.mean(gem_sal.T - original_profiles[:, 1, :], axis = 0)
     
-    avg_nn_t_bias, num_prof_nn = calculate_average_rmse_per_bin(  lon_centers, lat_centers, lon_val, lat_val, pred_T_resid, dpt_range)
-    avg_nn_s_bias, num_prof_nn = calculate_average_rmse_per_bin(  lon_centers, lat_centers, lon_val, lat_val, pred_S_resid, dpt_range)
-    avg_gem_t_bias, num_prof_gem = calculate_average_rmse_per_bin(lon_centers, lat_centers, lon_val, lat_val, gems_T_resid, dpt_range)
-    avg_gem_s_bias, num_prof_gem = calculate_average_rmse_per_bin(lon_centers, lat_centers, lon_val, lat_val, gems_S_resid, dpt_range)
+    avg_nn_t_bias, num_prof_nn = calculate_average_in_bin(  lon_centers, lat_centers, lon_val, lat_val, pred_T_resid, dpt_range, is_rmse=False)
+    avg_nn_s_bias, num_prof_nn = calculate_average_in_bin(  lon_centers, lat_centers, lon_val, lat_val, pred_S_resid, dpt_range, is_rmse=False)
+    avg_gem_t_bias, num_prof_gem = calculate_average_in_bin(lon_centers, lat_centers, lon_val, lat_val, gems_T_resid, dpt_range, is_rmse=False)
+    avg_gem_s_bias, num_prof_gem = calculate_average_in_bin(lon_centers, lat_centers, lon_val, lat_val, gems_S_resid, dpt_range, is_rmse=False)
     
     #TODO: fix the bias color scale (negative values are not being shown properly)
-    plot_rmse_maps(lon_bins, lat_bins, avg_nn_t_bias, num_prof_nn, "Temperature", "Bias")
-    plot_rmse_maps(lon_bins, lat_bins, avg_nn_s_bias, num_prof_nn, "Salinity", "Bias")
+    plot_bin_map(lon_bins, lat_bins, avg_nn_t_bias, num_prof_nn, "Temperature", "Bias")
+    plot_bin_map(lon_bins, lat_bins, avg_nn_s_bias, num_prof_nn, "Salinity", "Bias")
     
-    
-    # Create an empty array for the difference with the same shape as the ISOP data
-    # avg_rmse_nn_t = np.full(avg_rmse_isop_t.shape, np.nan)
-    # avg_rmse_nn_s = np.full(avg_rmse_isop_s.shape, np.nan)
-    # avg_bias_nn_t = np.full(avg_rmse_isop_t.shape, np.nan)
-    # avg_bias_nn_s = np.full(avg_rmse_isop_s.shape, np.nan)
-    # avg_rmse_gem_t = np.full(avg_rmse_isop_t.shape, np.nan)
-    # avg_rmse_gem_s = np.full(avg_rmse_isop_s.shape, np.nan)
-    # avg_bias_gem_t = np.full(avg_rmse_isop_t.shape, np.nan)
-    # avg_bias_gem_s = np.full(avg_rmse_isop_s.shape, np.nan)
+    # now let's redo these maps, but for the different seasons (months spring: MAM, summer: JJA, fall: SON, winter: DJF)
+    # Convert matlab dates to Python datetime objects
+    import datetime
+    python_dates = [datetime.datetime.fromordinal(int(d)) + datetime.timedelta(days=d%1) - datetime.timedelta(days=366) for d in dates_val]
 
-    # tolerance = 1e-12  # A small tolerance value for floating-point comparison
+    # Define seasons
+    def get_season(date):
+        month = date.month
+        if month in [3, 4, 5]:
+            return 'Spring'
+        elif month in [6, 7, 8]:
+            return 'Summer'
+        elif month in [9, 10, 11]:
+            return 'Autumn'
+        else:
+            return 'Winter'
 
-    # # Iterate over each cell in the ISOP data
-    # for i, lat in enumerate(lat_centers - 0.5):
-    #     for j, lon in enumerate(lon_centers - 0.5):
-    #         # Find the corresponding cell in the NN data
-    #         nn_lat_idx = np.argmin(np.abs(lat - lat_bins))
-    #         nn_lon_idx = np.argmin(np.abs(lon - lon_bins))
+    seasons = [get_season(date) for date in python_dates]
 
-    #         # Assign values to corresponding cells using a tolerance for comparison
-    #         if np.abs(lat - lat_bins[nn_lat_idx]) < tolerance and np.abs(lon - lon_bins[nn_lon_idx]) < tolerance:
-    #             if nn_lat_idx < avg_temp_rmse_nn.shape[0] and nn_lon_idx < avg_temp_rmse_nn.shape[1]:
-    #                 avg_rmse_nn_t[i, j] = avg_temp_rmse_nn[nn_lat_idx, nn_lon_idx]
-    #                 avg_rmse_gem_t[i, j] = avg_temp_rmse_gem[nn_lat_idx, nn_lon_idx]
-    #                 avg_bias_gem_t[i, j] = avg_gem_t_bias[nn_lat_idx, nn_lon_idx]
-    #                 avg_bias_nn_t[i, j] = avg_nn_t_bias[nn_lat_idx, nn_lon_idx]
-    #             if nn_lat_idx < avg_sal_rmse_nn.shape[0] and nn_lon_idx < avg_sal_rmse_nn.shape[1]:
-    #                 avg_rmse_nn_s[i, j] = avg_sal_rmse_nn[nn_lat_idx, nn_lon_idx]             
-    #                 avg_rmse_gem_s[i, j] = avg_sal_rmse_gem[nn_lat_idx, nn_lon_idx]
-    #                 avg_bias_gem_s[i, j] = avg_gem_s_bias[nn_lat_idx, nn_lon_idx]
-    #                 avg_bias_nn_s[i, j] = avg_nn_s_bias[nn_lat_idx, nn_lon_idx]
-    
-    avg_rmse_nn_t  = avg_temp_rmse_nn
-    avg_rmse_nn_s  = avg_sal_rmse_nn
+    # Calculate and plot statistics for each season
+    for season in ['Spring', 'Summer', 'Autumn', 'Winter']:
+        season_mask = np.array(seasons) == season
+        
+        # Temperature RMSE
+        grid_avg_temp_rmse_nn_season, num_prof_nn_season = calculate_average_in_bin(
+            lon_centers, lat_centers, lon_val[season_mask], lat_val[season_mask], 
+            pred_T_resid[:,season_mask], dpt_range, is_rmse=True
+        )
+        plot_bin_map(lon_bins, lat_bins, grid_avg_temp_rmse_nn_season, num_prof_nn_season, 
+                     f"Temperature - {season}", "RMSE")
+        
+        # Salinity RMSE
+        grid_avg_sal_rmse_nn_season, _ = calculate_average_in_bin(
+            lon_centers, lat_centers, lon_val[season_mask], lat_val[season_mask], 
+            pred_S_resid[:,season_mask], dpt_range, is_rmse=True
+        )
+        plot_bin_map(lon_bins, lat_bins, grid_avg_sal_rmse_nn_season, num_prof_nn_season, 
+                     f"Salinity - {season}", "RMSE")
+        
+        # Temperature Bias
+        avg_nn_t_bias_season, _ = calculate_average_in_bin(
+            lon_centers, lat_centers, lon_val[season_mask], lat_val[season_mask], 
+            pred_T_resid[:,season_mask], dpt_range, is_rmse=False
+        )
+        plot_bin_map(lon_bins, lat_bins, avg_nn_t_bias_season, num_prof_nn_season, 
+                     f"Temperature - {season}", "Bias")
+        
+        # Salinity Bias
+        avg_nn_s_bias_season, _ = calculate_average_in_bin(
+            lon_centers, lat_centers, lon_val[season_mask], lat_val[season_mask], 
+            pred_S_resid[:,season_mask], dpt_range, is_rmse=False
+        )
+        plot_bin_map(lon_bins, lat_bins, avg_nn_s_bias_season, num_prof_nn_season, 
+                     f"Salinity - {season}", "Bias")
+
+    # Comparison maps    
+    avg_rmse_nn_t  = grid_avg_temp_rmse_nn
+    avg_rmse_nn_s  = grid_avg_sal_rmse_nn
     avg_bias_nn_t  = avg_nn_t_bias
     avg_bias_nn_s  = avg_nn_s_bias
-    avg_rmse_gem_t = avg_temp_rmse_gem
-    avg_rmse_gem_s = avg_sal_rmse_gem
+    avg_rmse_gem_t = grid_avg_temp_rmse_gem
+    avg_rmse_gem_s = grid_avg_sal_rmse_gem
     avg_bias_gem_t = avg_gem_t_bias
     avg_bias_gem_s = avg_gem_s_bias
     
@@ -2986,7 +3022,7 @@ if __name__ == "__main__":
     sst_val.shape, lat_val.shape, lon_val.shape, type(date_val), type(date_val[0]), len(date_val), T_profiles_val.shape, S_profiles_val.shape, depth.shape
 
     from netCDF4 import Dataset
-    import numpy as np
+    # import numpy as np
     from datetime import datetime, timedelta
 
     def create_netcdf(filename, sst_val, lat_val, lon_val, date_val, T_profiles_val, S_profiles_val, depth):
@@ -3253,27 +3289,67 @@ if __name__ == "__main__":
     def index_for_range(data, min_val, max_val):
         return np.where((data >= min_val) & (data <= max_val))[0]
 
-    # Filter data based on SSH ranges
-    ssh_nature_run = ssh_nature_run.flatten()  # Assuming SSH values need to be compared
-    # Remove NaN values and corresponding indices from b, T_nature_run, and S_nature_run
-    valid_indices = ~np.isnan(ssh_nature_run)
-    ssh_nature_run = ssh_nature_run[valid_indices]
-    T_nature_run = T_nature_run[valid_indices]
-    S_nature_run = S_nature_run[valid_indices]
-    ssh_05to_01 = index_for_range(ssh_nature_run, -0.05, -0.01)
-    ssh_01to01 = index_for_range(ssh_nature_run, -0.01, 0.01)
-    ssh_01to10 = index_for_range(ssh_nature_run, 0.01, 0.1)
-    ssh_10to30 = index_for_range(ssh_nature_run, 0.1, 0.3)
+    # # Filter data based on SSH ranges
+    # ssh_nature_run = ssh_nature_run.flatten()  # Assuming SSH values need to be compared
+    # # Remove NaN values and corresponding indices from b, T_nature_run, and S_nature_run
+    # valid_indices = ~np.isnan(ssh_nature_run)
+    # ssh_nature_run = ssh_nature_run[valid_indices]
+    # T_nature_run = T_nature_run[valid_indices]
+    # S_nature_run = S_nature_run[valid_indices]
+    # ssh_05to_01 = index_for_range(ssh_nature_run, -0.05, -0.01)
+    # ssh_01to01 = index_for_range(ssh_nature_run, -0.01, 0.01)
+    # ssh_01to10 = index_for_range(ssh_nature_run, 0.01, 0.1)
+    # ssh_10to30 = index_for_range(ssh_nature_run, 0.1, 0.3)
 
-    # Build datasets with correct dimensions
-    datasets = [
-        (T_nature_run[ssh_05to_01], S_nature_run[ssh_05to_01]),
-        (T_nature_run[ssh_01to01], S_nature_run[ssh_01to01]),
-        (T_nature_run[ssh_01to10], S_nature_run[ssh_01to10]),
-        (T_nature_run[ssh_10to30], S_nature_run[ssh_10to30])
-    ]
+    # # Build datasets with correct dimensions
+    # datasets = [
+    #     (T_nature_run[ssh_05to_01], S_nature_run[ssh_05to_01]),
+    #     (T_nature_run[ssh_01to01], S_nature_run[ssh_01to01]),
+    #     (T_nature_run[ssh_01to10], S_nature_run[ssh_01to10]),
+    #     (T_nature_run[ssh_10to30], S_nature_run[ssh_10to30])
+    # ]
 
-    dataset_labels = ['SSH -0.05 to -0.01', 'SSH -0.01 to 0.01', 'SSH 0.01 to 0.1', 'SSH 0.1 to 0.3']
+    # dataset_labels = ['SSH -0.05 to -0.01', 'SSH -0.01 to 0.01', 'SSH 0.01 to 0.1', 'SSH 0.1 to 0.3']
 
-    # Plotting the T-S profiles
-    plot_ts_profiles(datasets, dataset_labels, sigma_theta, Sg, Tg, cores, cmap_name='viridis')
+    # # Plotting the T-S profiles
+    # plot_ts_profiles(datasets, dataset_labels, sigma_theta, Sg, Tg, cores, cmap_name='viridis')
+    
+    # Make a bar plot showing how many profiles are in the training, validation and test datasets per month
+    import pandas as pd
+
+    def count_profiles_per_month(dataset, indices):
+        dates = [datetime.fromordinal(int(d)) for d in dataset.TIME[indices]]
+        df = pd.DataFrame({'date': dates})
+        return df.groupby(df['date'].dt.month).size().reindex(range(1, 13), fill_value=0)
+
+    train_counts = count_profiles_per_month(train_dataset.dataset, train_indices)
+    val_counts = count_profiles_per_month(val_dataset.dataset, val_indices)
+    test_counts = count_profiles_per_month(test_dataset.dataset, test_indices)
+
+    # Combine all dates and get unique months
+    all_months = sorted(set(train_counts.index) | set(val_counts.index) | set(test_counts.index))
+    # Calculate the total number of profiles for each month
+    df_total = df.sum(axis=1)
+
+    # Calculate the percentage for each dataset
+    df_percentage = df.div(df_total, axis=0) * 100
+
+    # Plot
+    ax = df_percentage.plot(kind='bar', stacked=True, figsize=(15, 6), width=0.8)
+    plt.title('Profiles per Month')
+    plt.xlabel('Month')
+    plt.ylabel('Percentage of Profiles')
+    ax.legend(loc='upper center', bbox_to_anchor=(0.5, -0.2), fancybox=True, shadow=True, ncols=3)
+
+    # Rotate x-axis labels
+    plt.xticks(rotation=45, ha='right')
+
+    # Add percentage labels on each bar segment
+    for container in ax.containers:
+        ax.bar_label(container, fmt='%.1f%%', label_type='center')
+
+    # Set y-axis to show percentages from 0 to 100
+    plt.ylim(0, 100)
+
+    plt.tight_layout()
+    plt.show()

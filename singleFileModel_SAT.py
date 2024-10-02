@@ -1599,12 +1599,12 @@ if __name__ == "__main__":
     n_components = 15
     n_runs = 1
     layers_config = [512, 512]
-    batch_size = 300
+    batch_size = 256
     min_depth = 0
     max_depth = 1800
     dropout_prob = 0.2
     epochs = 8000
-    patience = 1000
+    patience = 2000
     learning_rate = 0.001
     train_size = 0.7
     val_size = 0.15
@@ -1723,7 +1723,9 @@ if __name__ == "__main__":
     printParams()
     
     if load_trained_model:
-        model_path = '/unity/g2/jmiranda/SubsurfaceFields/GEM_SubsurfaceFields/saved_models/model_Test Loss: 14.2710_2024-02-26 12:47:18_sat.pth'
+        # model_path = '/unity/g2/jmiranda/SubsurfaceFields/GEM_SubsurfaceFields/saved_models/model_Test Loss: 14.2710_2024-02-26 12:47:18_sat.pth' #old best model
+        model_path = '/unity/g2/jmiranda/SubsurfaceFields/GEM_SubsurfaceFields/saved_models/model_Test Loss: 16.4227_2024-10-02 10:17:56_sat.pth'
+        
         trained_model = torch.load(model_path, map_location=torch.device(DEVICE))
     else:
         for run in enumerate(np.arange(n_runs)):
@@ -3330,6 +3332,14 @@ if __name__ == "__main__":
 
     # Combine all dates and get unique months
     all_months = sorted(set(train_counts.index) | set(val_counts.index) | set(test_counts.index))
+    
+    # Combine all counts into a single DataFrame
+    df = pd.DataFrame({
+        'Train': train_counts,
+        'Validation': val_counts,
+        'Test': test_counts
+    })
+
     # Calculate the total number of profiles for each month
     df_total = df.sum(axis=1)
 

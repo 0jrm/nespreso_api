@@ -1,31 +1,35 @@
 name: nespreso_host
 channels:
+  - pytorch
+  - nvidia
   - conda-forge
   - defaults
 dependencies:
   - python=3.10.14
-  - fastapi
-  - netcdf4
-  - numpy
-  - matplotlib
-  - pandas
-  - pydantic
-  - scipy
-  - pytorch
-  - torchvision
-  - tqdm
-  - xarray
-  - cmocean
-  - cartopy
-  - gsw
-  - httpx
-  - mat73
-  - scikit-learn
-  - seaborn
-  - ipykernel
-  - flask
-  - rasterio
+  - cudatoolkit=11.8
+  - pytorch=*.*
+  - torchvision=*.*
+  - torchaudio=*.*
+  - netcdf4=*.*
+  - numpy=*.*
+  - matplotlib=*.*
+  - pandas=*.*
+  - pydantic=*.*
+  - scipy=*.*
+  - pytorch=*.*
+  - torchvision=*.*
+  - tqdm=*.*
+  - xarray=*.*
+  - cmocean=*.*
+  - cartopy=*.*
+  - gsw=*.*
+  - httpx=*.*
+  - h5py
+  - hdf5
+  - mat73=*.*
+  - scikit-learn=*.*
+  - seaborn=*.*
+  - ipykernel=*.*
+  - flask=*.*
+  - rasterio=*.*
   - pip
-  - pip:
-      - torch
-      - light-the-torch

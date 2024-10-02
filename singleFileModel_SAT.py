@@ -29,17 +29,19 @@ from scipy.spatial.distance import cdist
 import cmocean.cm as ccm
 from collections import Counter
 from tqdm import tqdm  # For the progress bar
+from pandas import DataFrame as df
 
     
 # from matplotlib.dates import date2num, num2date
 # from sklearn.cluster import MiniBatchKMeans
-sys.path.append("/unity/g2/jmiranda/SubsurfaceFields/GEM_SubsurfaceFields/eoas_pyutils/")
+sys.path.append("/unity/g2/jmiranda/SubsurfaceFields/GEM_SubsurfaceFields/eoas_pyutils")
 from io_utils.coaps_io_data import get_aviso_by_date, get_sst_by_date, get_sss_by_date
 sys.path.append("/unity/g2/jmiranda/SubsurfaceFields/GEM_SubsurfaceFields/")
 
 plt.rcParams.update({'font.size': 18})
 # Set the seed for reproducibility
-load_trained_model = True
+load_trained_model = False
+# load_trained_model = True
 gen_paula_profiles = False
 global debug
 debug = False  # Set to False to disable debugging
@@ -1126,6 +1128,7 @@ class PCALoss(nn.Module):
         # Combine the MSE for temperature and salinity
         total_mse = (mse_temp/(8**2) + mse_sal/(35**2))/self.n_samples # divide by the square of the mean values
         return total_mse
+    
 class CombinedPCALoss(nn.Module):
     def __init__(self, temp_pca, sal_pca, n_components, weights, device):
         super(CombinedPCALoss, self).__init__()
@@ -1601,7 +1604,7 @@ if __name__ == "__main__":
     max_depth = 1800
     dropout_prob = 0.2
     epochs = 8000
-    patience = 500
+    patience = 1000
     learning_rate = 0.001
     train_size = 0.7
     val_size = 0.15
@@ -1993,8 +1996,7 @@ if __name__ == "__main__":
     
     # now let's redo these maps, but for the different seasons (months spring: MAM, summer: JJA, fall: SON, winter: DJF)
     # Convert matlab dates to Python datetime objects
-    import datetime
-    python_dates = [datetime.datetime.fromordinal(int(d)) + datetime.timedelta(days=d%1) - datetime.timedelta(days=366) for d in dates_val]
+    python_dates = [datetime.fromordinal(int(d)) + timedelta(days=d%1) - timedelta(days=366) for d in dates_val]
 
     # Define seasons
     def get_season(date):

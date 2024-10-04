@@ -40,7 +40,7 @@ sys.path.append("/unity/g2/jmiranda/SubsurfaceFields/GEM_SubsurfaceFields/")
 
 plt.rcParams.update({'font.size': 18})
 # Set the seed for reproducibility
-load_trained_model = False
+load_trained_model = True
 # load_trained_model = True
 gen_paula_profiles = False
 global debug
@@ -1063,33 +1063,105 @@ def inverse_transform(pcs, pca_temp, pca_sal, n_components):
     sal_profiles = pca_sal.inverse_transform(pcs[:, n_components:]).T
     return temp_profiles, sal_profiles
 
+# ## Custom Loss
+# class WeightedMSELoss(nn.Module):
+#     """
+#     The code defines several loss functions for use in a PCA-based model, including a weighted MSE loss
+#     and a combined PCA loss.
+    
+#     @param n_components The parameter `n_components` represents the number of principal components to
+#     consider in the PCA loss. It determines the dimensionality of the PCA space for both temperature and
+#     salinity profiles.
+#     @param device The "device" parameter in the code refers to the device on which the computations will
+#     be performed. It can be either "cuda" for GPU acceleration or "cpu" for CPU computation.
+#     @param weights The "weights" parameter is a list of weights that are used to assign different
+#     importance to each element in the loss calculation. These weights are used in the WeightedMSELoss
+#     class to multiply the squared differences between the predicted and true values. The weights are
+#     normalized so that they sum up to
+    
+#     @return The `forward` method of the `CombinedPCALoss` class returns the combined loss, which is the
+#     sum of the PCA loss and the weighted MSE loss.
+#     """
+#     def __init__(self, weights, device):
+#         super(WeightedMSELoss, self).__init__()
+#         self.weights = torch.tensor(weights, dtype=torch.float32, device=device)
+
+#     def forward(self, input, target):
+#         squared_diff = (input - target) ** 2
+#         weighted_squared_diff = self.weights * squared_diff
+#         loss = weighted_squared_diff.mean()
+#         return loss
+
+# def genWeightedMSELoss(n_components, device, weights): # min test loss ~ 2
+#     # Normalizing weights so they sum up to 1
+#     normalized_weights = weights / np.sum(weights)
+#     return WeightedMSELoss(normalized_weights, device)
+   
+# class PCALoss(nn.Module): #min test loss ~ 13
+#     def __init__(self, temp_pca, sal_pca, n_components):
+#         super(PCALoss, self).__init__()
+#         self.n_components = n_components
+#         self.n_samples = len(temp_pca)
+#         # convert PCS to tensors
+#         self.temp_pca_components = torch.nn.Parameter(torch.from_numpy(np.asarray(temp_pca.temp_pcs)).float().to(DEVICE), requires_grad=False)
+#         self.sal_pca_components = torch.nn.Parameter(torch.from_numpy(np.asarray(sal_pca.sal_pcs)).float().to(DEVICE), requires_grad=False)
+
+#     def inverse_transform(self, pcs, pca_components):
+#         # Perform the inverse transform using PyTorch operations
+#         return torch.mm(pcs, pca_components) # + pca_mean
+
+#     def forward(self, pcs, targets):
+#         # Split the predicted and true pcs for temp and sal
+#         pred_temp_pcs, pred_sal_pcs = pcs[:, :self.n_components], pcs[:, self.n_components:]
+#         true_temp_pcs, true_sal_pcs = targets[:, :self.n_components], targets[:, self.n_components:]
+        
+#         # Inverse transform the PCA components to get the profiles
+#         pred_temp_profiles = self.inverse_transform(pred_temp_pcs, self.temp_pca_components)
+#         pred_sal_profiles = self.inverse_transform(pred_sal_pcs, self.sal_pca_components)
+#         true_temp_profiles = self.inverse_transform(true_temp_pcs, self.temp_pca_components)
+#         true_sal_profiles = self.inverse_transform(true_sal_pcs, self.sal_pca_components)
+        
+#         # Calculate the Avg Squared Error between the predicted and true profiles
+#         mse_temp = nn.functional.mse_loss(pred_temp_profiles, true_temp_profiles)
+#         mse_sal = nn.functional.mse_loss(pred_sal_profiles, true_sal_profiles)
+        
+#         # Combine the MSE for temperature and salinity
+#         total_mse = (mse_temp/(8.6) + mse_sal/(35.2))/self.n_samples # divide by the mean T and S values
+#         return total_mse
+    
+# class CombinedPCALoss(nn.Module):
+#     def __init__(self, temp_pca, sal_pca, n_components, weights, device):
+#         super(CombinedPCALoss, self).__init__()
+#         self.pca_loss = PCALoss(temp_pca, sal_pca, n_components)
+#         self.weighted_mse_loss = genWeightedMSELoss(n_components, device, weights)
+
+#     def forward(self, pcs, targets):
+#         # Calculate the PCA loss
+#         pca_loss = self.pca_loss(pcs, targets)
+
+#         # Calculate the weighted MSE loss
+#         weighted_mse_loss = self.weighted_mse_loss(pcs, targets)
+
+#         # Combine the losses - Choose scaling factor
+#         combined_loss = pca_loss/2 + weighted_mse_loss/13
+#         return combined_loss
+    
 ## Custom Loss
 class WeightedMSELoss(nn.Module):
     """
-    The code defines several loss functions for use in a PCA-based model, including a weighted MSE loss
-    and a combined PCA loss.
-    
-    @param n_components The parameter `n_components` represents the number of principal components to
-    consider in the PCA loss. It determines the dimensionality of the PCA space for both temperature and
-    salinity profiles.
-    @param device The "device" parameter in the code refers to the device on which the computations will
-    be performed. It can be either "cuda" for GPU acceleration or "cpu" for CPU computation.
-    @param weights The "weights" parameter is a list of weights that are used to assign different
-    importance to each element in the loss calculation. These weights are used in the WeightedMSELoss
-    class to multiply the squared differences between the predicted and true values. The weights are
-    normalized so that they sum up to
-    
-    @return The `forward` method of the `CombinedPCALoss` class returns the combined loss, which is the
-    sum of the PCA loss and the weighted MSE loss.
+    Weighted MSE Loss with normalization based on data variance.
     """
     def __init__(self, weights, device):
         super(WeightedMSELoss, self).__init__()
         self.weights = torch.tensor(weights, dtype=torch.float32, device=device)
+        # Normalization factor to ensure loss is scaled appropriately
+        self.normalization_factor = self.weights.sum()
 
     def forward(self, input, target):
         squared_diff = (input - target) ** 2
         weighted_squared_diff = self.weights * squared_diff
-        loss = weighted_squared_diff.mean()
+        # Sum over all elements and normalize
+        loss = weighted_squared_diff.sum() / self.normalization_factor
         return loss
 
 def genWeightedMSELoss(n_components, device, weights):
@@ -1098,22 +1170,31 @@ def genWeightedMSELoss(n_components, device, weights):
     return WeightedMSELoss(normalized_weights, device)
    
 class PCALoss(nn.Module):
+    """
+    PCA Loss with normalization based on data variance.
+    """
     def __init__(self, temp_pca, sal_pca, n_components):
         super(PCALoss, self).__init__()
         self.n_components = n_components
-        self.n_samples = len(temp_pca)
-        # convert PCS to tensors
-        self.temp_pca_components = torch.nn.Parameter(torch.from_numpy(np.asarray(temp_pca.temp_pcs)).float().to(DEVICE), requires_grad=False)
-        self.sal_pca_components = torch.nn.Parameter(torch.from_numpy(np.asarray(sal_pca.sal_pcs)).float().to(DEVICE), requires_grad=False)
+        # Convert PCA components to tensors
+        self.temp_pca_components = torch.nn.Parameter(
+            torch.from_numpy(np.asarray(temp_pca.temp_pcs)).float().to(DEVICE), requires_grad=False)
+        self.sal_pca_components = torch.nn.Parameter(
+            torch.from_numpy(np.asarray(sal_pca.sal_pcs)).float().to(DEVICE), requires_grad=False)
+        # Compute variances for normalization
+        self.temp_variance = torch.var(self.temp_pca_components)
+        self.sal_variance = torch.var(self.sal_pca_components)
 
     def inverse_transform(self, pcs, pca_components):
         # Perform the inverse transform using PyTorch operations
-        return torch.mm(pcs, pca_components) # + pca_mean
+        return torch.mm(pcs, pca_components)
 
     def forward(self, pcs, targets):
-        # Split the predicted and true pcs for temp and sal
-        pred_temp_pcs, pred_sal_pcs = pcs[:, :self.n_components], pcs[:, self.n_components:]
-        true_temp_pcs, true_sal_pcs = targets[:, :self.n_components], targets[:, self.n_components:]
+        # Split the predicted and true PCs for temperature and salinity
+        pred_temp_pcs = pcs[:, :self.n_components]
+        pred_sal_pcs = pcs[:, self.n_components:]
+        true_temp_pcs = targets[:, :self.n_components]
+        true_sal_pcs = targets[:, self.n_components:]
         
         # Inverse transform the PCA components to get the profiles
         pred_temp_profiles = self.inverse_transform(pred_temp_pcs, self.temp_pca_components)
@@ -1121,19 +1202,29 @@ class PCALoss(nn.Module):
         true_temp_profiles = self.inverse_transform(true_temp_pcs, self.temp_pca_components)
         true_sal_profiles = self.inverse_transform(true_sal_pcs, self.sal_pca_components)
         
-        # Calculate the Avg Squared Error between the predicted and true profiles
+        # Calculate the MSE between the predicted and true profiles
         mse_temp = nn.functional.mse_loss(pred_temp_profiles, true_temp_profiles)
         mse_sal = nn.functional.mse_loss(pred_sal_profiles, true_sal_profiles)
         
-        # Combine the MSE for temperature and salinity
-        total_mse = (mse_temp/(8**2) + mse_sal/(35**2))/self.n_samples # divide by the square of the mean values
+        # Normalize the MSEs by the variance to ensure they are scaled appropriately
+        normalized_mse_temp = mse_temp / (self.temp_variance + 1e-6)
+        normalized_mse_sal = mse_sal / (self.sal_variance + 1e-6)
+        
+        # Combine the normalized MSEs
+        total_mse = normalized_mse_temp + normalized_mse_sal
         return total_mse
-    
+        
 class CombinedPCALoss(nn.Module):
+    """
+    Combined PCA Loss and Weighted MSE Loss with adjusted scaling factors.
+    """
     def __init__(self, temp_pca, sal_pca, n_components, weights, device):
         super(CombinedPCALoss, self).__init__()
         self.pca_loss = PCALoss(temp_pca, sal_pca, n_components)
         self.weighted_mse_loss = genWeightedMSELoss(n_components, device, weights)
+        # Adjusted scaling factors to ensure combined loss is around 1
+        self.pca_loss_scale = 0.5  # Adjust based on empirical observations
+        self.weighted_mse_loss_scale = 0.5  # Adjust based on empirical observations
 
     def forward(self, pcs, targets):
         # Calculate the PCA loss
@@ -1142,42 +1233,10 @@ class CombinedPCALoss(nn.Module):
         # Calculate the weighted MSE loss
         weighted_mse_loss = self.weighted_mse_loss(pcs, targets)
 
-        # Combine the losses
-        # You may need to adjust the scaling factor to balance the two losses
-        combined_loss = 5.5*pca_loss + 3.6*weighted_mse_loss
+        # Combine the losses with adjusted scaling factors
+        combined_loss = (self.pca_loss_scale * pca_loss +
+                         self.weighted_mse_loss_scale * weighted_mse_loss)
         return combined_loss
-    
-class maxPCALoss(nn.Module):
-    def __init__(self, temp_pca, sal_pca, n_components):
-        super(maxPCALoss, self).__init__()
-        self.n_components = n_components
-        self.n_samples = len(temp_pca)
-        # Convert PCA components to tensors
-        self.temp_pca_components = torch.nn.Parameter(torch.from_numpy(np.asarray(temp_pca.temp_pcs)).float().to(DEVICE), requires_grad=False)
-        self.sal_pca_components = torch.nn.Parameter(torch.from_numpy(np.asarray(sal_pca.sal_pcs)).float().to(DEVICE), requires_grad=False)
-
-    def inverse_transform(self, pcs, pca_components):
-        # Perform the inverse transform using PyTorch operations
-        return torch.mm(pcs, pca_components)
-
-    def forward(self, pcs, targets):
-        # Split the predicted and true pcs for temp and sal
-        pred_temp_pcs, pred_sal_pcs = pcs[:, :self.n_components], pcs[:, self.n_components:]
-        true_temp_pcs, true_sal_pcs = targets[:, :self.n_components], targets[:, self.n_components:]
-        
-        # Inverse transform the PCA components to get the profiles
-        pred_temp_profiles = self.inverse_transform(pred_temp_pcs, self.temp_pca_components)
-        pred_sal_profiles = self.inverse_transform(pred_sal_pcs, self.sal_pca_components)
-        true_temp_profiles = self.inverse_transform(true_temp_pcs, self.temp_pca_components)
-        true_sal_profiles = self.inverse_transform(true_sal_pcs, self.sal_pca_components)
-        
-        # Calculate the maximum absolute difference for temperature and salinity
-        max_diff_temp = torch.max(torch.abs(pred_temp_profiles - true_temp_profiles))
-        max_diff_sal = torch.max(torch.abs(pred_sal_profiles - true_sal_profiles))
-        
-        # Combine the maximum differences for temperature and salinity
-        total_max_diff = max_diff_temp/8 + max_diff_sal/35
-        return total_max_diff
 
 def visualize_combined_results(true_values, gem_temp, gem_sal, predicted_values, sst_values, ssh_values, min_depth = 20, max_depth=2000, num_samples=5):
     # TODO: add date to plot
@@ -1698,14 +1757,14 @@ if __name__ == "__main__":
     print(f"Explained Variance - T: {(sum(full_dataset.pca_temp.explained_variance_ratio_)*100):.1f}% - S: {(100*sum(full_dataset.pca_sal.explained_variance_ratio_)):.1f}%")
     
     # Set the appropriate loss
-    criterion = genWeightedMSELoss(n_components, device, weights)
-    # criterion = PCALoss(temp_pca=train_dataset.dataset, sal_pca=train_dataset.dataset, n_components=n_components)
+    # criterion = genWeightedMSELoss(n_components, device, weights)
+    criterion = PCALoss(temp_pca=train_dataset.dataset, sal_pca=train_dataset.dataset, n_components=n_components)
     # criterion = maxPCALoss(temp_pca=train_dataset.dataset, sal_pca=train_dataset.dataset, n_components=n_components)
-    criterion = CombinedPCALoss(temp_pca=train_dataset.dataset, 
-                            sal_pca=train_dataset.dataset, 
-                            n_components=n_components, 
-                            weights=weights, 
-                            device=device)
+    # criterion = CombinedPCALoss(temp_pca=train_dataset.dataset, 
+    #                         sal_pca=train_dataset.dataset, 
+    #                         n_components=n_components, 
+    #                         weights=weights, 
+    #                         device=device)
     
     # print parameters and dataset size
     true_params = [param for param, value in input_params.items() if value]
@@ -1724,7 +1783,8 @@ if __name__ == "__main__":
     
     if load_trained_model:
         # model_path = '/unity/g2/jmiranda/SubsurfaceFields/GEM_SubsurfaceFields/saved_models/model_Test Loss: 14.2710_2024-02-26 12:47:18_sat.pth' #old best model
-        model_path = '/unity/g2/jmiranda/SubsurfaceFields/GEM_SubsurfaceFields/saved_models/model_Test Loss: 16.4227_2024-10-02 10:17:56_sat.pth'
+        # model_path = '/unity/g2/jmiranda/SubsurfaceFields/GEM_SubsurfaceFields/saved_models/model_Test Loss: 16.4227_2024-10-02 10:17:56_sat.pth' #changed averages
+        model_path = '/unity/g2/jmiranda/SubsurfaceFields/GEM_SubsurfaceFields/saved_models/model_Test Loss: 1744.3541_2024-10-04 10:12:25_sat.pth' #new normalization, best so far
         
         trained_model = torch.load(model_path, map_location=torch.device(DEVICE))
     else:

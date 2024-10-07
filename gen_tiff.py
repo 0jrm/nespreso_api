@@ -4,15 +4,22 @@ import xarray as xr
 import rioxarray # Using rioxarray to export to GeoTIFF instead of raw rasterio
 
 def export_to_geotiff(dataset:xr.Dataset, output_file:str, nodata_value:int=-9999):
+    # Reverse the latitudes
+    dataset = reverse_lats(dataset)
+
+    # Ensure data_array is of type float32
+    dataset = dataset.astype(np.float32)
+
     # Assign the CRS
     dataset.rio.write_crs("epsg:4326", inplace=True)
+
+    # write the nodata value to the dataset
+    dataset.rio.write_nodata(nodata_value, encoded=True, inplace=True)
 
     # Write to GeoTIFF
     dataset.rio.to_raster(
         output_file, 
-        driver='GTiff', 
-        dtype='float32', 
-        nodata=nodata_value)
+        dtype='float32')
 
 # Function to process the data for a specific date
 def process_and_export_by_date(selected_date:str, output_folder:str='./', input_folder:str='/unity/f1/ozavala/DATA/GOFFISH/AVISO/GoM/'):
@@ -52,6 +59,12 @@ def process_and_export_by_date(selected_date:str, output_folder:str='./', input_
         print(f"Exported {output_file}")
     else:
         print(f"No valid 'adt' data available for {selected_date} in {file_path}")
+
+def reverse_lats(dataset: xr.Dataset) -> xr.Dataset:
+    """
+    Reverse the latitudes in the dataset.
+    """
+    return dataset.reindex(latitude=dataset.latitude[::-1])
 
 # Example usage
 

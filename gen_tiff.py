@@ -62,7 +62,7 @@ start_date = datetime.date(2021, 5, 1)
 end_date = datetime.date(2021, 5, 31)
 
 # Output folder
-output_folder = '../tiff_test'
+output_folder = '/unity/g2/jmiranda/nespreso_api/tiff'
 
 # Loop through all dates in May 2021
 current_date = start_date

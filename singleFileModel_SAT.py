@@ -13,7 +13,6 @@ import scipy
 from numpy.polynomial.polynomial import Polynomial
 from torch.utils.data import DataLoader
 from sklearn.decomposition import PCA
-# from scipy.signal import convolve2d
 from scipy.interpolate import RegularGridInterpolator, interp1d, make_interp_spline, splrep, BSpline
 from torch.utils.data import random_split
 import pickle
@@ -30,7 +29,7 @@ import cmocean.cm as ccm
 from collections import Counter
 from tqdm import tqdm  # For the progress bar
 from pandas import DataFrame as df
-
+import time
     
 # from matplotlib.dates import date2num, num2date
 # from sklearn.cluster import MiniBatchKMeans
@@ -40,17 +39,22 @@ sys.path.append("/unity/g2/jmiranda/SubsurfaceFields/GEM_SubsurfaceFields/")
 
 plt.rcParams.update({'font.size': 18})
 # Set the seed for reproducibility
-load_trained_model = True
-# load_trained_model = True
+# load_trained_model = False
+load_trained_model = False
+# load_dataset_file = False
+load_dataset_file = True
 gen_paula_profiles = False
 global debug
 debug = False  # Set to False to disable debugging
 seed = 42
+nn_repeat_time = 100
+gem_repeat_time = 10
 torch.manual_seed(seed)
 random.seed(seed)
 np.random.seed(seed)
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+# DEVICE = torch.device("cpu")
 
 coolwhitewarm = mcolors.LinearSegmentedColormap.from_list(name='red_white_blue', 
                                                  colors =[(0, 0, 1), 
@@ -261,20 +265,6 @@ class TemperatureSalinityDataset(torch.utils.data.Dataset):
         self.min_lon = -98.0
         self.max_lon = -81.0
         
-        # # Define which parameters to include
-        # if input_params is None:
-        #     input_params = {
-        #         "timecos": True,
-        #         "timesin": True,
-        #         "latcos": True,
-        #         "latsin": True,
-        #         "loncos": True,
-        #         "lonsin": True,
-        #         "sst": True,  # First value of temperature
-        #         "sss": True,
-        #         "ssh": True
-        #     }
-
         self.input_params = input_params
         
         self.SSS, self.SST, self.AVISO_ADT = self._load_satellite_data()
@@ -324,16 +314,16 @@ class TemperatureSalinityDataset(torch.utils.data.Dataset):
         self.temp_pcs, self.pca_temp = self._apply_pca(self.TEMP, self.n_components)
         self.sal_pcs, self.pca_sal = self._apply_pca(self.SAL, self.n_components)
         
-        print("self.LAT")
-        print(f"{np.min(self.LAT)}, {np.max(self.LAT)}")
-        print("self.LON")
-        print(f"{np.min(self.LON)}, {np.max(self.LON)}")      
-        print("self.SST")
-        print(f"{np.min(self.SST)}, {np.max(self.SST)}")
-        print("self.SSS")
-        print(f"{np.min(self.SSS)}, {np.max(self.SSS)}")
-        print("self.AVISO_ADT")
-        print(f"{np.min(self.AVISO_ADT)}, {np.max(self.AVISO_ADT)}")
+        # print("self.LAT")
+        # print(f"{np.min(self.LAT)}, {np.max(self.LAT)}")
+        # print("self.LON")
+        # print(f"{np.min(self.LON)}, {np.max(self.LON)}")      
+        # print("self.SST")
+        # print(f"{np.min(self.SST)}, {np.max(self.SST)}")
+        # print("self.SSS")
+        # print(f"{np.min(self.SSS)}, {np.max(self.SSS)}")
+        # print("self.AVISO_ADT")
+        # print(f"{np.min(self.AVISO_ADT)}, {np.max(self.AVISO_ADT)}")
 
     def _load_satellite_data(self):
         """
@@ -463,22 +453,10 @@ class TemperatureSalinityDataset(torch.utils.data.Dataset):
     
     def _get_valid_mask(self, data):
         """Internal method to get mask of valid profiles based on missing values."""
-        # temp_mask = np.sum(np.isnan(data['TEMP'][self.min_depth:self.max_depth+1]), axis=0) <= 5
-        # sal_mask = np.sum(np.isnan(data['SAL'][self.min_depth:self.max_depth+1]), axis=0) <= 5
         
         ssh_mask = ~np.isnan(self.AVISO_ADT)
         sst_mask = ~np.isnan(self.SST)
         sss_mask = ~np.isnan(self.SSS)
-        # print(len(temp_mask), len(sal_mask), len(ssh_mask), len(sst_mask))
-        # combined_mask = np.logical_and(temp_mask, sal_mask)
-        # print(f"Filtered dataset (sal/temp) contains {np.sum(combined_mask)} profiles.")
-        # combined_mask = np.logical_and(combined_mask, sst_mask)
-        # print(f"Filtered dataset (sal/temp/sst) contains {np.sum(combined_mask)} profiles.")
-        # combined_mask = np.logical_and(combined_mask, ssh_mask)
-        # print(f"Filtered dataset (sal/temp/ssh/sst) contains {np.sum(combined_mask)} profiles.")
-        # combined_mask = np.logical_and(combined_mask, sss_mask)
-        # print(f"Filtered dataset (sal/temp/ssh/sst/sss) contains {np.sum(combined_mask)} profiles.")
-        
         
         combined_mask = np.logical_and(sst_mask, ssh_mask)
         print(f"Filtered dataset (sal/temp/ssh/sst) contains {np.sum(combined_mask)} profiles.")
@@ -514,16 +492,6 @@ class TemperatureSalinityDataset(torch.utils.data.Dataset):
             TEMP[:, i] = np.interp(range(TEMP.shape[0]), valid_temp_idx, TEMP[valid_temp_idx, i])
             valid_sal_idx = np.where(~np.isnan(SAL[:, i]))[0]
             SAL[:, i] = np.interp(range(SAL.shape[0]), valid_sal_idx, SAL[valid_sal_idx, i])
-        
-        # # Define the moving average filter (e.g., for a window size of 5)
-        # window_size = 5
-        # passes = 1
-        # filter_weights = np.ones((window_size, 1)) / window_size
-        
-        # for i in range(passes):
-        #     # Apply the moving average filter to the entire matrix
-        #     TEMP = convolve2d(TEMP, filter_weights, boundary='symm', mode='same')
-        #     SAL = convolve2d(SAL, filter_weights, boundary='symm', mode='same') 
         
         return TEMP, SAL, SSH, SST, SSS, TIME, LAT, LON, ADT
     
@@ -578,63 +546,6 @@ class TemperatureSalinityDataset(torch.utils.data.Dataset):
 
         return profiles_array
     
-    # def calc_gem(self, ignore_indices, degree = 7, sat_ssh = False):
-    #     """
-    #     Calculates this dataset's polyfits for the GEM profiles.
-
-    #     Args:
-    #     - degree: Degree of the polynomial fit. Default is 7.
-    #     - sat_ssh: Flag to use satellite SSH instead of profile SSH. Uses measured SSH as default.
-
-    #     Returns:
-    #     - nothing, but saves the polyfits in the attributes `self.gem_T_polyfits` and `self.gem_S_polyfits`.
-    #     """
-        
-    #     self.pressure_grid = np.arange(self.min_depth, self.max_depth+1)
-    #     self.gem_T_polyfits = []
-    #     self.gem_S_polyfits = []
-        
-    #     mask = np.ones(len(self.SH1950), dtype=bool)
-    #     mask[ignore_indices] = False
-        
-    #     steric_height = self.SH1950[mask]
-    #     SSH = self.AVISO_ADT[mask]
-    #     TEMP = self.TEMP[:, mask]
-    #     SAL = self.SAL[:, mask]
-        
-    #     self.gem_slope, self.gem_intercept, _, _, _ = linregress(steric_height, SSH)
-                
-    #     sort_idx = np.argsort(steric_height)
-            
-    #     sh_sorted = steric_height[sort_idx] + np.arange(len(steric_height)) * 1e-10 # add small number to avoid duplicate values
-    #     temp_sorted = TEMP[:, sort_idx]
-    #     sal_sorted = SAL[:, sort_idx]
-        
-    #     #For each pressure level
-    #     for i, p in enumerate(self.pressure_grid):
-
-    #         # Get the temperature and salinity at this pressure level
-    #         TEMP_at_p = temp_sorted[i, :]
-    #         SAL_at_p = sal_sorted[i, :]
-            
-    #         # interp_TEMP = interp1d(sh_sorted, TEMP_at_p, fill_value="extrapolate")
-    #         # TEMP_at_p = interp_TEMP(sh_sorted)
-
-    #         # interp_SAL = interp1d(sh_sorted, SAL_at_p, fill_value="extrapolate")
-    #         # SAL_at_p = interp_SAL(sh_sorted)
-
-    #         ## Skip polynomial fit for pressure levels with no valid values after handling NaNs
-    #         # if not np.all(np.isnan(TEMP_at_p)) and not np.all(np.isnan(SAL_at_p)):
-    #         ##
-    #         # Fit a polynomial of the specified degree to the temperature and salinity at this pressure level
-    #         TEMP_polyfit = Polynomial.fit(sh_sorted, TEMP_at_p, degree)
-    #         SAL_polyfit = Polynomial.fit(sh_sorted, SAL_at_p, degree)
-
-    #         # Append the polynomial fit to the lists
-    #         self.gem_T_polyfits.append(TEMP_polyfit)
-    #         self.gem_S_polyfits.append(SAL_polyfit)
-    #     return
-    
     def calc_gem(self, ignore_indices, degree=7, sat_ssh=False):
         """
         Calculates this dataset's polyfits for the GEM profiles for each month.
@@ -648,7 +559,6 @@ class TemperatureSalinityDataset(torch.utils.data.Dataset):
         """
         
         self.pressure_grid = np.arange(self.min_depth, self.max_depth + 1)
-        
         # Initialize dictionaries to hold polyfits for each month
         self.gem_T_polyfits = {}
         self.gem_S_polyfits = {}
@@ -674,6 +584,9 @@ class TemperatureSalinityDataset(torch.utils.data.Dataset):
         # Convert sorted TIME to months
         months_sorted = [int((datenum_to_datetime(datenum).month -1)/3) for datenum in time_sorted]
         
+        # Start time
+        start_time = time.perf_counter()
+        
         # Iterate over each month
         for month in set(months_sorted):
             self.gem_T_polyfits[month] = []
@@ -697,53 +610,12 @@ class TemperatureSalinityDataset(torch.utils.data.Dataset):
                 self.gem_T_polyfits[month].append(TEMP_polyfit)
                 self.gem_S_polyfits[month].append(SAL_polyfit)
                 
-        return
-    
-    # def get_gem_profiles(self, indices, sat_ssh = True):
-    #     '''
-    #     Generates the gem profiles for the given indices.
-        
-    #     Args:
-    #     - indices (list or numpy.ndarray): List of indices for which profiles are needed.
-    #     - sat_ssh (bool): Flag to use satellite SSH instead of profile SSH. Uses measured SSH as default.
-        
-    #     Returns:
-    #     - numpy.ndarray: concatenated temperature and salinity profiles in the required format for visualization.
-    #     '''
-            
-    #     # Interpolate the temperature and salinity data onto the new grid
-    #     temp_GEM = np.empty((len(indices), self.max_depth+1-self.min_depth))
-    #     sal_GEM = np.empty((len(indices), self.max_depth+1-self.min_depth))
-
-    #     if sat_ssh:
-    #         ssh = (self.AVISO_ADT[indices] - self.gem_intercept) / self.gem_slope
-    #     else:
-    #         ssh = self.SH1950[indices]
-        
-    #     # For each pressure level
-    #     for i in range(len(self.gem_T_polyfits)):
-    #         # Evaluate the fitted polynomial at the given SSH values
-    #         temp_GEM[:, i] = self.gem_T_polyfits[i](ssh)
-    #         sal_GEM[:, i] = self.gem_S_polyfits[i](ssh)
-        
-    #     # Interpolate missing values in temp_GEM and sal_GEM
-    #     for array in [temp_GEM, sal_GEM]:
-    #         for row in range(array.shape[0]):
-    #             valid_mask = ~np.isnan(array[row])
-    #             if not valid_mask.any():  # skip rows with only NaNs
-    #                 continue
-
-    #             array[row] = np.interp(np.arange(array.shape[1]), np.where(valid_mask)[0], array[row, valid_mask])
-        
-    #             # If NaNs at the start, fill with the first non-NaN value
-    #             first_valid_idx = valid_mask.argmax()
-    #             array[row, :first_valid_idx] = array[row, first_valid_idx]
+        end_time = time.perf_counter()
+        # Calculate elapsed time
+        elapsed_time = (end_time - start_time)
+        print(f"GEM fit: {elapsed_time:.2f} seconds.")
                 
-    #             # If NaNs at the end, fill with the last non-NaN value
-    #             last_valid_idx = len(array[row]) - valid_mask[::-1].argmax() - 1
-    #             array[row, last_valid_idx+1:] = array[row, last_valid_idx]
-        
-    #     return temp_GEM, sal_GEM
+        return
     
     def get_gem_profiles(self, indices, sat_ssh=True):
         '''
@@ -1063,138 +935,57 @@ def inverse_transform(pcs, pca_temp, pca_sal, n_components):
     sal_profiles = pca_sal.inverse_transform(pcs[:, n_components:]).T
     return temp_profiles, sal_profiles
 
-# ## Custom Loss
-# class WeightedMSELoss(nn.Module):
-#     """
-#     The code defines several loss functions for use in a PCA-based model, including a weighted MSE loss
-#     and a combined PCA loss.
-    
-#     @param n_components The parameter `n_components` represents the number of principal components to
-#     consider in the PCA loss. It determines the dimensionality of the PCA space for both temperature and
-#     salinity profiles.
-#     @param device The "device" parameter in the code refers to the device on which the computations will
-#     be performed. It can be either "cuda" for GPU acceleration or "cpu" for CPU computation.
-#     @param weights The "weights" parameter is a list of weights that are used to assign different
-#     importance to each element in the loss calculation. These weights are used in the WeightedMSELoss
-#     class to multiply the squared differences between the predicted and true values. The weights are
-#     normalized so that they sum up to
-    
-#     @return The `forward` method of the `CombinedPCALoss` class returns the combined loss, which is the
-#     sum of the PCA loss and the weighted MSE loss.
-#     """
-#     def __init__(self, weights, device):
-#         super(WeightedMSELoss, self).__init__()
-#         self.weights = torch.tensor(weights, dtype=torch.float32, device=device)
-
-#     def forward(self, input, target):
-#         squared_diff = (input - target) ** 2
-#         weighted_squared_diff = self.weights * squared_diff
-#         loss = weighted_squared_diff.mean()
-#         return loss
-
-# def genWeightedMSELoss(n_components, device, weights): # min test loss ~ 2
-#     # Normalizing weights so they sum up to 1
-#     normalized_weights = weights / np.sum(weights)
-#     return WeightedMSELoss(normalized_weights, device)
-   
-# class PCALoss(nn.Module): #min test loss ~ 13
-#     def __init__(self, temp_pca, sal_pca, n_components):
-#         super(PCALoss, self).__init__()
-#         self.n_components = n_components
-#         self.n_samples = len(temp_pca)
-#         # convert PCS to tensors
-#         self.temp_pca_components = torch.nn.Parameter(torch.from_numpy(np.asarray(temp_pca.temp_pcs)).float().to(DEVICE), requires_grad=False)
-#         self.sal_pca_components = torch.nn.Parameter(torch.from_numpy(np.asarray(sal_pca.sal_pcs)).float().to(DEVICE), requires_grad=False)
-
-#     def inverse_transform(self, pcs, pca_components):
-#         # Perform the inverse transform using PyTorch operations
-#         return torch.mm(pcs, pca_components) # + pca_mean
-
-#     def forward(self, pcs, targets):
-#         # Split the predicted and true pcs for temp and sal
-#         pred_temp_pcs, pred_sal_pcs = pcs[:, :self.n_components], pcs[:, self.n_components:]
-#         true_temp_pcs, true_sal_pcs = targets[:, :self.n_components], targets[:, self.n_components:]
-        
-#         # Inverse transform the PCA components to get the profiles
-#         pred_temp_profiles = self.inverse_transform(pred_temp_pcs, self.temp_pca_components)
-#         pred_sal_profiles = self.inverse_transform(pred_sal_pcs, self.sal_pca_components)
-#         true_temp_profiles = self.inverse_transform(true_temp_pcs, self.temp_pca_components)
-#         true_sal_profiles = self.inverse_transform(true_sal_pcs, self.sal_pca_components)
-        
-#         # Calculate the Avg Squared Error between the predicted and true profiles
-#         mse_temp = nn.functional.mse_loss(pred_temp_profiles, true_temp_profiles)
-#         mse_sal = nn.functional.mse_loss(pred_sal_profiles, true_sal_profiles)
-        
-#         # Combine the MSE for temperature and salinity
-#         total_mse = (mse_temp/(8.6) + mse_sal/(35.2))/self.n_samples # divide by the mean T and S values
-#         return total_mse
-    
-# class CombinedPCALoss(nn.Module):
-#     def __init__(self, temp_pca, sal_pca, n_components, weights, device):
-#         super(CombinedPCALoss, self).__init__()
-#         self.pca_loss = PCALoss(temp_pca, sal_pca, n_components)
-#         self.weighted_mse_loss = genWeightedMSELoss(n_components, device, weights)
-
-#     def forward(self, pcs, targets):
-#         # Calculate the PCA loss
-#         pca_loss = self.pca_loss(pcs, targets)
-
-#         # Calculate the weighted MSE loss
-#         weighted_mse_loss = self.weighted_mse_loss(pcs, targets)
-
-#         # Combine the losses - Choose scaling factor
-#         combined_loss = pca_loss/2 + weighted_mse_loss/13
-#         return combined_loss
-    
 ## Custom Loss
 class WeightedMSELoss(nn.Module):
     """
-    Weighted MSE Loss with normalization based on data variance.
+    The code defines several loss functions for use in a PCA-based model, including a weighted MSE loss
+    and a combined PCA loss.
+    
+    @param n_components The parameter `n_components` represents the number of principal components to
+    consider in the PCA loss. It determines the dimensionality of the PCA space for both temperature and
+    salinity profiles.
+    @param device The "device" parameter in the code refers to the device on which the computations will
+    be performed. It can be either "cuda" for GPU acceleration or "cpu" for CPU computation.
+    @param weights The "weights" parameter is a list of weights that are used to assign different
+    importance to each element in the loss calculation. These weights are used in the WeightedMSELoss
+    class to multiply the squared differences between the predicted and true values. The weights are
+    normalized so that they sum up to
+    
+    @return The `forward` method of the `CombinedPCALoss` class returns the combined loss, which is the
+    sum of the PCA loss and the weighted MSE loss.
     """
     def __init__(self, weights, device):
         super(WeightedMSELoss, self).__init__()
         self.weights = torch.tensor(weights, dtype=torch.float32, device=device)
-        # Normalization factor to ensure loss is scaled appropriately
-        self.normalization_factor = self.weights.sum()
 
     def forward(self, input, target):
         squared_diff = (input - target) ** 2
         weighted_squared_diff = self.weights * squared_diff
-        # Sum over all elements and normalize
-        loss = weighted_squared_diff.sum() / self.normalization_factor
+        loss = weighted_squared_diff.mean()
         return loss
 
-def genWeightedMSELoss(n_components, device, weights):
+def genWeightedMSELoss(n_components, device, weights): # min test loss ~ 2
     # Normalizing weights so they sum up to 1
     normalized_weights = weights / np.sum(weights)
     return WeightedMSELoss(normalized_weights, device)
    
-class PCALoss(nn.Module):
-    """
-    PCA Loss with normalization based on data variance.
-    """
+class PCALoss(nn.Module): #min test loss ~ 13
     def __init__(self, temp_pca, sal_pca, n_components):
         super(PCALoss, self).__init__()
         self.n_components = n_components
-        # Convert PCA components to tensors
-        self.temp_pca_components = torch.nn.Parameter(
-            torch.from_numpy(np.asarray(temp_pca.temp_pcs)).float().to(DEVICE), requires_grad=False)
-        self.sal_pca_components = torch.nn.Parameter(
-            torch.from_numpy(np.asarray(sal_pca.sal_pcs)).float().to(DEVICE), requires_grad=False)
-        # Compute variances for normalization
-        self.temp_variance = torch.var(self.temp_pca_components)
-        self.sal_variance = torch.var(self.sal_pca_components)
+        self.n_samples = len(temp_pca)
+        # convert PCS to tensors
+        self.temp_pca_components = torch.nn.Parameter(torch.from_numpy(np.asarray(temp_pca.temp_pcs)).float().to(DEVICE), requires_grad=False)
+        self.sal_pca_components = torch.nn.Parameter(torch.from_numpy(np.asarray(sal_pca.sal_pcs)).float().to(DEVICE), requires_grad=False)
 
     def inverse_transform(self, pcs, pca_components):
         # Perform the inverse transform using PyTorch operations
-        return torch.mm(pcs, pca_components)
+        return torch.mm(pcs, pca_components) # + pca_mean
 
     def forward(self, pcs, targets):
-        # Split the predicted and true PCs for temperature and salinity
-        pred_temp_pcs = pcs[:, :self.n_components]
-        pred_sal_pcs = pcs[:, self.n_components:]
-        true_temp_pcs = targets[:, :self.n_components]
-        true_sal_pcs = targets[:, self.n_components:]
+        # Split the predicted and true pcs for temp and sal
+        pred_temp_pcs, pred_sal_pcs = pcs[:, :self.n_components], pcs[:, self.n_components:]
+        true_temp_pcs, true_sal_pcs = targets[:, :self.n_components], targets[:, self.n_components:]
         
         # Inverse transform the PCA components to get the profiles
         pred_temp_profiles = self.inverse_transform(pred_temp_pcs, self.temp_pca_components)
@@ -1202,29 +993,19 @@ class PCALoss(nn.Module):
         true_temp_profiles = self.inverse_transform(true_temp_pcs, self.temp_pca_components)
         true_sal_profiles = self.inverse_transform(true_sal_pcs, self.sal_pca_components)
         
-        # Calculate the MSE between the predicted and true profiles
+        # Calculate the Avg Squared Error between the predicted and true profiles
         mse_temp = nn.functional.mse_loss(pred_temp_profiles, true_temp_profiles)
         mse_sal = nn.functional.mse_loss(pred_sal_profiles, true_sal_profiles)
         
-        # Normalize the MSEs by the variance to ensure they are scaled appropriately
-        normalized_mse_temp = mse_temp / (self.temp_variance + 1e-6)
-        normalized_mse_sal = mse_sal / (self.sal_variance + 1e-6)
-        
-        # Combine the normalized MSEs
-        total_mse = normalized_mse_temp + normalized_mse_sal
+        # Combine the MSE for temperature and salinity
+        total_mse = (mse_temp/(8.6) + mse_sal/(35.2))/self.n_samples # divide by the mean T and S values
         return total_mse
-        
+    
 class CombinedPCALoss(nn.Module):
-    """
-    Combined PCA Loss and Weighted MSE Loss with adjusted scaling factors.
-    """
     def __init__(self, temp_pca, sal_pca, n_components, weights, device):
         super(CombinedPCALoss, self).__init__()
         self.pca_loss = PCALoss(temp_pca, sal_pca, n_components)
         self.weighted_mse_loss = genWeightedMSELoss(n_components, device, weights)
-        # Adjusted scaling factors to ensure combined loss is around 1
-        self.pca_loss_scale = 0.5  # Adjust based on empirical observations
-        self.weighted_mse_loss_scale = 0.5  # Adjust based on empirical observations
 
     def forward(self, pcs, targets):
         # Calculate the PCA loss
@@ -1233,9 +1014,8 @@ class CombinedPCALoss(nn.Module):
         # Calculate the weighted MSE loss
         weighted_mse_loss = self.weighted_mse_loss(pcs, targets)
 
-        # Combine the losses with adjusted scaling factors
-        combined_loss = (self.pca_loss_scale * pca_loss +
-                         self.weighted_mse_loss_scale * weighted_mse_loss)
+        # Combine the losses - Choose scaling factor
+        combined_loss = pca_loss/13 + weighted_mse_loss/2
         return combined_loss
 
 def visualize_combined_results(true_values, gem_temp, gem_sal, predicted_values, sst_values, ssh_values, min_depth = 20, max_depth=2000, num_samples=5):
@@ -1270,7 +1050,7 @@ def visualize_combined_results(true_values, gem_temp, gem_sal, predicted_values,
         # First row: Actual Profiles
         # Temperature profile
         axs[0][0].plot(gem_temp[idx], depth_levels, 'g', label="GEM Profile", alpha = 0.75)
-        axs[0][0].plot(predicted_values[0][:, idx], depth_levels, 'r', label="NN Profile", alpha = 0.75)
+        axs[0][0].plot(predicted_values[0][:, idx], depth_levels, 'r', label="NeSPReSO Profile", alpha = 0.75)
         axs[0][0].plot(true_values[:,0, idx], depth_levels, 'k', label="Target", linewidth = 0.7)
         axs[0][0].invert_yaxis()
         axs[0][0].set_title(f"Temperature Profile")
@@ -1281,7 +1061,7 @@ def visualize_combined_results(true_values, gem_temp, gem_sal, predicted_values,
 
         # Salinity profile
         axs[0][1].plot(gem_sal[idx], depth_levels, 'g', label="GEM Profile", alpha = 0.75)
-        axs[0][1].plot(predicted_values[1][:, idx], depth_levels, 'r', label="NN Profile", alpha = 0.75)
+        axs[0][1].plot(predicted_values[1][:, idx], depth_levels, 'r', label="NeSPReSO Profile", alpha = 0.75)
         axs[0][1].plot(true_values[:,1, idx], depth_levels, 'k', label="Target", linewidth = 0.7)
         axs[0][1].invert_yaxis()
         axs[0][1].set_title(f"Salinity Profile")
@@ -1297,7 +1077,7 @@ def visualize_combined_results(true_values, gem_temp, gem_sal, predicted_values,
         nn_sal_dif = predicted_values[1][:, idx]-true_values[:,1, idx]
         
         axs[1][0].plot(np.abs(gem_temp_dif), depth_levels, 'g', label="GEM Profile", alpha = 0.75)
-        axs[1][0].plot(np.abs(nn_temp_dif), depth_levels, 'r', label="NN Profile", alpha = 0.75)
+        axs[1][0].plot(np.abs(nn_temp_dif), depth_levels, 'r', label="NeSPReSO Profile", alpha = 0.75)
         axs[1][0].axvline(0, color='k', linestyle='--', linewidth=0.5)
         axs[1][0].invert_yaxis()
         axs[1][0].set_title(f"Temperature Differences")
@@ -1308,7 +1088,7 @@ def visualize_combined_results(true_values, gem_temp, gem_sal, predicted_values,
 
         # Salinity difference
         axs[1][1].plot(np.abs(gem_sal_dif), depth_levels, 'g', label="GEM Profile", alpha = 0.75)
-        axs[1][1].plot(np.abs(nn_sal_dif), depth_levels, 'r', label="NN Profile", alpha = 0.75)
+        axs[1][1].plot(np.abs(nn_sal_dif), depth_levels, 'r', label="NeSPReSO Profile", alpha = 0.75)
         axs[1][1].axvline(0, color='k', linestyle='--', linewidth=0.5)
         axs[1][1].invert_yaxis()
         axs[1][1].set_title(f"Salinity Differences")
@@ -1653,8 +1433,7 @@ def plot_residual_profiles_for_top_bins(lon_bins, lat_bins, lon_val, lat_val, nn
 #%%
 if __name__ == "__main__":
     # Configurable parameters
-    
-    bin_size = 1 # bin size in degrees
+    bin_size = 1  # bin size in degrees
     n_components = 15
     n_runs = 1
     layers_config = [512, 512]
@@ -1671,20 +1450,20 @@ if __name__ == "__main__":
     input_params = {
         "timecos": True,
         "timesin": True,
-        "latcos":  True,
-        "latsin":  True,
-        "loncos":  True,
-        "lonsin":  True,
+        "latcos": True,
+        "latsin": True,
+        "loncos": True,
+        "lonsin": True,
         "sat": True,  # Use satellite data?
         "sst": True,  # First value of temperature if sat = false, OISST if sat = true
         "sss": True,  # similar to above
         "ssh": True   # similar to above
     }
-    num_samples = 1 #profiles that will be plotted
-    # Define the path of the pickle file
+    num_samples = 1  # profiles that will be plotted
     dataset_pickle_file = '/unity/g2/jmiranda/SubsurfaceFields/GEM_SubsurfaceFields/config_dataset_full.pkl'
 
-    if os.path.exists(dataset_pickle_file):
+    # Load or create the dataset
+    if os.path.exists(dataset_pickle_file) and load_dataset_file:
         # Load data from the pickle file
         with open(dataset_pickle_file, 'rb') as file:
             data = pickle.load(file)
@@ -1693,7 +1472,6 @@ if __name__ == "__main__":
             full_dataset.min_depth = min_depth
             full_dataset.max_depth = max_depth
             full_dataset.input_params = input_params
-            # full_dataset.argo_folder = data_path
             if not load_trained_model:
                 full_dataset.reload()
     else:
@@ -1703,7 +1481,7 @@ if __name__ == "__main__":
         # Save data to the pickle file
         with open(dataset_pickle_file, 'wb') as file:
             data = {
-                'min_depth' : min_depth,
+                'min_depth': min_depth,
                 'max_depth': max_depth,
                 'epochs': epochs,
                 'patience': patience,
@@ -1719,56 +1497,48 @@ if __name__ == "__main__":
                 'full_dataset': full_dataset
             }
             pickle.dump(data, file)
-            
+
+    # Split the dataset
     train_dataset, val_dataset, test_dataset = split_dataset(full_dataset, train_size, val_size, test_size)
 
     # Dataloaders
     train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
     val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False)
     test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
-    
+
     subset_indices = val_loader.dataset.indices
     full_dataset.calc_gem(subset_indices)
-    
-    # # #If we can, we want to apply the PCA only to the Train and test set
-    # train_indices = train_loader.dataset.indices
-    # test_indices = test_loader.dataset.indices
-    # train_indices.append(test_indices)
-    
-    # # full_dataset.temp_pcs[:,train_indices], full_dataset.pca_temp = full_dataset._apply_pca(full_dataset.TEMP[:,train_indices], n_components)
-    # # full_dataset.sal_pcs[:,train_indices], full_dataset.pca_sal = full_dataset._apply_pca(full_dataset.SAL[:,train_indices], n_components)
-    # temp_pcs_new, full_dataset.pca_temp = full_dataset._apply_pca(full_dataset.TEMP[:,train_indices], n_components)
-    # sal_pcs_new, full_dataset.pca_sal = full_dataset._apply_pca(full_dataset.SAL[:,train_indices], n_components)
-    # full_dataset.temp_pcs[:,train_indices] = temp_pcs_new
-    # full_dataset.sal_pcs[:,train_indices] = sal_pcs_new
-    # #check if i also need to update the dataloaders
-    # print(f"IS THIS ENOUGH??? {train_dataset.dataset.pca_temp == full_dataset.pca_temp}") # YES' 
-    # # HOWEVER, in the current implementation, we can't... y.y
 
     # Compute the input dimension dynamically
-    input_dim = sum(val for val in input_params.values()) - 1*input_params['sat']
-   
-    # Check CUDA availability'
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    input_dim = sum(val for val in input_params.values()) - 1 * input_params['sat']
+
+    # Check CUDA availability
+    device = DEVICE
     
+    # # Use multiple GPUs if available
+    # if torch.cuda.device_count() > 1:
+    #     print(f"Using {torch.cuda.device_count()} GPUs!")
+    #     multi_gpu = True
+    # else:
+    #     multi_gpu = False
+
     # Loss function using the variance of the PCA components as weights
     weights = full_dataset.get_pca_variance()
-    
-    print(f"Explained Variance - T: {(sum(full_dataset.pca_temp.explained_variance_ratio_)*100):.1f}% - S: {(100*sum(full_dataset.pca_sal.explained_variance_ratio_)):.1f}%")
-    
+
+    # Print explained variance
+    print(f"Explained Variance - T: {(sum(full_dataset.pca_temp.explained_variance_ratio_) * 100):.1f}% - S: {(100 * sum(full_dataset.pca_sal.explained_variance_ratio_)):.1f}%")
+
     # Set the appropriate loss
-    # criterion = genWeightedMSELoss(n_components, device, weights)
-    criterion = PCALoss(temp_pca=train_dataset.dataset, sal_pca=train_dataset.dataset, n_components=n_components)
-    # criterion = maxPCALoss(temp_pca=train_dataset.dataset, sal_pca=train_dataset.dataset, n_components=n_components)
-    # criterion = CombinedPCALoss(temp_pca=train_dataset.dataset, 
-    #                         sal_pca=train_dataset.dataset, 
-    #                         n_components=n_components, 
-    #                         weights=weights, 
-    #                         device=device)
-    
-    # print parameters and dataset size
+    criterion = CombinedPCALoss(temp_pca=train_dataset.dataset, 
+                                sal_pca=train_dataset.dataset, 
+                                n_components=n_components, 
+                                weights=weights, 
+                                device=device)
+
+    # Print parameters and dataset size
     true_params = [param for param, value in input_params.items() if value]
-    def printParams():   
+
+    def printParams():
         print(f"\nNumber of profiles: {len(full_dataset)}")
         print("Parameters used:", ", ".join(true_params))
         print(f"Min depth: {min_depth}, Max depth: {max_depth}")
@@ -1778,49 +1548,275 @@ if __name__ == "__main__":
         print(f"Dropout probability: {dropout_prob}")
         print(f'Train/test/validation split: {train_size}/{test_size}/{val_size}')
         print(f"Layer configuration: {layers_config}\n")
-    
-    printParams()
-    
-    if load_trained_model:
-        # model_path = '/unity/g2/jmiranda/SubsurfaceFields/GEM_SubsurfaceFields/saved_models/model_Test Loss: 14.2710_2024-02-26 12:47:18_sat.pth' #old best model
-        # model_path = '/unity/g2/jmiranda/SubsurfaceFields/GEM_SubsurfaceFields/saved_models/model_Test Loss: 16.4227_2024-10-02 10:17:56_sat.pth' #changed averages
-        model_path = '/unity/g2/jmiranda/SubsurfaceFields/GEM_SubsurfaceFields/saved_models/model_Test Loss: 1744.3541_2024-10-04 10:12:25_sat.pth' #new normalization, best so far
-        
-        trained_model = torch.load(model_path, map_location=torch.device(DEVICE))
-    else:
-        for run in enumerate(np.arange(n_runs)):
-            print(f"Run {run[0]}/{n_runs}")
-            # Model
 
-            model = PredictionModel(input_dim=input_dim, layers_config=layers_config, output_dim=n_components*2, dropout_prob = dropout_prob)
+    printParams()
+
+    if load_trained_model:
+        # Load model and PCA components
+        # model_path = '/unity/g2/jmiranda/SubsurfaceFields/GEM_SubsurfaceFields/saved_models/model_Test Loss: 1.9738_2024-10-05 17:35:21_sat.pth'
+        model_path = '/unity/g2/jmiranda/SubsurfaceFields/GEM_SubsurfaceFields/saved_models/model_Test Loss: 1.9870_2024-10-06 19:03:09_sat.pth'
+        checkpoint = torch.load(model_path, map_location=torch.device(DEVICE))
+
+        # Load model
+        trained_model = PredictionModel(input_dim=input_dim, layers_config=layers_config, output_dim=n_components * 2, dropout_prob=dropout_prob)
+        trained_model.load_state_dict(checkpoint['model_state_dict'])
+        trained_model.to(DEVICE)
+        
+        # # Use multiple GPUs if available
+        # if multi_gpu:
+        #     model = nn.DataParallel(model)
+
+        # Load PCA components
+        pca_temp = checkpoint['pca_temp']
+        pca_sal = checkpoint['pca_sal']
+        input_params = checkpoint['input_params']
+    else:
+        for run in range(n_runs):
+            print(f"Run {run + 1}/{n_runs}")
+
+            # Create the model
+            model = PredictionModel(input_dim=input_dim, layers_config=layers_config, output_dim=n_components * 2, dropout_prob=dropout_prob)
+            model.to(DEVICE)
+
+            # # Use multiple GPUs if available
+            # if multi_gpu:
+            #     model = nn.DataParallel(model)
+                
             optimizer = optim.Adam(model.parameters(), lr=learning_rate)
-            # Training
+
+            # Start timer
+            start_time = time.perf_counter()
+            
+            # Train the model
             trained_model = train_model(model, train_loader, val_loader, criterion, optimizer, device, epochs, patience)
+
+            end_time = time.perf_counter()
+            # Calculate elapsed time
+            elapsed_time = (end_time - start_time)
+            print(f"NeSPReSO train: {elapsed_time:.2f} seconds.")
             
             # Test evaluation
             test_loss = evaluate_model(trained_model, test_loader, criterion, device)
             print(f"Test Loss: {test_loss:.4f}")
 
+            # Save the model and PCA components
             save_model_path = "/unity/g2/jmiranda/SubsurfaceFields/GEM_SubsurfaceFields/saved_models/model_"
             save_model_path += f"Test Loss: {test_loss:.4f}" + "_"
             suffix = ".pth"
             if input_params['sat']:
                 suffix = "_sat.pth"
-            
+
             now = datetime.now()
             now_str = now.strftime("%Y-%m-%d %H:%M:%S")
             save_model_path += now_str + suffix
+
+            # Save checkpoint with model state and PCA components
+            checkpoint = {
+                'model_state_dict': trained_model.state_dict(),
+                'pca_temp': full_dataset.pca_temp,
+                'pca_sal': full_dataset.pca_sal,
+                'input_params': input_params
+            }
+            torch.save(checkpoint, save_model_path)
+            print(f"Saved model and PCA components to {save_model_path}")
+
+# if __name__ == "__main__":
+#     # Configurable parameters
+    
+#     bin_size = 1 # bin size in degrees
+#     n_components = 15
+#     n_runs = 1
+#     layers_config = [512, 512]
+#     batch_size = 256
+#     min_depth = 0
+#     max_depth = 1800
+#     dropout_prob = 0.2
+#     epochs = 8000
+#     patience = 2000
+#     learning_rate = 0.001
+#     train_size = 0.7
+#     val_size = 0.15
+#     test_size = 0.15
+#     input_params = {
+#         "timecos": True,
+#         "timesin": True,
+#         "latcos":  True,
+#         "latsin":  True,
+#         "loncos":  True,
+#         "lonsin":  True,
+#         "sat": True,  # Use satellite data?
+#         "sst": True,  # First value of temperature if sat = false, OISST if sat = true
+#         "sss": True,  # similar to above
+#         "ssh": True   # similar to above
+#     }
+#     num_samples = 1 #profiles that will be plotted
+#     # Define the path of the pickle file
+#     dataset_pickle_file = '/unity/g2/jmiranda/SubsurfaceFields/GEM_SubsurfaceFields/config_dataset_full.pkl'
+
+#     if os.path.exists(dataset_pickle_file):
+#         # Load data from the pickle file
+#         with open(dataset_pickle_file, 'rb') as file:
+#             data = pickle.load(file)
+#             full_dataset = data['full_dataset']
+#             full_dataset.n_components = n_components
+#             full_dataset.min_depth = min_depth
+#             full_dataset.max_depth = max_depth
+#             full_dataset.input_params = input_params
+#             # full_dataset.argo_folder = data_path
+#             if not load_trained_model:
+#                 full_dataset.reload()
+#     else:
+#         # Load and split data
+#         full_dataset = TemperatureSalinityDataset(n_components=n_components, input_params=input_params, min_depth=min_depth, max_depth=max_depth)
+
+#         # Save data to the pickle file
+#         with open(dataset_pickle_file, 'wb') as file:
+#             data = {
+#                 'min_depth' : min_depth,
+#                 'max_depth': max_depth,
+#                 'epochs': epochs,
+#                 'patience': patience,
+#                 'n_components': n_components,
+#                 'batch_size': batch_size,
+#                 'learning_rate': learning_rate,
+#                 'dropout_prob': dropout_prob,
+#                 'layers_config': layers_config,
+#                 'input_params': input_params,
+#                 'train_size': train_size,
+#                 'val_size': val_size,
+#                 'test_size': test_size,
+#                 'full_dataset': full_dataset
+#             }
+#             pickle.dump(data, file)
             
-            torch.save(trained_model, save_model_path)
-            print(f"Saved model to {save_model_path}")
+#     train_dataset, val_dataset, test_dataset = split_dataset(full_dataset, train_size, val_size, test_size)
+
+#     # Dataloaders
+#     train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
+#     val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False)
+#     test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
+    
+#     subset_indices = val_loader.dataset.indices
+#     full_dataset.calc_gem(subset_indices)
+    
+#     # Compute the input dimension dynamically
+#     input_dim = sum(val for val in input_params.values()) - 1*input_params['sat']
+   
+#     # Check CUDA availability'
+#     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    
+#     # Loss function using the variance of the PCA components as weights
+#     weights = full_dataset.get_pca_variance()
+    
+#     print(f"Explained Variance - T: {(sum(full_dataset.pca_temp.explained_variance_ratio_)*100):.1f}% - S: {(100*sum(full_dataset.pca_sal.explained_variance_ratio_)):.1f}%")
+    
+#     # Set the appropriate loss
+#     # criterion = genWeightedMSELoss(n_components, device, weights)
+#     # criterion = PCALoss(temp_pca=train_dataset.dataset, sal_pca=train_dataset.dataset, n_components=n_components)
+#     criterion = CombinedPCALoss(temp_pca=train_dataset.dataset, 
+#                             sal_pca=train_dataset.dataset, 
+#                             n_components=n_components, 
+#                             weights=weights, 
+#                             device=device)
+    
+#     # print parameters and dataset size
+#     true_params = [param for param, value in input_params.items() if value]
+#     def printParams():   
+#         print(f"\nNumber of profiles: {len(full_dataset)}")
+#         print("Parameters used:", ", ".join(true_params))
+#         print(f"Min depth: {min_depth}, Max depth: {max_depth}")
+#         print(f"Number of components used: {n_components} x2")
+#         print(f"Batch size: {batch_size}")
+#         print(f"Learning rate: {learning_rate}")
+#         print(f"Dropout probability: {dropout_prob}")
+#         print(f'Train/test/validation split: {train_size}/{test_size}/{val_size}')
+#         print(f"Layer configuration: {layers_config}\n")
+    
+#     printParams()
+    
+#     if load_trained_model:
+#         model_path = '/unity/g2/jmiranda/SubsurfaceFields/GEM_SubsurfaceFields/saved_models/model_Test Loss: 14.2710_2024-02-26 12:47:18_sat.pth' #old best model
+#         # model_path = '/unity/g2/jmiranda/SubsurfaceFields/GEM_SubsurfaceFields/saved_models/model_Test Loss: 1.9738_2024-10-05 17:35:21_sat.pth'
+#         trained_model = torch.load(model_path, map_location=torch.device(DEVICE))
+#     else:
+#         for run in enumerate(np.arange(n_runs)):
+#             print(f"Run {run[0]}/{n_runs}")
+#             # Model
+
+#             model = PredictionModel(input_dim=input_dim, layers_config=layers_config, output_dim=n_components*2, dropout_prob = dropout_prob)
+#             optimizer = optim.Adam(model.parameters(), lr=learning_rate)
+            
+#             # Training
+#             trained_model = train_model(model, train_loader, val_loader, criterion, optimizer, device, epochs, patience)
+            
+#             # Test evaluation
+#             test_loss = evaluate_model(trained_model, test_loader, criterion, device)
+#             print(f"Test Loss: {test_loss:.4f}")
+
+#             save_model_path = "/unity/g2/jmiranda/SubsurfaceFields/GEM_SubsurfaceFields/saved_models/model_"
+#             save_model_path += f"Test Loss: {test_loss:.4f}" + "_"
+#             suffix = ".pth"
+#             if input_params['sat']:
+#                 suffix = "_sat.pth"
+            
+#             now = datetime.now()
+#             now_str = now.strftime("%Y-%m-%d %H:%M:%S")
+#             save_model_path += now_str + suffix
+            
+#             torch.save(trained_model, save_model_path)
+#             print(f"Saved model to {save_model_path}")
             
     print("Statistics from the last run:")
-    
+    print("Method & # profiles & Time (ms) & Time per profile (µs)")
+    n_val = len(val_dataset)
+    # Start time
+    start_time = time.perf_counter()
     # Get predictions for the validation dataset
-    val_predictions_pcs = get_predictions(trained_model, val_loader, device)
-    # Accessing the original dataset for inverse_transform
-    print(f"val_predictions_pcs: {type(val_predictions_pcs)} {val_predictions_pcs.shape}")
-    val_predictions = val_dataset.dataset.inverse_transform(val_predictions_pcs)
+    for i in range(nn_repeat_time):
+        val_predictions_pcs = get_predictions(trained_model, val_loader, device)
+        # Accessing the original dataset for inverse_transform
+        val_predictions = val_dataset.dataset.inverse_transform(val_predictions_pcs)
+    # print(f"val_predictions_pcs: {type(val_predictions_pcs)} {val_predictions_pcs.shape}")
+    # End time
+    end_time = time.perf_counter()
+    # Calculate elapsed time
+    elapsed_time = (end_time - start_time)/nn_repeat_time
+    print(f"NeSPReSO ({device}) & {n_val} & {elapsed_time*1e3:.2f} & {((elapsed_time*1e6)/n_val):.2f}")
+    
+    # repeat time calculation for other device, if available
+     # Check if CUDA is available
+    if torch.cuda.is_available():
+        if next(trained_model.parameters()).is_cuda:
+            cuda_device = torch.device("cpu")
+        else:
+            cuda_device = torch.device("cuda")
+        
+        # Move model to CUDA device
+        trained_model = trained_model.to(cuda_device)
+        
+        # Create new DataLoader with CUDA device
+        cuda_val_loader = DataLoader(val_dataset, batch_size=val_loader.batch_size, sampler=val_loader.sampler)
+        
+        # Start time
+        start_time = time.perf_counter()
+        
+        # Get predictions for the validation dataset on CUDA
+        for i in range(nn_repeat_time):
+            cuda_val_predictions_pcs = get_predictions(trained_model, cuda_val_loader, cuda_device)
+            # Accessing the original dataset for inverse_transform
+            cuda_val_predictions = val_dataset.dataset.inverse_transform(cuda_val_predictions_pcs)
+        
+        # End time
+        end_time = time.perf_counter()
+        
+        # Calculate elapsed time
+        cuda_elapsed_time = (end_time - start_time) / nn_repeat_time
+        print(f"NeSPReSO ({cuda_device}) & {n_val} & {cuda_elapsed_time*1e3:.2f} & {((cuda_elapsed_time*1e6)/n_val):.2f}")
+        
+        # Move model back to original device
+        trained_model = trained_model.to(device)
+    else:
+        print("CUDA is not available. Skipping GPU time calculation.")
     
     # load ISOP results
     file_path_new = '/unity/g2/jmiranda/SubsurfaceFields/Data/ISOP1_rmse_bias_1deg_maps.nc'
@@ -1862,9 +1858,21 @@ if __name__ == "__main__":
     pred_S = val_predictions[1]
     orig_T = original_profiles[:, 0, :]
     orig_S = original_profiles[:, 1, :]
-    gem_temp, gem_sal = val_dataset.dataset.get_gem_profiles(subset_indices)
+    
+    # Start time
+    start_time = time.perf_counter()
+    # Get predictions for the validation dataset
+    for i in range(gem_repeat_time):
+        gem_temp, gem_sal = val_dataset.dataset.get_gem_profiles(subset_indices)
+    # End time
+    end_time = time.perf_counter()
+    # Calculate elapsed time
+    elapsed_time = (end_time - start_time)/gem_repeat_time
+    print(f"GEM (cpu) & {n_val} & {elapsed_time*1e3:.2f} & {((elapsed_time*1e6)/n_val):.2f}")
+    # print(f"GEM predictions {n_val} - Elapsed time: {elapsed_time:.6f} seconds, ran {gem_repeat_time} times.")
     gems_T = gem_temp.T
     gems_S = gem_sal.T
+    
     pred_T_resid = pred_T - orig_T
     pred_S_resid = pred_S - orig_S
     gems_T_resid = gems_T - orig_T
@@ -1897,7 +1905,7 @@ if __name__ == "__main__":
     lat_val = np.floor(lat_val)+bin_size/2
     lon_val = np.floor(lon_val)+bin_size/2
     
-    visualize_combined_results(pca_approx_profiles, gem_temp, gem_sal, val_predictions, sst_inputs, ssh_inputs, min_depth=min_depth, max_depth = max_depth, num_samples=num_samples)
+    # visualize_combined_results(pca_approx_profiles, gem_temp, gem_sal, val_predictions, sst_inputs, ssh_inputs, min_depth=min_depth, max_depth = max_depth, num_samples=num_samples)
         
     printParams()
     
@@ -2083,6 +2091,8 @@ if __name__ == "__main__":
             lon_centers, lat_centers, lon_val[season_mask], lat_val[season_mask], 
             pred_T_resid[:,season_mask], dpt_range, is_rmse=True
         )
+        
+        
         plot_bin_map(lon_bins, lat_bins, grid_avg_temp_rmse_nn_season, num_prof_nn_season, 
                      f"Temperature - {season}", "RMSE")
         
@@ -2677,7 +2687,7 @@ if __name__ == "__main__":
     plot_field_subplot(T1, d1, gld_depths, "Temperature", "Glider T", 321, fig)
     plot_field_subplot(T_pred1, d1, pred_depths, "Temperature", "Synthetic T", 323, fig)
     plot_field_subplot(T_diff1, d1, gld_depths, "T Difference", "T Difference", 325, fig)
-    plot_field_subplot(S1, d1, gld_depths, "Salinity", "S1 - Glider S", 322, fig)
+    plot_field_subplot(S1, d1, gld_depths, "Salinity", "Glider S", 322, fig)
     plot_field_subplot(S_pred1, d1, pred_depths, "Salinity", "Synthetic S", 324, fig)
     plot_field_subplot(S_diff1, d1, gld_depths, "S Difference", "S Difference", 326, fig)
     plt.suptitle(f"Posseidon Crossing #1 \n{t1[0].strftime('%Y-%m-%d')} to {t1[-1].strftime('%Y-%m-%d')}", fontsize=18, fontweight="bold")
@@ -2689,7 +2699,7 @@ if __name__ == "__main__":
     plot_field_subplot(T2, d2, gld_depths, "Temperature", "Glider T", 321, fig)
     plot_field_subplot(T_pred2, d2, pred_depths, "Temperature", "Synthetic T", 323, fig)
     plot_field_subplot(T_diff2, d2, gld_depths, "T Difference", "T Difference", 325, fig)
-    plot_field_subplot(S2, d2, gld_depths, "Salinity", "S2 - Glider S", 322, fig)
+    plot_field_subplot(S2, d2, gld_depths, "Salinity", "Glider S", 322, fig)
     plot_field_subplot(S_pred2, d2, pred_depths, "Salinity", "Synthetic S", 324, fig)
     plot_field_subplot(S_diff2, d2, gld_depths, "S Difference", "S Difference", 326, fig)
     plt.suptitle(f"Posseidon Crossing #2 \n{t2[0].strftime('%Y-%m-%d')} to {t2[-1].strftime('%Y-%m-%d')}", fontsize=18, fontweight="bold")
@@ -2701,7 +2711,7 @@ if __name__ == "__main__":
     plot_field_subplot(T3, d3, gld_depths, "Temperature", "Glider T", 321, fig)
     plot_field_subplot(T_pred3, d3, pred_depths, "Temperature", "Synthetic T", 323, fig)
     plot_field_subplot(T_diff3, d3, gld_depths, "T Difference", "T Difference", 325, fig)
-    plot_field_subplot(S3, d3, gld_depths, "Salinity", "S3 - Glider S", 322, fig)
+    plot_field_subplot(S3, d3, gld_depths, "Salinity", "Glider S", 322, fig)
     plot_field_subplot(S_pred3, d3, pred_depths, "Salinity", "Synthetic S", 324, fig)
     plot_field_subplot(S_diff3, d3, gld_depths, "S Difference", "S Difference", 326, fig)
     plt.suptitle(f"Campeche Crossing #1 and #2 \n{t3[0].strftime('%Y-%m-%d')} to {t3[-1].strftime('%Y-%m-%d')}", fontsize=18, fontweight="bold")
@@ -2713,7 +2723,7 @@ if __name__ == "__main__":
     plot_field_subplot(T4, d4, gld_depths, "Temperature", "Glider T", 321, fig)
     plot_field_subplot(T_pred4, d4, pred_depths, "Temperature", "Synthetic T", 323, fig)
     plot_field_subplot(T_diff4, d4, gld_depths, "T Difference", "T Difference", 325, fig)
-    plot_field_subplot(S4, d4, gld_depths, "Salinity", "S4 - Glider S", 322, fig)
+    plot_field_subplot(S4, d4, gld_depths, "Salinity", "Glider S", 322, fig)
     plot_field_subplot(S_pred4, d4, pred_depths, "Salinity", "Synthetic S", 324, fig)
     plot_field_subplot(S_diff4, d4, gld_depths, "S Difference", "S Difference", 326, fig)
     plt.suptitle(f"Intense LCE \n{t4[0].strftime('%Y-%m-%d')} to {t4[-1].strftime('%Y-%m-%d')}", fontsize=18, fontweight="bold")
@@ -3031,7 +3041,7 @@ if __name__ == "__main__":
     ax2.legend(fontsize=12)
     
     # calculate average bias and rmse for depth ranges
-    print("Depth range \t NN T RMSE \t GEM T RMSE \t ISOP T RMSE \t NN T Bias \t GEM T Bias \t ISOP T Bias \t NN S RMSE \t GEM S RMSE \t ISOP S RMSE \t NN S Bias \t GEM S Bias \t ISOP S Bias")
+    print("Depth range \t NeSPReSO T RMSE \t GEM T RMSE \t ISOP T RMSE \t NeSPReSO T Bias \t GEM T Bias \t ISOP T Bias \t NeSPReSO S RMSE \t GEM S RMSE \t ISOP S RMSE \t NeSPReSO S Bias \t GEM S Bias \t ISOP S Bias")
     intervals = [(min_depth, 20), (20, 100), (100, 200), (200, 500), (500, 1000), (1000, max_depth), (0, 1000), (min_depth, max_depth)]    
     
     for i in range(len(intervals)):
@@ -3120,7 +3130,7 @@ if __name__ == "__main__":
             S_profiles[:, :] = S_profiles_val
             
             # Add attributes
-            nc.description = 'Dataset used for acquiring statistics for ISOP, GEM and NN methods. Contains SST, latitude, longitude, date, temperature profiles, salinity profiles, and depth.'
+            nc.description = 'Dataset used for acquiring statistics for ISOP, GEM and NeSPReSO methods. Contains SST, latitude, longitude, date, temperature profiles, salinity profiles, and depth.'
             sst.units = 'Celsius'
             lats.units = 'degrees'
             lons.units = 'degrees'
@@ -3161,48 +3171,48 @@ if __name__ == "__main__":
 
     # xr.open_dataset(filename).depth
     
-    # %%
-    from scipy.spatial import cKDTree
+    # # %%
+    # from scipy.spatial import cKDTree
 
-    # lon_min = -88
-    # lon_max = -82
-    lon_min = np.floor(np.min(full_dataset.LON))
-    lon_max =  np.ceil(np.max(full_dataset.LON))
-    lat_min = np.floor(np.min(full_dataset.LAT))
-    lat_max =  np.ceil(np.max(full_dataset.LAT))
+    # # lon_min = -88
+    # # lon_max = -82
+    # lon_min = np.floor(np.min(full_dataset.LON))
+    # lon_max =  np.ceil(np.max(full_dataset.LON))
+    # lat_min = np.floor(np.min(full_dataset.LAT))
+    # lat_max =  np.ceil(np.max(full_dataset.LAT))
 
-    # Define grid spacing
-    grid_spacing = 0.1  # degrees
+    # # Define grid spacing
+    # grid_spacing = 0.1  # degrees
 
-    # Create the grid within the bounding box
-    lats_grid = np.arange(lat_min, lat_max + grid_spacing, grid_spacing)
-    lons_grid = np.arange(lon_min, lon_max + grid_spacing, grid_spacing)
+    # # Create the grid within the bounding box
+    # lats_grid = np.arange(lat_min, lat_max + grid_spacing, grid_spacing)
+    # lons_grid = np.arange(lon_min, lon_max + grid_spacing, grid_spacing)
 
-    # Use meshgrid to create a grid of coordinates
-    lats_mesh, lons_mesh = np.meshgrid(lats_grid, lons_grid)
+    # # Use meshgrid to create a grid of coordinates
+    # lats_mesh, lons_mesh = np.meshgrid(lats_grid, lons_grid)
 
-    # Flatten the meshgrid arrays to obtain the full list of coordinates
-    grid_points = np.vstack([lats_mesh.ravel(), lons_mesh.ravel()]).T
+    # # Flatten the meshgrid arrays to obtain the full list of coordinates
+    # grid_points = np.vstack([lats_mesh.ravel(), lons_mesh.ravel()]).T
 
-    # Build a KD-Tree with the original LAT and LON data
-    data_points = np.vstack([full_dataset.LAT, full_dataset.LON]).T
-    tree = cKDTree(data_points)
+    # # Build a KD-Tree with the original LAT and LON data
+    # data_points = np.vstack([full_dataset.LAT, full_dataset.LON]).T
+    # tree = cKDTree(data_points)
 
-    # Query the tree for each grid point to find the distance to the nearest data point
-    distances, _ = tree.query(grid_points, distance_upper_bound=0.5)
+    # # Query the tree for each grid point to find the distance to the nearest data point
+    # distances, _ = tree.query(grid_points, distance_upper_bound=0.5)
 
-    # Filter the grid points where the distance is infinity (no points within 0.2 degrees)
-    filtered_grid_points = grid_points[distances != np.inf]
+    # # Filter the grid points where the distance is infinity (no points within 0.2 degrees)
+    # filtered_grid_points = grid_points[distances != np.inf]
 
-    # Plot original data points and the filtered grid points
-    plt.figure(figsize=(10, 8))
-    plt.scatter(filtered_grid_points[:, 1], filtered_grid_points[:, 0], color='red', label='Filtered Grid Points', s=0.2)
-    plt.xlabel('Longitude')
-    plt.ylabel('Latitude')
-    plt.title('Points within 0.5 degrees of original data')
-    plt.legend()
-    plt.grid(True)
-    plt.show()
+    # # Plot original data points and the filtered grid points
+    # plt.figure(figsize=(10, 8))
+    # plt.scatter(filtered_grid_points[:, 1], filtered_grid_points[:, 0], color='red', label='Filtered Grid Points', s=0.2)
+    # plt.xlabel('Longitude')
+    # plt.ylabel('Latitude')
+    # plt.title('Points within 0.5 degrees of original data')
+    # plt.legend()
+    # plt.grid(True)
+    # plt.show()
 
     # %%
 #     def calculate_sound_speed_NPL(T, S, Z, Phi=45):
@@ -3380,7 +3390,8 @@ if __name__ == "__main__":
     
     # Make a bar plot showing how many profiles are in the training, validation and test datasets per month
     import pandas as pd
-
+    import calendar
+    
     def count_profiles_per_month(dataset, indices):
         dates = [datetime.fromordinal(int(d)) for d in dataset.TIME[indices]]
         df = pd.DataFrame({'date': dates})
@@ -3402,16 +3413,18 @@ if __name__ == "__main__":
 
     # Calculate the total number of profiles for each month
     df_total = df.sum(axis=1)
-
     # Calculate the percentage for each dataset
     df_percentage = df.div(df_total, axis=0) * 100
+
+    # Update the index to display month abbreviations
+    df_percentage.index = [calendar.month_abbr[i] for i in df_percentage.index]
 
     # Plot
     ax = df_percentage.plot(kind='bar', stacked=True, figsize=(15, 6), width=0.8)
     plt.title('Profiles per Month')
     plt.xlabel('Month')
-    plt.ylabel('Percentage of Profiles')
-    ax.legend(loc='upper center', bbox_to_anchor=(0.5, -0.2), fancybox=True, shadow=True, ncols=3)
+    plt.ylabel('%')
+    ax.legend(loc='upper center', bbox_to_anchor=(0.5, -0.25), fancybox=True, shadow=True, ncols=3)
 
     # Rotate x-axis labels
     plt.xticks(rotation=45, ha='right')

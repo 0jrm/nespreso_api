@@ -1,38 +1,28 @@
 import os
 import numpy as np
 import xarray as xr
-import rasterio
-from rasterio.transform import from_bounds
+import rioxarray # Using rioxarray to export to GeoTIFF instead of raw rasterio
 
-def export_to_geotiff(data_array, output_file, lat_min, lat_max, lon_min, lon_max, nodata_value=-9999):
-    # Replace NaN with a specific nodata value (-9999)
-    data_array = np.where(np.isnan(data_array), nodata_value, data_array)
-    
+def export_to_geotiff(dataset:xr.Dataset, output_file:str, nodata_value:int=-9999):
+    # Reverse the latitudes
+    dataset = reverse_lats(dataset)
+
     # Ensure data_array is of type float32
-    data_array = data_array.astype(np.float32)
-    
-    # Flip the data array vertically to correct the upside-down issue
-    data_array = np.flipud(data_array)
-    
-    # Define the transform and metadata
-    transform = from_bounds(lon_min, lat_min, lon_max, lat_max, data_array.shape[1], data_array.shape[0])
-    profile = {
-        'driver': 'GTiff',
-        'height': data_array.shape[0],
-        'width': data_array.shape[1],
-        'count': 1,  # Single band (ADT data)
-        'dtype': 'float32',  # Match the data_array dtype
-        'crs': 'EPSG:4326',  # WGS84 CRS
-        'transform': transform,
-        'nodata': nodata_value  # Set nodata value for transparency
-    }
+    dataset = dataset.astype(np.float32)
+
+    # Assign the CRS
+    dataset.rio.write_crs("epsg:4326", inplace=True)
+
+    # write the nodata value to the dataset
+    dataset.rio.write_nodata(nodata_value, encoded=True, inplace=True)
 
     # Write to GeoTIFF
-    with rasterio.open(output_file, 'w', **profile) as dst:
-        dst.write(data_array, 1)
+    dataset.rio.to_raster(
+        output_file, 
+        dtype='float32')
 
 # Function to process the data for a specific date
-def process_and_export_by_date(selected_date, output_folder='/path/to/output/folder', input_folder='/unity/f1/ozavala/DATA/GOFFISH/AVISO/GoM/'):
+def process_and_export_by_date(selected_date:str, output_folder:str='./', input_folder:str='/unity/f1/ozavala/DATA/GOFFISH/AVISO/GoM/'):
     # Extract year and month from selected_date
     selected_year, selected_month = selected_date.split('-')[:2]
     
@@ -61,15 +51,20 @@ def process_and_export_by_date(selected_date, output_folder='/path/to/output/fol
 
     # Check if 'adt' variable exists in the dataset and the subset has valid data
     if 'adt' in subset and not subset['adt'].isnull().all():
-        adt_data = subset['adt'].squeeze().values  # Extract the 'adt' data
-        
+        adt_data = subset['adt']
         # Generate the output filename and export the data to GeoTIFF
         output_file = os.path.join(output_folder, f"{filename.replace('.nc', '')}_{selected_date}.tiff")
         print(f"Data array shape: {adt_data.shape}")
-        export_to_geotiff(adt_data, output_file, lat_min, lat_max, lon_min, lon_max)
+        export_to_geotiff(adt_data, output_file)
         print(f"Exported {output_file}")
     else:
         print(f"No valid 'adt' data available for {selected_date} in {file_path}")
+
+def reverse_lats(dataset: xr.Dataset) -> xr.Dataset:
+    """
+    Reverse the latitudes in the dataset.
+    """
+    return dataset.reindex(latitude=dataset.latitude[::-1])
 
 # Example usage
 

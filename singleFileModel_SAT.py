@@ -1,6 +1,7 @@
 #%%
 import sys
 import os
+import glob
 import numpy as np
 import mat73
 import matplotlib.pyplot as plt
@@ -40,15 +41,18 @@ sys.path.append("/unity/g2/jmiranda/SubsurfaceFields/GEM_SubsurfaceFields/")
 plt.rcParams.update({'font.size': 18})
 # Set the seed for reproducibility
 # load_trained_model = False
-load_trained_model = False
+load_trained_model = True
+ensemble_models = False
 # load_dataset_file = False
 load_dataset_file = True
 gen_paula_profiles = False
 global debug
 debug = False  # Set to False to disable debugging
 seed = 42
-nn_repeat_time = 100
-gem_repeat_time = 10
+n_runs = 1# number of model runs
+nn_repeat_time = 10 # number of nespreso runs for generation timing 
+gem_repeat_time = 1 # number of GEM runs for generation timing
+
 torch.manual_seed(seed)
 random.seed(seed)
 np.random.seed(seed)
@@ -685,15 +689,16 @@ class TemperatureSalinityDataset(torch.utils.data.Dataset):
         date = self.TIME[idx]
         return lat, lon, date
     
-    def get_pca_variance(self):
+    def get_pca_weights(self):
         """
-        Get the concatenated vector of the variance represented by each PC of the temperature and salinity datasets.
+        Get the concatenated vector of the variance represented by each PC of the temperature and salinity datasets,
+        divided by the total variance of each PCS.
 
         Returns:
         - numpy.ndarray: Concatenated vector of variances for temperature and salinity PCs.
         """
-        temp_variance = self.pca_temp.explained_variance_ratio_
-        sal_variance = self.pca_sal.explained_variance_ratio_
+        temp_variance = self.pca_temp.explained_variance_ratio_ / self.temp_pcs.var(axis=1)
+        sal_variance = self.pca_sal.explained_variance_ratio_ / self.sal_pcs.var(axis=1)
         concatenated_variance = np.concatenate([temp_variance, sal_variance])
         return concatenated_variance
 
@@ -998,7 +1003,9 @@ class PCALoss(nn.Module): #min test loss ~ 13
         mse_sal = nn.functional.mse_loss(pred_sal_profiles, true_sal_profiles)
         
         # Combine the MSE for temperature and salinity
-        total_mse = (mse_temp/(8.6) + mse_sal/(35.2))/self.n_samples # divide by the mean T and S values
+        # total_mse = (mse_temp/(8.6) + mse_sal/(35.2))/self.n_samples # divide by the mean T and S values
+        total_mse = (mse_temp/(37.86) + mse_sal/(0.28))/self.n_samples # divide by the mean T and S values
+        # total_mse = (mse_temp/(2.01) + mse_sal/(0.03))/self.n_samples # divide by the mean T and S values
         return total_mse
     
 class CombinedPCALoss(nn.Module):
@@ -1015,7 +1022,7 @@ class CombinedPCALoss(nn.Module):
         weighted_mse_loss = self.weighted_mse_loss(pcs, targets)
 
         # Combine the losses - Choose scaling factor
-        combined_loss = pca_loss/13 + weighted_mse_loss/2
+        combined_loss = (pca_loss/2.8294 + weighted_mse_loss/0.0255)/2 #here I divide by the individual minimum loss, and divide by two
         return combined_loss
 
 def visualize_combined_results(true_values, gem_temp, gem_sal, predicted_values, sst_values, ssh_values, min_depth = 20, max_depth=2000, num_samples=5):
@@ -1430,19 +1437,38 @@ def plot_residual_profiles_for_top_bins(lon_bins, lat_bins, lon_val, lat_val, nn
     plt.tight_layout()
     plt.show()
     
+def load_all_models(models_dir, device, input_dim, layers_config, n_components, dropout_prob):
+    model_paths = sorted(glob.glob(os.path.join(models_dir, 'model_Test Loss: *.pth')))
+    models = []
+    for model_path in model_paths:
+        print(f"Loading model from {model_path}")
+        checkpoint = torch.load(model_path, map_location=device)
+        
+        # Initialize the model architecture
+        model = PredictionModel(
+            input_dim=input_dim, 
+            layers_config=layers_config, 
+            output_dim=n_components * 2, 
+            dropout_prob=dropout_prob
+        )
+        model.load_state_dict(checkpoint['model_state_dict'])
+        model.to(device)
+        model.eval()  # Set to evaluation mode
+        models.append(model)
+    return models
+    
 #%%
 if __name__ == "__main__":
     # Configurable parameters
     bin_size = 1  # bin size in degrees
     n_components = 15
-    n_runs = 1
     layers_config = [512, 512]
-    batch_size = 256
+    batch_size = 512
     min_depth = 0
     max_depth = 1800
     dropout_prob = 0.2
     epochs = 8000
-    patience = 2000
+    patience = 500
     learning_rate = 0.001
     train_size = 0.7
     val_size = 0.15
@@ -1522,13 +1548,19 @@ if __name__ == "__main__":
     # else:
     #     multi_gpu = False
 
-    # Loss function using the variance of the PCA components as weights
-    weights = full_dataset.get_pca_variance()
+    # Loss function using the variance of the PCA components divided by the varance of each PC as weights
+    weights = full_dataset.get_pca_weights()
 
     # Print explained variance
     print(f"Explained Variance - T: {(sum(full_dataset.pca_temp.explained_variance_ratio_) * 100):.1f}% - S: {(100 * sum(full_dataset.pca_sal.explained_variance_ratio_)):.1f}%")
 
     # Set the appropriate loss
+    # criterion = genWeightedMSELoss(n_components=n_components,
+    #                                weights=weights,
+    #                                device=device)
+    # criterion = PCALoss(temp_pca=train_dataset.dataset, #best so far
+    #                             sal_pca=train_dataset.dataset, 
+    #                             n_components=n_components) 
     criterion = CombinedPCALoss(temp_pca=train_dataset.dataset, 
                                 sal_pca=train_dataset.dataset, 
                                 n_components=n_components, 
@@ -1553,8 +1585,8 @@ if __name__ == "__main__":
 
     if load_trained_model:
         # Load model and PCA components
-        # model_path = '/unity/g2/jmiranda/SubsurfaceFields/GEM_SubsurfaceFields/saved_models/model_Test Loss: 1.9738_2024-10-05 17:35:21_sat.pth'
-        model_path = '/unity/g2/jmiranda/SubsurfaceFields/GEM_SubsurfaceFields/saved_models/model_Test Loss: 1.9870_2024-10-06 19:03:09_sat.pth'
+        model_path = '/unity/g2/jmiranda/SubsurfaceFields/GEM_SubsurfaceFields/saved_models/model_Test Loss: 0.8945_2024-10-09 20:35:59_sat.pth'
+        
         checkpoint = torch.load(model_path, map_location=torch.device(DEVICE))
 
         # Load model
@@ -1619,152 +1651,6 @@ if __name__ == "__main__":
             }
             torch.save(checkpoint, save_model_path)
             print(f"Saved model and PCA components to {save_model_path}")
-
-# if __name__ == "__main__":
-#     # Configurable parameters
-    
-#     bin_size = 1 # bin size in degrees
-#     n_components = 15
-#     n_runs = 1
-#     layers_config = [512, 512]
-#     batch_size = 256
-#     min_depth = 0
-#     max_depth = 1800
-#     dropout_prob = 0.2
-#     epochs = 8000
-#     patience = 2000
-#     learning_rate = 0.001
-#     train_size = 0.7
-#     val_size = 0.15
-#     test_size = 0.15
-#     input_params = {
-#         "timecos": True,
-#         "timesin": True,
-#         "latcos":  True,
-#         "latsin":  True,
-#         "loncos":  True,
-#         "lonsin":  True,
-#         "sat": True,  # Use satellite data?
-#         "sst": True,  # First value of temperature if sat = false, OISST if sat = true
-#         "sss": True,  # similar to above
-#         "ssh": True   # similar to above
-#     }
-#     num_samples = 1 #profiles that will be plotted
-#     # Define the path of the pickle file
-#     dataset_pickle_file = '/unity/g2/jmiranda/SubsurfaceFields/GEM_SubsurfaceFields/config_dataset_full.pkl'
-
-#     if os.path.exists(dataset_pickle_file):
-#         # Load data from the pickle file
-#         with open(dataset_pickle_file, 'rb') as file:
-#             data = pickle.load(file)
-#             full_dataset = data['full_dataset']
-#             full_dataset.n_components = n_components
-#             full_dataset.min_depth = min_depth
-#             full_dataset.max_depth = max_depth
-#             full_dataset.input_params = input_params
-#             # full_dataset.argo_folder = data_path
-#             if not load_trained_model:
-#                 full_dataset.reload()
-#     else:
-#         # Load and split data
-#         full_dataset = TemperatureSalinityDataset(n_components=n_components, input_params=input_params, min_depth=min_depth, max_depth=max_depth)
-
-#         # Save data to the pickle file
-#         with open(dataset_pickle_file, 'wb') as file:
-#             data = {
-#                 'min_depth' : min_depth,
-#                 'max_depth': max_depth,
-#                 'epochs': epochs,
-#                 'patience': patience,
-#                 'n_components': n_components,
-#                 'batch_size': batch_size,
-#                 'learning_rate': learning_rate,
-#                 'dropout_prob': dropout_prob,
-#                 'layers_config': layers_config,
-#                 'input_params': input_params,
-#                 'train_size': train_size,
-#                 'val_size': val_size,
-#                 'test_size': test_size,
-#                 'full_dataset': full_dataset
-#             }
-#             pickle.dump(data, file)
-            
-#     train_dataset, val_dataset, test_dataset = split_dataset(full_dataset, train_size, val_size, test_size)
-
-#     # Dataloaders
-#     train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
-#     val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False)
-#     test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
-    
-#     subset_indices = val_loader.dataset.indices
-#     full_dataset.calc_gem(subset_indices)
-    
-#     # Compute the input dimension dynamically
-#     input_dim = sum(val for val in input_params.values()) - 1*input_params['sat']
-   
-#     # Check CUDA availability'
-#     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    
-#     # Loss function using the variance of the PCA components as weights
-#     weights = full_dataset.get_pca_variance()
-    
-#     print(f"Explained Variance - T: {(sum(full_dataset.pca_temp.explained_variance_ratio_)*100):.1f}% - S: {(100*sum(full_dataset.pca_sal.explained_variance_ratio_)):.1f}%")
-    
-#     # Set the appropriate loss
-#     # criterion = genWeightedMSELoss(n_components, device, weights)
-#     # criterion = PCALoss(temp_pca=train_dataset.dataset, sal_pca=train_dataset.dataset, n_components=n_components)
-#     criterion = CombinedPCALoss(temp_pca=train_dataset.dataset, 
-#                             sal_pca=train_dataset.dataset, 
-#                             n_components=n_components, 
-#                             weights=weights, 
-#                             device=device)
-    
-#     # print parameters and dataset size
-#     true_params = [param for param, value in input_params.items() if value]
-#     def printParams():   
-#         print(f"\nNumber of profiles: {len(full_dataset)}")
-#         print("Parameters used:", ", ".join(true_params))
-#         print(f"Min depth: {min_depth}, Max depth: {max_depth}")
-#         print(f"Number of components used: {n_components} x2")
-#         print(f"Batch size: {batch_size}")
-#         print(f"Learning rate: {learning_rate}")
-#         print(f"Dropout probability: {dropout_prob}")
-#         print(f'Train/test/validation split: {train_size}/{test_size}/{val_size}')
-#         print(f"Layer configuration: {layers_config}\n")
-    
-#     printParams()
-    
-#     if load_trained_model:
-#         model_path = '/unity/g2/jmiranda/SubsurfaceFields/GEM_SubsurfaceFields/saved_models/model_Test Loss: 14.2710_2024-02-26 12:47:18_sat.pth' #old best model
-#         # model_path = '/unity/g2/jmiranda/SubsurfaceFields/GEM_SubsurfaceFields/saved_models/model_Test Loss: 1.9738_2024-10-05 17:35:21_sat.pth'
-#         trained_model = torch.load(model_path, map_location=torch.device(DEVICE))
-#     else:
-#         for run in enumerate(np.arange(n_runs)):
-#             print(f"Run {run[0]}/{n_runs}")
-#             # Model
-
-#             model = PredictionModel(input_dim=input_dim, layers_config=layers_config, output_dim=n_components*2, dropout_prob = dropout_prob)
-#             optimizer = optim.Adam(model.parameters(), lr=learning_rate)
-            
-#             # Training
-#             trained_model = train_model(model, train_loader, val_loader, criterion, optimizer, device, epochs, patience)
-            
-#             # Test evaluation
-#             test_loss = evaluate_model(trained_model, test_loader, criterion, device)
-#             print(f"Test Loss: {test_loss:.4f}")
-
-#             save_model_path = "/unity/g2/jmiranda/SubsurfaceFields/GEM_SubsurfaceFields/saved_models/model_"
-#             save_model_path += f"Test Loss: {test_loss:.4f}" + "_"
-#             suffix = ".pth"
-#             if input_params['sat']:
-#                 suffix = "_sat.pth"
-            
-#             now = datetime.now()
-#             now_str = now.strftime("%Y-%m-%d %H:%M:%S")
-#             save_model_path += now_str + suffix
-            
-#             torch.save(trained_model, save_model_path)
-#             print(f"Saved model to {save_model_path}")
             
     print("Statistics from the last run:")
     print("Method & # profiles & Time (ms) & Time per profile (µs)")
@@ -1854,8 +1740,68 @@ if __name__ == "__main__":
     # For PCA approximated profiles
     pca_approx_profiles = val_dataset.dataset.get_profiles(subset_indices, pca_approx=True)
     
-    pred_T = val_predictions[0]
-    pred_S = val_predictions[1]
+    if ensemble_models:
+        # Directory where models are saved
+        models_dir = '/unity/g2/jmiranda/SubsurfaceFields/GEM_SubsurfaceFields/saved_models/'
+        
+        start_time = time.perf_counter()
+        
+        # Load all models
+        models = load_all_models(
+            models_dir=models_dir,
+            device=device,
+            input_dim=input_dim,
+            layers_config=layers_config,
+            n_components=n_components,
+            dropout_prob=dropout_prob
+        )
+        # print(f"Loaded {len(models)} models.")
+        
+        # Initialize accumulators for predictions
+        accumulated_pred_T = None
+        accumulated_pred_S = None
+        
+        # Iterate over each model and accumulate predictions
+        for model in models:
+            # print(f"Generating predictions with model: {model}")
+            # Get predictions for the validation dataset
+            val_predictions_pcs = get_predictions(model, val_loader, device)
+            # Inverse transform to get actual predictions
+            val_predictions = val_dataset.dataset.inverse_transform(val_predictions_pcs)
+            
+            # Split predictions into T and S
+            pred_T_current = val_predictions[0]  # Assuming index 0 for T
+            pred_S_current = val_predictions[1]  # Assuming index 1 for S
+            
+            # Accumulate predictions
+            if accumulated_pred_T is None:
+                accumulated_pred_T = pred_T_current
+                accumulated_pred_S = pred_S_current
+            else:
+                accumulated_pred_T += pred_T_current
+                accumulated_pred_S += pred_S_current
+        
+        # Compute the average predictions
+        avg_pred_T = accumulated_pred_T / len(models)
+        avg_pred_S = accumulated_pred_S / len(models)
+        
+        # End time
+        end_time = time.perf_counter()
+        
+        # Calculate elapsed time
+        cuda_elapsed_time = (end_time - start_time)
+        
+        # Assign averaged predictions to final variables
+        pred_T = avg_pred_T
+        pred_S = avg_pred_S
+        
+        print(f"NeSPReSO ensamble 15x & {cuda_elapsed_time*1e3:.2f} & {((cuda_elapsed_time*1e6)/n_val):.2f}")
+            
+    else:
+        # if not ensamble, get predictions from model
+        pred_T = val_predictions[0]
+        pred_S = val_predictions[1]
+    
     orig_T = original_profiles[:, 0, :]
     orig_S = original_profiles[:, 1, :]
     
@@ -1919,8 +1865,8 @@ if __name__ == "__main__":
     # gem_temp_errors = (gem_temp.T - original_profiles[:, 0, :]) ** 2
     # gem_sal_errors = (gem_sal.T - original_profiles[:, 1, :]) ** 2
 
-    # nn_temp_errors = (val_predictions[0][:, :] - original_profiles[:, 0, :]) ** 2
-    # nn_sal_errors = (val_predictions[1][:, :] - original_profiles[:, 1, :]) ** 2
+    # nn_temp_errors = (pred_T[:, :] - original_profiles[:, 0, :]) ** 2
+    # nn_sal_errors = (pred_S[:, :] - original_profiles[:, 1, :]) ** 2
 
     gem_temp_se = gems_T_resid**2
     gem_sal_se = gems_S_resid**2
@@ -2050,8 +1996,8 @@ if __name__ == "__main__":
     
     # same maps, but bias    
     # Calculate average temperature bias for NN, GEM and ISOP
-    # nn_t_bias = np.mean(val_predictions[0][:, :] - original_profiles[:, 0, :], axis = 0)
-    # nn_s_bias = np.mean(val_predictions[1][:, :] - original_profiles[:, 1, :], axis = 0)
+    # nn_t_bias = np.mean(pred_T[:, :] - original_profiles[:, 0, :], axis = 0)
+    # nn_s_bias = np.mean(pred_S[:, :] - original_profiles[:, 1, :], axis = 0)
     # gem_t_bias = np.mean(gem_temp.T - original_profiles[:, 0, :], axis = 0)
     # gem_s_bias = np.mean(gem_sal.T - original_profiles[:, 1, :], axis = 0)
     
@@ -2154,8 +2100,8 @@ if __name__ == "__main__":
     # plot_comparison_maps(lon_centers, lat_centers, avg_rmse_nn_s, avg_rmse_gdem_s, "salinity", "GDEM")
     
     # Residual calculations
-    nn_temp_residuals = val_predictions[0][:, :] - original_profiles[:, 0, :]
-    nn_sal_residuals = val_predictions[1][:, :] - original_profiles[:, 1, :]
+    nn_temp_residuals = pred_T - original_profiles[:, 0, :]
+    nn_sal_residuals = pred_S - original_profiles[:, 1, :]
     
     # print(f'shape of residuals is: {len(nn_temp_residuals)} - {nn_temp_residuals[0].shape}')
 
@@ -2277,8 +2223,8 @@ if __name__ == "__main__":
     #         models.append(model)
 
     #     # Collect predictions from all models
-    #     ensemble_temp_val_predictions = np.zeros_like(val_predictions[0])
-    #     ensemble_sal_val_predictions = np.zeros_like(val_predictions[1])
+    #     ensemble_temp_val_predictions = np.zeros_like(pred_T)
+    #     ensemble_sal_val_predictions = np.zeros_like(pred_S)
     #     ct = 0
     #     for model in models:
     #         predictions_pcs = get_predictions(model, val_loader, device)
@@ -2813,22 +2759,22 @@ if __name__ == "__main__":
     h3 = histogram_available_depths(T3) 
     h4 = histogram_available_depths(T4)
     
-    eq_rmse_T1, eq_corr_T1 = equivalent_average_statistic(val_predictions[0], original_profiles[:,0,:], h1, gld_depths, rmse)
-    eq_bias_T1, eq_corr_T1 = equivalent_average_statistic(val_predictions[0], original_profiles[:,0,:], h1, gld_depths, bias)
-    eq_rmse_S1, eq_corr_S1 = equivalent_average_statistic(val_predictions[1], original_profiles[:,1,:], h1, gld_depths, rmse)
-    eq_bias_S1, eq_corr_S1 = equivalent_average_statistic(val_predictions[1], original_profiles[:,1,:], h1, gld_depths, bias)
-    eq_rmse_T2, eq_corr_T2 = equivalent_average_statistic(val_predictions[0], original_profiles[:,0,:], h2, gld_depths, rmse)
-    eq_bias_T2, eq_corr_T2 = equivalent_average_statistic(val_predictions[0], original_profiles[:,0,:], h2, gld_depths, bias)
-    eq_rmse_S2, eq_corr_S2 = equivalent_average_statistic(val_predictions[1], original_profiles[:,1,:], h2, gld_depths, rmse)
-    eq_bias_S2, eq_corr_S2 = equivalent_average_statistic(val_predictions[1], original_profiles[:,1,:], h2, gld_depths, bias)
-    eq_rmse_T3, eq_corr_T3 = equivalent_average_statistic(val_predictions[0], original_profiles[:,0,:], h3, gld_depths, rmse)
-    eq_bias_T3, eq_corr_T3 = equivalent_average_statistic(val_predictions[0], original_profiles[:,0,:], h3, gld_depths, bias)
-    eq_rmse_S3, eq_corr_S3 = equivalent_average_statistic(val_predictions[1], original_profiles[:,1,:], h3, gld_depths, rmse)
-    eq_bias_S3, eq_corr_S3 = equivalent_average_statistic(val_predictions[1], original_profiles[:,1,:], h3, gld_depths, bias)
-    eq_rmse_T4, eq_corr_T4 = equivalent_average_statistic(val_predictions[0], original_profiles[:,0,:], h4, gld_depths, rmse)
-    eq_bias_T4, eq_corr_T4 = equivalent_average_statistic(val_predictions[0], original_profiles[:,0,:], h4, gld_depths, bias)
-    eq_rmse_S4, eq_corr_S4 = equivalent_average_statistic(val_predictions[1], original_profiles[:,1,:], h4, gld_depths, rmse)
-    eq_bias_S4, eq_corr_S4 = equivalent_average_statistic(val_predictions[1], original_profiles[:,1,:], h4, gld_depths, bias)    
+    eq_rmse_T1, eq_corr_T1 = equivalent_average_statistic(pred_T, original_profiles[:,0,:], h1, gld_depths, rmse)
+    eq_bias_T1, eq_corr_T1 = equivalent_average_statistic(pred_T, original_profiles[:,0,:], h1, gld_depths, bias)
+    eq_rmse_S1, eq_corr_S1 = equivalent_average_statistic(pred_S, original_profiles[:,1,:], h1, gld_depths, rmse)
+    eq_bias_S1, eq_corr_S1 = equivalent_average_statistic(pred_S, original_profiles[:,1,:], h1, gld_depths, bias)
+    eq_rmse_T2, eq_corr_T2 = equivalent_average_statistic(pred_T, original_profiles[:,0,:], h2, gld_depths, rmse)
+    eq_bias_T2, eq_corr_T2 = equivalent_average_statistic(pred_T, original_profiles[:,0,:], h2, gld_depths, bias)
+    eq_rmse_S2, eq_corr_S2 = equivalent_average_statistic(pred_S, original_profiles[:,1,:], h2, gld_depths, rmse)
+    eq_bias_S2, eq_corr_S2 = equivalent_average_statistic(pred_S, original_profiles[:,1,:], h2, gld_depths, bias)
+    eq_rmse_T3, eq_corr_T3 = equivalent_average_statistic(pred_T, original_profiles[:,0,:], h3, gld_depths, rmse)
+    eq_bias_T3, eq_corr_T3 = equivalent_average_statistic(pred_T, original_profiles[:,0,:], h3, gld_depths, bias)
+    eq_rmse_S3, eq_corr_S3 = equivalent_average_statistic(pred_S, original_profiles[:,1,:], h3, gld_depths, rmse)
+    eq_bias_S3, eq_corr_S3 = equivalent_average_statistic(pred_S, original_profiles[:,1,:], h3, gld_depths, bias)
+    eq_rmse_T4, eq_corr_T4 = equivalent_average_statistic(pred_T, original_profiles[:,0,:], h4, gld_depths, rmse)
+    eq_bias_T4, eq_corr_T4 = equivalent_average_statistic(pred_T, original_profiles[:,0,:], h4, gld_depths, bias)
+    eq_rmse_S4, eq_corr_S4 = equivalent_average_statistic(pred_S, original_profiles[:,1,:], h4, gld_depths, rmse)
+    eq_bias_S4, eq_corr_S4 = equivalent_average_statistic(pred_S, original_profiles[:,1,:], h4, gld_depths, bias)    
     
     correlation_T1 = calculate_correlation(T1, T_pred1_binned)
     correlation_S1 = calculate_correlation(S1, S_pred1_binned)
@@ -2963,10 +2909,10 @@ if __name__ == "__main__":
         color = cmap(norm(ADT_normalized[i]))  # Map the ADT value to a color
         ax.plot(full_dataset.SAL[:, i], full_dataset.TEMP[:, i], color=color, linewidth=0.5)
 
-    for i in range(val_predictions[0].shape[1]):  # Assuming TEMP and SAL have the same second dimension
+    for i in range(pred_T.shape[1]):  # Assuming TEMP and SAL have the same second dimension
         # TEMP[:, i] and SAL[:, i] form the x and y coordinates of the ith line
         # color = cmap(norm(ADT_normalized[i]))  # Map the ADT value to a color
-        ax.plot(val_predictions[1][:, i], val_predictions[0][:, i], color='pink', linewidth=0.2)
+        ax.plot(pred_S[:, i], pred_T[:, i], color='pink', linewidth=0.2)
     
     sm = plt.cm.ScalarMappable(cmap=cmap, norm=norm)
     sm.set_array([])  # This line is necessary for ScalarMappable to work with colorbar
@@ -3041,7 +2987,7 @@ if __name__ == "__main__":
     ax2.legend(fontsize=12)
     
     # calculate average bias and rmse for depth ranges
-    print("Depth range \t NeSPReSO T RMSE \t GEM T RMSE \t ISOP T RMSE \t NeSPReSO T Bias \t GEM T Bias \t ISOP T Bias \t NeSPReSO S RMSE \t GEM S RMSE \t ISOP S RMSE \t NeSPReSO S Bias \t GEM S Bias \t ISOP S Bias")
+    print("Depth range \t NeSPReSO T RMSE \t GEM T RMSE \t ISOP T RMSE \t NeSPReSO T Bias \t GEM T Bias \t ISOP T Bias \t NeSPReSO S RMSE \t GEM S RMSE \t ISOP S RMSE \t NeSPReSO S Bias \t GEM S Bias \t ISOP S Bias \t NeSPReSO T R^2 \t GEM T R^2 \t NeSPReSO S R^2 \t GEM S R^2")
     intervals = [(min_depth, 20), (20, 100), (100, 200), (200, 500), (500, 1000), (1000, max_depth), (0, 1000), (min_depth, max_depth)]    
     
     for i in range(len(intervals)):
@@ -3052,12 +2998,12 @@ if __name__ == "__main__":
             # gem_temp_errors = (gem_temp.T - original_profiles[:, 0, :]) ** 2
             # gem_sal_errors = (gem_sal.T - original_profiles[:, 1, :]) ** 2
 
-            # nn_temp_errors = (val_predictions[0][:, :] - original_profiles[:, 0, :]) ** 2
-            # nn_sal_errors = (val_predictions[1][:, :] - original_profiles[:, 1, :]) ** 2
+            # nn_temp_errors = (pred_T[:, :] - original_profiles[:, 0, :]) ** 2
+            # nn_sal_errors = (pred_S[:, :] - original_profiles[:, 1, :]) ** 2
         ori_t = original_profiles[calc_depths, 0, :]
         ori_s = original_profiles[calc_depths, 1, :]
-        nn_t = val_predictions[0][calc_depths, :]
-        nn_s = val_predictions[1][calc_depths, :]
+        nn_t = pred_T[calc_depths, :]
+        nn_s = pred_S[calc_depths, :]
         gem_t = gem_temp[:,calc_depths].T
         gem_s = gem_sal[:,calc_depths].T
         nn_t_rmse = rmse(nn_t, ori_t)
@@ -3084,86 +3030,86 @@ if __name__ == "__main__":
         # print("\hline")
         
         
-    #create a netcdf file with the validation dataset
-    sst_val = get_inputs(val_loader, device)[:,-2]
-    lat_val = val_dataset.dataset.LAT[val_indices]
-    lon_val = val_dataset.dataset.LON[val_indices]
-    date_val = datenums_to_datetimes(val_dataset.dataset.TIME[val_indices])
-    T_profiles_val = original_profiles[:,0,:]
-    S_profiles_val = original_profiles[:,1,:]
-    depth = np.arange(0,1801)
+    # #create a netcdf file with the validation dataset
+    # sst_val = get_inputs(val_loader, device)[:,-2]
+    # lat_val = val_dataset.dataset.LAT[val_indices]
+    # lon_val = val_dataset.dataset.LON[val_indices]
+    # date_val = datenums_to_datetimes(val_dataset.dataset.TIME[val_indices])
+    # T_profiles_val = original_profiles[:,0,:]
+    # S_profiles_val = original_profiles[:,1,:]
+    # depth = np.arange(0,1801)
 
-    sst_val.shape, lat_val.shape, lon_val.shape, type(date_val), type(date_val[0]), len(date_val), T_profiles_val.shape, S_profiles_val.shape, depth.shape
+    # sst_val.shape, lat_val.shape, lon_val.shape, type(date_val), type(date_val[0]), len(date_val), T_profiles_val.shape, S_profiles_val.shape, depth.shape
 
-    from netCDF4 import Dataset
-    # import numpy as np
-    from datetime import datetime, timedelta
+    # from netCDF4 import Dataset
+    # # import numpy as np
+    # from datetime import datetime, timedelta
 
-    def create_netcdf(filename, sst_val, lat_val, lon_val, date_val, T_profiles_val, S_profiles_val, depth):
-        with Dataset(filename, 'w', format='NETCDF4') as nc:
-            # Dimensions
-            nc.createDimension('time', len(date_val))
-            nc.createDimension('lat', len(lat_val))
-            nc.createDimension('lon', len(lon_val))
-            nc.createDimension('depth', len(depth))
+    # def create_netcdf(filename, sst_val, lat_val, lon_val, date_val, T_profiles_val, S_profiles_val, depth):
+    #     with Dataset(filename, 'w', format='NETCDF4') as nc:
+    #         # Dimensions
+    #         nc.createDimension('time', len(date_val))
+    #         nc.createDimension('lat', len(lat_val))
+    #         nc.createDimension('lon', len(lon_val))
+    #         nc.createDimension('depth', len(depth))
             
-            # Variables
-            times = nc.createVariable('time', 'f8', ('time',))
-            lats = nc.createVariable('lat', 'f4', ('lat',))
-            lons = nc.createVariable('lon', 'f4', ('lon',))
-            depths = nc.createVariable('depth', 'f4', ('depth',))
-            sst = nc.createVariable('sst', 'f4', ('time',))
-            T_profiles = nc.createVariable('T_profiles', 'f4', ('depth', 'time'))
-            S_profiles = nc.createVariable('S_profiles', 'f4', ('depth', 'time'))
+    #         # Variables
+    #         times = nc.createVariable('time', 'f8', ('time',))
+    #         lats = nc.createVariable('lat', 'f4', ('lat',))
+    #         lons = nc.createVariable('lon', 'f4', ('lon',))
+    #         depths = nc.createVariable('depth', 'f4', ('depth',))
+    #         sst = nc.createVariable('sst', 'f4', ('time',))
+    #         T_profiles = nc.createVariable('T_profiles', 'f4', ('depth', 'time'))
+    #         S_profiles = nc.createVariable('S_profiles', 'f4', ('depth', 'time'))
             
-            # Convert datetime to numeric time values
-            ref_date = datetime(1900, 1, 1)
-            numeric_dates = [(d - ref_date).total_seconds() for d in date_val]
-            times[:] = numeric_dates
+    #         # Convert datetime to numeric time values
+    #         ref_date = datetime(1900, 1, 1)
+    #         numeric_dates = [(d - ref_date).total_seconds() for d in date_val]
+    #         times[:] = numeric_dates
             
-            # Assign data
-            lats[:] = lat_val
-            lons[:] = lon_val
-            depths[:] = depth
-            sst[:] = sst_val
-            T_profiles[:, :] = T_profiles_val
-            S_profiles[:, :] = S_profiles_val
+    #         # Assign data
+    #         lats[:] = lat_val
+    #         lons[:] = lon_val
+    #         depths[:] = depth
+    #         sst[:] = sst_val
+    #         T_profiles[:, :] = T_profiles_val
+    #         S_profiles[:, :] = S_profiles_val
             
-            # Add attributes
-            nc.description = 'Dataset used for acquiring statistics for ISOP, GEM and NeSPReSO methods. Contains SST, latitude, longitude, date, temperature profiles, salinity profiles, and depth.'
-            sst.units = 'Celsius'
-            lats.units = 'degrees'
-            lons.units = 'degrees'
-            depths.units = 'meter'
-            times.units = 'seconds since 1900-01-01 00:00:00'
-            T_profiles.units = 'Celsius'
-            S_profiles.units = 'PSU'
+    #         # Add attributes
+    #         nc.description = 'Dataset used for acquiring statistics for ISOP, GEM and NeSPReSO methods. Contains SST, latitude, longitude, date, temperature profiles, salinity profiles, and depth.'
+    #         sst.units = 'Celsius'
+    #         lats.units = 'degrees'
+    #         lons.units = 'degrees'
+    #         depths.units = 'meter'
+    #         times.units = 'seconds since 1900-01-01 00:00:00'
+    #         T_profiles.units = 'Celsius'
+    #         S_profiles.units = 'PSU'
             
-            print(f"NetCDF file '{filename}' created successfully.")
+    #         print(f"NetCDF file '{filename}' created successfully.")
             
-    # making a histogream of missing dates
-    full_dataset.data['TIME']
-    full_dataset.TIME
-    dates = datenums_to_datetimes(np.sort(full_dataset.data['TIME'][np.isin(full_dataset.data['TIME'], full_dataset.TIME, invert=True)]))
-    # Extracting year and month for each date
-    date_counts = Counter([(date.year, date.month) for date in dates])
+    # # making a histogream of missing dates
+    # full_dataset.data['TIME']
+    # full_dataset.TIME
+    # dates = datenums_to_datetimes(np.sort(full_dataset.data['TIME'][np.isin(full_dataset.data['TIME'], full_dataset.TIME, invert=True)]))
+    # # Extracting year and month for each date
+    # date_counts = Counter([(date.year, date.month) for date in dates])
 
-    # Sorting the dates for plotting
-    sorted_date_counts = dict(sorted(date_counts.items()))
+    # # Sorting the dates for plotting
+    # sorted_date_counts = dict(sorted(date_counts.items()))
 
-    # Creating labels and values for the histogram
-    labels = [f"{year}-{month:02}" for year, month in sorted_date_counts.keys()]
-    values = list(sorted_date_counts.values())
+    # # Creating labels and values for the histogram
+    # labels = [f"{year}-{month:02}" for year, month in sorted_date_counts.keys()]
+    # values = list(sorted_date_counts.values())
 
-    # Plotting the histogram
-    plt.figure(figsize=(22, 14))
-    plt.bar(labels, values)
-    plt.xlabel('Year-Month')
-    plt.ylabel('Frequency')
-    plt.title('Monthly Histogram of Dates')
-    plt.xticks(rotation=45)
-    plt.tight_layout()
-    plt.show()
+    # # Plotting the histogram
+    # plt.figure(figsize=(22, 14))
+    # plt.bar(labels, values)
+    # plt.xlabel('Year-Month')
+    # plt.ylabel('Frequency')
+    # plt.title('Monthly Histogram of Dates')
+    # plt.xticks(rotation=45)
+    # plt.tight_layout()
+    # plt.show()
     
     # filename = "/unity/g2/jmiranda/SubsurfaceFields/GEM_SubsurfaceFields/Test_dataset.nc"
     # # Creating the NetCDF file
@@ -3247,146 +3193,148 @@ if __name__ == "__main__":
 # # Average gradient below MLD in m/s per 100 feet using the NPL equation
 # BLG_NPL = np.mean(gradient_NPL[MLD_index:]) * conversion_factor
 
-## Eddy experiment - nature run stuff
+# ## Eddy experiment - nature run stuff
 
-#compare ssh distributions:
+# #compare ssh distributions:
 
-    from matplotlib.ticker import PercentFormatter
-    from scipy.io import loadmat
+#     from matplotlib.ticker import PercentFormatter
+#     from scipy.io import loadmat
 
-    def aggregate_from_mat(folder_path, *variable_names):
-        aggregated_data = {var_name: [] for var_name in variable_names}
+#     def aggregate_from_mat(folder_path, *variable_names):
+#         aggregated_data = {var_name: [] for var_name in variable_names}
 
-        # Loop through all files in the directory
-        for filename in os.listdir(folder_path):
-            if filename.endswith('.mat'):
-                file_path = os.path.join(folder_path, filename)
-                mat_data = loadmat(file_path)
+#         # Loop through all files in the directory
+#         for filename in os.listdir(folder_path):
+#             if filename.endswith('.mat'):
+#                 file_path = os.path.join(folder_path, filename)
+#                 mat_data = loadmat(file_path)
                 
-                # Check if each variable exists in the .mat file and aggregate
-                for var_name in variable_names:
-                    if var_name in mat_data:
-                        var_data = mat_data[var_name]
-                        aggregated_data[var_name].append(np.expand_dims(var_data, axis=-1))
-                    else:
-                        print(f"'{var_name}' not found in {filename}")
+#                 # Check if each variable exists in the .mat file and aggregate
+#                 for var_name in variable_names:
+#                     if var_name in mat_data:
+#                         var_data = mat_data[var_name]
+#                         aggregated_data[var_name].append(np.expand_dims(var_data, axis=-1))
+#                     else:
+#                         print(f"'{var_name}' not found in {filename}")
             
-        # Combine all variable data into single numpy arrays along the new axis
-        for var_name in variable_names:
-            if aggregated_data[var_name]:
-                aggregated_data[var_name] = np.concatenate(aggregated_data[var_name], axis=-1)
-            else:
-                print(f"No '{var_name}' data found in any .mat files.")
+#         # Combine all variable data into single numpy arrays along the new axis
+#         for var_name in variable_names:
+#             if aggregated_data[var_name]:
+#                 aggregated_data[var_name] = np.concatenate(aggregated_data[var_name], axis=-1)
+#             else:
+#                 print(f"No '{var_name}' data found in any .mat files.")
         
-        return aggregated_data
+#         return aggregated_data
 
-    # Example usage:
-    folder_path = '/unity/g2/jmiranda/SubsurfaceFields/Data/NatureRun/'
-    ssh_nature_run = aggregate_from_mat(folder_path, 'ssh10')['ssh10'].flatten()
+#     # Example usage:
+#     folder_path = '/unity/g2/jmiranda/SubsurfaceFields/Data/NatureRun/'
+#     ssh_nature_run = aggregate_from_mat(folder_path, 'ssh10')['ssh10'].flatten()
 
-    a = full_dataset.AVISO_ADT
-    n, bins, _ = plt.hist(a, weights=np.ones(len(a))/len(a), bins=100, color='blue', label='Training AVISO SSH')
-    plt.hist(ssh_nature_run, weights=np.ones(len(ssh_nature_run))/len(ssh_nature_run), bins=bins, color='red', label='Nature run SSH')
-    plt.gca().yaxis.set_major_formatter(PercentFormatter(1))
+#     a = full_dataset.AVISO_ADT
+#     n, bins, _ = plt.hist(a, weights=np.ones(len(a))/len(a), bins=100, color='blue', label='Training AVISO SSH')
+#     plt.hist(ssh_nature_run, weights=np.ones(len(ssh_nature_run))/len(ssh_nature_run), bins=bins, color='red', label='Nature run SSH')
+#     plt.gca().yaxis.set_major_formatter(PercentFormatter(1))
 
-    # Set custom x-ticks every 0.1 from -0.4 to 0.9
-    plt.xticks(np.arange(-0.4, 1.0, 0.1), fontsize=11)
-    plt.yticks(fontsize=11)
-    plt.legend(fontsize=11)
+#     # Set custom x-ticks every 0.1 from -0.4 to 0.9
+#     plt.xticks(np.arange(-0.4, 1.0, 0.1), fontsize=11)
+#     plt.yticks(fontsize=11)
+#     plt.legend(fontsize=11)
 
 
 
-    # Compare T/S diagrams for ssh ranges
-    ssh_nature_run = aggregate_from_mat(folder_path, 'ssh10')['ssh10']
-    T_nature_run = aggregate_from_mat(folder_path, 'temp10')['temp10']
-    S_nature_run = aggregate_from_mat(folder_path, 'sal10')['sal10']
+#     # Compare T/S diagrams for ssh ranges
+#     ssh_nature_run = aggregate_from_mat(folder_path, 'ssh10')['ssh10']
+#     T_nature_run = aggregate_from_mat(folder_path, 'temp10')['temp10']
+#     S_nature_run = aggregate_from_mat(folder_path, 'sal10')['sal10']
 
-    import matplotlib.colors as mcolors
+#     import matplotlib.colors as mcolors
 
-    def plot_ts_profiles(datasets, dataset_labels, sigma_theta, Sg, Tg, cores, cmap_name='viridis'):
-        """
-        Plots T-S profiles from multiple datasets on the same plot.
+#     def plot_ts_profiles(datasets, dataset_labels, sigma_theta, Sg, Tg, cores, cmap_name='viridis'):
+#         """
+#         Plots T-S profiles from multiple datasets on the same plot.
         
-        Parameters:
-        - datasets: List of tuples [(TEMP1, SAL1), (TEMP2, SAL2), ...]
-                    Each tuple contains temperature and salinity data.
-        - dataset_labels: List of labels corresponding to each dataset.
-        - sigma_theta: 2D array of sigma_theta values for contour plotting.
-        - Sg: 2D array of salinity grid values for contour plotting.
-        - Tg: 2D array of temperature grid values for contour plotting.
-        - cores: Dictionary containing core water mass points to be marked on the plot.
-                Example: {"SAAIW": (34.9, 6.5), "GCW": (36.4, 22.3), "NASUW": (36.8, 22)}
-        - cmap_name: Name of the color map to use for distinguishing datasets (default: 'viridis').
+#         Parameters:
+#         - datasets: List of tuples [(TEMP1, SAL1), (TEMP2, SAL2), ...]
+#                     Each tuple contains temperature and salinity data.
+#         - dataset_labels: List of labels corresponding to each dataset.
+#         - sigma_theta: 2D array of sigma_theta values for contour plotting.
+#         - Sg: 2D array of salinity grid values for contour plotting.
+#         - Tg: 2D array of temperature grid values for contour plotting.
+#         - cores: Dictionary containing core water mass points to be marked on the plot.
+#                 Example: {"SAAIW": (34.9, 6.5), "GCW": (36.4, 22.3), "NASUW": (36.8, 22)}
+#         - cmap_name: Name of the color map to use for distinguishing datasets (default: 'viridis').
         
-        Returns:
-        - None
-        """
+#         Returns:
+#         - None
+#         """
         
-        # Initialize the plot
-        fig, ax = plt.subplots(figsize=(10, 8))
+#         # Initialize the plot
+#         fig, ax = plt.subplots(figsize=(10, 8))
         
-        # Plot sigma_theta contours
-        cs = ax.contour(Sg, Tg, sigma_theta, colors='grey', zorder=1)
+#         # Plot sigma_theta contours
+#         cs = ax.contour(Sg, Tg, sigma_theta, colors='grey', zorder=1)
         
-        # Create a color map
-        cmap = plt.get_cmap(cmap_name)
-        colors = cmap(np.linspace(0, 1, len(datasets)))
+#         # Create a color map
+#         cmap = plt.get_cmap(cmap_name)
+#         colors = cmap(np.linspace(0, 1, len(datasets)))
         
-        # Plot T-S profiles for each dataset
-        for idx, (TEMP, SAL) in enumerate(datasets):
-            label = dataset_labels[idx]
-            color = colors[idx]
+#         # Plot T-S profiles for each dataset
+#         for idx, (TEMP, SAL) in enumerate(datasets):
+#             label = dataset_labels[idx]
+#             color = colors[idx]
             
-            # Ensure TEMP and SAL are 2D arrays for plotting
-            if TEMP.ndim == 1:
-                TEMP = TEMP[:, np.newaxis]
-            if SAL.ndim == 1:
-                SAL = SAL[:, np.newaxis]
+#             # Ensure TEMP and SAL are 2D arrays for plotting
+#             if TEMP.ndim == 1:
+#                 TEMP = TEMP[:, np.newaxis]
+#             if SAL.ndim == 1:
+#                 SAL = SAL[:, np.newaxis]
             
-            for i in range(TEMP.shape[1]):  # Plot each profile in the dataset
-                ax.plot(SAL[:, i], TEMP[:, i], color=color, linewidth=0.5, label=label if i == 0 else "")
+#             for i in range(TEMP.shape[1]):  # Plot each profile in the dataset
+#                 ax.plot(SAL[:, i], TEMP[:, i], color=color, linewidth=0.5, label=label if i == 0 else "")
         
-        # Plot core water masses
-        for label, (salinity, temperature) in cores.items():
-            ax.plot(salinity, temperature, 'o', markersize=7, color='black')
-            ax.text(salinity, temperature, label, fontsize=11, verticalalignment='bottom', horizontalalignment='right', fontweight='bold')
+#         # Plot core water masses
+#         for label, (salinity, temperature) in cores.items():
+#             ax.plot(salinity, temperature, 'o', markersize=7, color='black')
+#             ax.text(salinity, temperature, label, fontsize=11, verticalalignment='bottom', horizontalalignment='right', fontweight='bold')
 
-        # Configure the plot
-        ax.set_xlim(34.5, 37.5)
-        plt.clabel(cs, fontsize=10, inline=False, fmt='%.1f', colors='k')
-        plt.xlabel('Salinity [PSU]')
-        plt.ylabel('Temperature [°C]')
-        plt.title('T-S Diagram')
-        plt.legend(fontsize=10)
-        plt.show()
+#         # Configure the plot
+#         ax.set_xlim(34.5, 37.5)
+#         plt.clabel(cs, fontsize=10, inline=False, fmt='%.1f', colors='k')
+#         plt.xlabel('Salinity [PSU]')
+#         plt.ylabel('Temperature [°C]')
+#         plt.title('T-S Diagram')
+#         plt.legend(fontsize=10)
+#         plt.show()
         
-    def index_for_range(data, min_val, max_val):
-        return np.where((data >= min_val) & (data <= max_val))[0]
+#     def index_for_range(data, min_val, max_val):
+#         return np.where((data >= min_val) & (data <= max_val))[0]
 
-    # # Filter data based on SSH ranges
-    # ssh_nature_run = ssh_nature_run.flatten()  # Assuming SSH values need to be compared
-    # # Remove NaN values and corresponding indices from b, T_nature_run, and S_nature_run
-    # valid_indices = ~np.isnan(ssh_nature_run)
-    # ssh_nature_run = ssh_nature_run[valid_indices]
-    # T_nature_run = T_nature_run[valid_indices]
-    # S_nature_run = S_nature_run[valid_indices]
-    # ssh_05to_01 = index_for_range(ssh_nature_run, -0.05, -0.01)
-    # ssh_01to01 = index_for_range(ssh_nature_run, -0.01, 0.01)
-    # ssh_01to10 = index_for_range(ssh_nature_run, 0.01, 0.1)
-    # ssh_10to30 = index_for_range(ssh_nature_run, 0.1, 0.3)
+#     # # Filter data based on SSH ranges
+#     # ssh_nature_run = ssh_nature_run.flatten()  # Assuming SSH values need to be compared
+#     # # Remove NaN values and corresponding indices from b, T_nature_run, and S_nature_run
+#     # valid_indices = ~np.isnan(ssh_nature_run)
+#     # ssh_nature_run = ssh_nature_run[valid_indices]
+#     # T_nature_run = T_nature_run[valid_indices]
+#     # S_nature_run = S_nature_run[valid_indices]
+#     # ssh_05to_01 = index_for_range(ssh_nature_run, -0.05, -0.01)
+#     # ssh_01to01 = index_for_range(ssh_nature_run, -0.01, 0.01)
+#     # ssh_01to10 = index_for_range(ssh_nature_run, 0.01, 0.1)
+#     # ssh_10to30 = index_for_range(ssh_nature_run, 0.1, 0.3)
 
-    # # Build datasets with correct dimensions
-    # datasets = [
-    #     (T_nature_run[ssh_05to_01], S_nature_run[ssh_05to_01]),
-    #     (T_nature_run[ssh_01to01], S_nature_run[ssh_01to01]),
-    #     (T_nature_run[ssh_01to10], S_nature_run[ssh_01to10]),
-    #     (T_nature_run[ssh_10to30], S_nature_run[ssh_10to30])
-    # ]
+#     # # Build datasets with correct dimensions
+#     # datasets = [
+#     #     (T_nature_run[ssh_05to_01], S_nature_run[ssh_05to_01]),
+#     #     (T_nature_run[ssh_01to01], S_nature_run[ssh_01to01]),
+#     #     (T_nature_run[ssh_01to10], S_nature_run[ssh_01to10]),
+#     #     (T_nature_run[ssh_10to30], S_nature_run[ssh_10to30])
+#     # ]
 
-    # dataset_labels = ['SSH -0.05 to -0.01', 'SSH -0.01 to 0.01', 'SSH 0.01 to 0.1', 'SSH 0.1 to 0.3']
+#     # dataset_labels = ['SSH -0.05 to -0.01', 'SSH -0.01 to 0.01', 'SSH 0.01 to 0.1', 'SSH 0.1 to 0.3']
 
-    # # Plotting the T-S profiles
-    # plot_ts_profiles(datasets, dataset_labels, sigma_theta, Sg, Tg, cores, cmap_name='viridis')
+#     # # Plotting the T-S profiles
+#     # plot_ts_profiles(datasets, dataset_labels, sigma_theta, Sg, Tg, cores, cmap_name='viridis')
+    
+    ## Reviews
     
     # Make a bar plot showing how many profiles are in the training, validation and test datasets per month
     import pandas as pd
@@ -3435,6 +3383,217 @@ if __name__ == "__main__":
 
     # Set y-axis to show percentages from 0 to 100
     plt.ylim(0, 100)
+
+    plt.tight_layout()
+    plt.show()
+
+
+    ## Multiple linear regression
+    
+    from sklearn.preprocessing import PolynomialFeatures
+
+    def prepare_features(inputs_array, max_degree=3):
+        """
+        Prepare the feature matrix for regression by including polynomial terms.
+
+        Args:
+        - inputs_array (numpy.ndarray): Array of input features, shape (n_samples, n_features).
+        - max_degree (int): Maximum degree of polynomial features.
+
+        Returns:
+        - X (numpy.ndarray): Feature matrix of shape (n_samples, n_features_expanded).
+        """
+        # Generate polynomial features up to the specified degree
+        poly = PolynomialFeatures(degree=max_degree, include_bias=False)
+        X = poly.fit_transform(inputs_array)
+        return X
+
+    def fit_pcs_regression_exact_gpu(X, pcs):
+        """
+        Fit regression models to predict principal component scores from features using exact least squares on GPU.
+
+        Args:
+        - X (numpy.ndarray): Feature matrix, shape (n_samples, n_features_expanded).
+        - pcs (numpy.ndarray): Principal component scores, shape (n_samples, n_components).
+
+        Returns:
+        - beta (torch.Tensor): Coefficient matrix, shape (n_features_expanded, n_components).
+        """
+        # Convert data to torch tensors and move to GPU
+        X_tensor = torch.tensor(X, dtype=torch.float32).to(DEVICE)
+        pcs_tensor = torch.tensor(pcs, dtype=torch.float32).to(DEVICE)
+
+        # Compute the pseudoinverse of X
+        # Note: For large matrices, torch.linalg.lstsq may be more efficient
+        X_pinv = torch.pinverse(X_tensor)
+        
+        print(f"{X_pinv.shape=}")
+
+        # Compute the coefficients (beta) analytically
+        beta = X_pinv @ pcs_tensor
+
+        return beta
+
+    def predict_pcs_exact_gpu(beta, X_new):
+        """
+        Predict principal component scores using the exact coefficients on GPU.
+
+        Args:
+        - beta (torch.Tensor): Coefficient matrix, shape (n_features_expanded, n_components).
+        - X_new (numpy.ndarray): New feature matrix, shape (n_samples_new, n_features_expanded).
+
+        Returns:
+        - pcs_pred (numpy.ndarray): Predicted principal component scores, shape (n_samples_new, n_components).
+        """
+        with torch.no_grad():
+            X_new_tensor = torch.tensor(X_new, dtype=torch.float32).to(DEVICE)
+            pcs_pred_tensor = X_new_tensor @ beta
+            pcs_pred = pcs_pred_tensor.cpu().numpy()
+        return pcs_pred
+
+    def inverse_transform(pcs, pca_temp, pca_sal, n_components):
+        """
+        Inverse the PCA transformation to reconstruct temperature and salinity profiles.
+
+        Args:
+        - pcs (numpy.ndarray): Concatenated PCA components for temperature and salinity.
+        - pca_temp, pca_sal: PCA models for temperature and salinity respectively.
+        - n_components (int): Number of PCA components for each.
+
+        Returns:
+        - temp_profiles (numpy.ndarray): Reconstructed temperature profiles.
+        - sal_profiles (numpy.ndarray): Reconstructed salinity profiles.
+        """
+        temp_profiles = pca_temp.inverse_transform(pcs[:, :n_components]).T
+        sal_profiles = pca_sal.inverse_transform(pcs[:, n_components:]).T
+        return temp_profiles, sal_profiles
+
+    # Your existing code starts here:
+
+    # Assuming full_dataset is your dataset object and train_indices, val_indices are defined
+    # And pca_temp, pca_sal, n_components are available
+
+    # Collect inputs and PCS from the training dataset
+    inputs_list_train, pcs_list_train = full_dataset.__getitem__(train_indices)
+
+    # Convert lists to numpy arrays
+    inputs_array_train = np.array(inputs_list_train.T)  # Shape: (n_samples_train, n_features)
+    pcs_array_train = np.array(pcs_list_train)
+    pcs_T_train, pcs_S_train = np.hsplit(pcs_list_train, 2)
+    pcs_T_train = pcs_T_train.T        # Shape: (n_samples_train, n_components)
+    pcs_S_train = pcs_S_train.T        # Shape: (n_samples_train, n_components)
+    
+    # Prepare features for training
+    X_train = prepare_features(inputs_array_train, max_degree=1)
+
+    # Fit regression model on GPU
+    print("Beginning multiple linear regression using PyTorch on GPU")
+    start_time = time.perf_counter()
+    beta_T = fit_pcs_regression_exact_gpu(X_train, pcs_T_train)
+    beta_S = fit_pcs_regression_exact_gpu(X_train, pcs_S_train)
+    
+    end_time = time.perf_counter()
+    elapsed_time = (end_time - start_time)
+    print(f"MLR fit completed in {elapsed_time:.2f} seconds.")
+
+    # Prepare inputs for the validation dataset
+    inputs_list_val, _ = full_dataset.__getitem__(val_indices)
+    inputs_array_val = np.array(inputs_list_val.T)  # Shape: (n_samples_val, n_features)
+    # Prepare features for validation
+    X_val = prepare_features(inputs_array_val, max_degree=1)
+
+    # Predict the principal component scores for the validation data
+    pcs_pred_val_T = predict_pcs_exact_gpu(beta_T, X_val)
+    pcs_pred_val_S = predict_pcs_exact_gpu(beta_S, X_val)
+    pcs_pred_val = np.hstack([pcs_pred_val_T, pcs_pred_val_S])
+
+    # Reconstruct the temperature and salinity profiles using the inverse PCA transformation
+    temp_MLR_profiles, sal_MLR_profiles = inverse_transform(pcs_pred_val, pca_temp, pca_sal, n_components)
+    
+    # # Transpose temp_MLR_profiles and sal_MLR_profiles
+    # # to match the shape of original_profiles
+    # temp_MLR_profiles = temp_MLR_profiles.T  # Shape: (n_samples, depth_levels)
+    # sal_MLR_profiles = sal_MLR_profiles.T    # Shape: (n_samples, depth_levels)
+
+    # Extract the original temperature and salinity profiles
+    original_temp_profiles = original_profiles[:, 0, :]  # Shape: (n_samples, depth_levels)
+    original_sal_profiles = original_profiles[:, 1, :]   # Shape: (n_samples, depth_levels)
+
+    # Calculate residuals
+    mlr_T_resid = temp_MLR_profiles - original_temp_profiles  # Shape: (n_samples, depth_levels)
+    mlr_S_resid = sal_MLR_profiles - original_sal_profiles    # Shape: (n_samples, depth_levels)
+
+    # # Transpose residuals to match the shape used in plotting (depth_levels, n_samples)
+    # mlr_T_resid = mlr_T_resid.T  # Shape: (depth_levels, n_samples)
+    # mlr_S_resid = mlr_S_resid.T  # Shape: (depth_levels, n_samples)
+
+    # Compute squared errors
+    mlr_temp_se = mlr_T_resid**2  # Shape: (depth_levels, n_samples)
+    mlr_sal_se = mlr_S_resid**2   # Shape: (depth_levels, n_samples)
+
+    # Compute average RMSE
+    avg_mlr_temp_rmse = np.sqrt(np.mean(mlr_temp_se, axis=1))  # Shape: (depth_levels,)
+    avg_mlr_sal_rmse = np.sqrt(np.mean(mlr_sal_se, axis=1))    # Shape: (depth_levels,)
+
+    # Compute average bias
+    avg_mlr_temp_bias = np.mean(mlr_T_resid, axis=1)  # Shape: (depth_levels,)
+    avg_mlr_sal_bias = np.mean(mlr_S_resid, axis=1)   # Shape: (depth_levels,)
+
+    fig = plt.figure(figsize=(18,18))
+
+    # Temperature RMSE Plot
+    ax = fig.add_subplot(2,2,1)
+    ax.axvline(0, color='k', linestyle='--', linewidth=0.5)
+    ax.grid(color='gray', linestyle='--', linewidth=0.5)
+    plt.plot(ist.rmse.values, ist.depth.values, linewidth=3, label='ISOP', color='xkcd:blue')
+    plt.plot(avg_gem_temp_rmse, np.arange(0,1801), linewidth=3, label='GEM', color='xkcd:orange')
+    plt.plot(avg_nn_temp_rmse, np.arange(0,1801), linewidth=3, label='NeSPReSO', color='xkcd:gray')
+    plt.plot(avg_mlr_temp_rmse, np.arange(0,1801), linewidth=3, label='MLR', color='xkcd:green')
+    ax.invert_yaxis()
+    plt.legend()
+    plt.xlabel("Temperature RMSE [°C]")
+    plt.ylabel("Depth [m]")
+    plt.title("Average Temperature RMSE")
+
+    # Salinity RMSE Plot
+    ax = fig.add_subplot(2,2,2)
+    ax.axvline(0, color='k', linestyle='--', linewidth=0.5)
+    ax.grid(color='gray', linestyle='--', linewidth=0.5)
+    plt.plot(iss.rmse.values, iss.depth.values, linewidth=3, label='ISOP', color='xkcd:blue')
+    plt.plot(avg_gem_sal_rmse, np.arange(0,1801), linewidth=3, label='GEM', color='xkcd:orange')
+    plt.plot(avg_nn_sal_rmse, np.arange(0,1801), linewidth=3, label='NeSPReSO', color='xkcd:gray')
+    plt.plot(avg_mlr_sal_rmse, np.arange(0,1801), linewidth=3, label='MLR', color='xkcd:green')
+    ax.invert_yaxis()
+    plt.legend()
+    plt.xlabel("Salinity RMSE [PSU]")
+    plt.title("Average Salinity RMSE")
+
+    # Temperature Bias Plot
+    ax = fig.add_subplot(2,2,3)
+    ax.axvline(0, color='k', linestyle='--', linewidth=0.5)
+    ax.grid(color='gray', linestyle='--', linewidth=0.5)
+    plt.plot(ist.bias.values, ist.depth.values, linewidth=3, label='ISOP', color='xkcd:blue')
+    plt.plot(avg_gem_temp_bias, np.arange(0,1801), linewidth=3, label='GEM', color='xkcd:orange')
+    plt.plot(avg_nn_temp_bias, np.arange(0,1801), linewidth=3, label='NeSPReSO', color='xkcd:gray')
+    plt.plot(avg_mlr_temp_bias, np.arange(0,1801), linewidth=3, label='MLR', color='xkcd:green')
+    ax.invert_yaxis()
+    plt.legend()
+    plt.xlabel("Temperature Bias [°C]")
+    plt.ylabel("Depth [m]")
+    plt.title("Average Temperature Bias")
+
+    # Salinity Bias Plot
+    ax = fig.add_subplot(2,2,4)
+    ax.axvline(0, color='k', linestyle='--', linewidth=0.5)
+    ax.grid(color='gray', linestyle='--', linewidth=0.5)
+    plt.plot(iss.bias.values, iss.depth.values, linewidth=3, label='ISOP', color='xkcd:blue')
+    plt.plot(avg_gem_sal_bias, np.arange(0,1801), linewidth=3, label='GEM', color='xkcd:orange')
+    plt.plot(avg_nn_sal_bias, np.arange(0,1801), linewidth=3, label='NeSPReSO', color='xkcd:gray')
+    plt.plot(avg_mlr_sal_bias, np.arange(0,1801), linewidth=3, label='MLR', color='xkcd:green')
+    ax.invert_yaxis()
+    plt.legend()
+    plt.xlabel("Salinity Bias [PSU]")
+    plt.title("Average Salinity Bias")
 
     plt.tight_layout()
     plt.show()

@@ -31,7 +31,13 @@ from collections import Counter
 from tqdm import tqdm  # For the progress bar
 from pandas import DataFrame as df
 import time
-    
+import pandas as pd
+import calendar
+from sklearn.preprocessing import PolynomialFeatures
+from sklearn.preprocessing import StandardScaler
+import plotly.express as px
+from scipy.stats import pearsonr
+
 # from matplotlib.dates import date2num, num2date
 # from sklearn.cluster import MiniBatchKMeans
 sys.path.append("/unity/g2/jmiranda/SubsurfaceFields/GEM_SubsurfaceFields/eoas_pyutils")
@@ -303,8 +309,6 @@ class TemperatureSalinityDataset(torch.utils.data.Dataset):
                 
     #         self.AVISO_ADT[i] = self.AVISO_ADT[i] - self.mean_adt[i_match]
     
-# full_dataset.AVISO_ADT[0], full_dataset.bkp_ADT[0]
-
     def reload(self):
         # in case we want to change parameters...
         self.SSS, self.SST, self.AVISO_ADT = np.copy(self.satSSS), np.copy(self.satSST), np.copy(self.sat_ADT)
@@ -317,17 +321,6 @@ class TemperatureSalinityDataset(torch.utils.data.Dataset):
         # Applying PCA
         self.temp_pcs, self.pca_temp = self._apply_pca(self.TEMP, self.n_components)
         self.sal_pcs, self.pca_sal = self._apply_pca(self.SAL, self.n_components)
-        
-        # print("self.LAT")
-        # print(f"{np.min(self.LAT)}, {np.max(self.LAT)}")
-        # print("self.LON")
-        # print(f"{np.min(self.LON)}, {np.max(self.LON)}")      
-        # print("self.SST")
-        # print(f"{np.min(self.SST)}, {np.max(self.SST)}")
-        # print("self.SSS")
-        # print(f"{np.min(self.SSS)}, {np.max(self.SSS)}")
-        # print("self.AVISO_ADT")
-        # print(f"{np.min(self.AVISO_ADT)}, {np.max(self.AVISO_ADT)}")
 
     def _load_satellite_data(self):
         """
@@ -1140,9 +1133,6 @@ def visualize_combined_results(true_values, gem_temp, gem_sal, predicted_values,
     print(f"GEM Average temperature RMSE: {gem_temp_se:.3f}°C")
     print(f"GEM Average salinity RMSE: {gem_sal_se:.3f} PSU")
     
-    # print(f"Average temperature accuracy gain: {accuracy_gain_temp:.3f}% (entire depth range)")
-    # print(f"Average salinity accuracy gain: {accuracy_gain_sal:.3f}% (entire depth range)")
-
     gem_temp_errors = (gem_temp.T[150:,:] - true_values[150:, 0, :]) ** 2
     gem_sal_errors = (gem_sal.T[150:,:] - true_values[150:, 1, :]) ** 2
 
@@ -1157,8 +1147,6 @@ def visualize_combined_results(true_values, gem_temp, gem_sal, predicted_values,
 
     accuracy_gain_temp = 100*(gem_temp_se-nn_temp_se)/gem_temp_se
     accuracy_gain_sal = 100*(gem_sal_se-nn_sal_se)/gem_sal_se
-    # print(f"Average temperature accuracy gain: {accuracy_gain_temp:.3f}% (150m to max depth)")
-    # print(f"Average salinity accuracy gain: {accuracy_gain_sal:.3f}% (150m to max depth)")
 
 def matlab2datetime(matlab_datenum):
     python_datetime = datetime.fromordinal(int(matlab_datenum)) + timedelta(days=matlab_datenum%1) - timedelta(days=366)
@@ -1218,7 +1206,6 @@ def calculate_average_in_bin(lon_bins, lat_bins, lon_val, lat_val, bias_values, 
         input_vals = bias_values**2
     else:
         input_vals = bias_values
-
 
     for i in range(len(lon_bins)-1):
         for j in range(len(lat_bins)-1):
@@ -1305,8 +1292,6 @@ def plot_rmse_on_ax(ax, lon_centers, lat_centers, avg_rmse_grid, num_prof, title
 def plot_comparison_maps(lon_centers, lat_centers, avg_var_nn, avg_var_compare, title_prefix, name_compare, variable_name = "RMSE"):
     # Calculate the difference
     avg_var_diff = np.abs(avg_var_nn) - np.abs(avg_var_compare)
-    # avg_rmse_improv = np.mean(100*(avg_rmse_nn - avg_rmse_gdem)/(avg_rmse_gdem+1e-12)
-    # print(f"Average {title_prefix} RMSE improvement: {avg_rmse_improv:.2f}%")
 
     # Set up color maps and limits
     if title_prefix == "temperature":
@@ -1729,9 +1714,6 @@ if __name__ == "__main__":
     avg_bias_isop_t = data_ISOP['t_bias_syn']
     avg_bias_isop_s = data_ISOP['s_bias_syn']
     
-    # # # # # # # # # # # 
-    # def viz(): # if you want to visualize the results with just viz(), uncomment this and add a indent to the next lines
-    # # # # # # # # # 
     subset_indices = val_loader.dataset.indices
 
     # For original profiles
@@ -1824,25 +1806,6 @@ if __name__ == "__main__":
     gems_T_resid = gems_T - orig_T
     gems_S_resid = gems_S - orig_S
     
-    
-    # # calculate average bias and rmse for depth ranges
-    # print("Depth range \t NN T RMSE \t GEM T RMSE \t NN T Bias \t GEM T Bias \t NN S RMSE \t GEM S RMSE \t NN S Bias \t GEM S Bias")
-    # intervals = [(0, 100), (100, 200), (200, 500), (500, 1000), (1000, max_depth)]    
-    
-    # for i in range(len(intervals)):
-    #     min_d, max_d = intervals[i]
-    #     mask = np.arange(min_d, max_d+1)
-    #     print(f"[{min_d}-{max_d}] & {np.sqrt(np.mean(pred_T_resid[mask]**2)):0.3f} & {np.sqrt(np.mean(gems_T_resid[mask]**2)):0.3f} & {np.mean(pred_T_resid[mask]):0.4f} & {np.mean(gems_T_resid[mask]):0.4f} & {np.sqrt(np.mean(pred_S_resid[mask]**2)):0.4f} & {np.sqrt(np.mean(gems_S_resid[mask]**2)):0.4f} & {np.mean(pred_S_resid[mask]):0.4f} & {np.mean(gems_S_resid[mask]):0.4f} \\\\")
-    #     print("\\hline")
-        
-    
-    # #Load GEM polyfits to benchmark
-    # with open("pca_temp.pkl", "wb") as f:
-    #     pickle.dump(full_dataset.pca_temp, f)
-
-    # with open("pca_sal.pkl", "wb") as f:
-    #     pickle.dump(full_dataset.pca_sal, f)
-        
     sst_inputs, ssh_inputs = val_dataset.dataset.get_inputs(subset_indices)
     
     gem_temp, gem_sal = val_dataset.dataset.get_gem_profiles(subset_indices)
@@ -1857,124 +1820,320 @@ if __name__ == "__main__":
     
     print("Let's investigate how the method compares against vanilla GEM with in-situ SSH")
     
-    # RMSE Calculations and Accuracy Gain !!!
-    # pred_T_resid
-    # pred_S_resid
-    # gems_T_resid
-    # gems_S_resid
-    # gem_temp_errors = (gem_temp.T - original_profiles[:, 0, :]) ** 2
-    # gem_sal_errors = (gem_sal.T - original_profiles[:, 1, :]) ** 2
-
-    # nn_temp_errors = (pred_T[:, :] - original_profiles[:, 0, :]) ** 2
-    # nn_sal_errors = (pred_S[:, :] - original_profiles[:, 1, :]) ** 2
-
     gem_temp_se = gems_T_resid**2
     gem_sal_se = gems_S_resid**2
 
     nn_temp_se = pred_T_resid**2
     nn_sal_se = pred_S_resid**2
     
-    # plot_relative_errors(original_profiles, gem_temp, gem_sal, val_predictions, min_depth=min_depth, max_depth = 1800)
-    
-    # !!! remaking rmse and bias plots !!!
-
     ist = xr.open_dataset('/unity/g2/jmiranda/SubsurfaceFields/Data/isop1_stats_temp.nc')
     iss = xr.open_dataset('/unity/g2/jmiranda/SubsurfaceFields/Data/isop1_stats_salt.nc')
 
     our_depths = np.arange(0,1801)
     isop_depths = ist.depth.values
     avg_gem_temp_rmse = np.sqrt(np.mean(gem_temp_se, axis = 1))
-    # gem_temp_se_mad = mad(gem_temp_se)
     avg_nn_temp_rmse = np.sqrt(np.mean(nn_temp_se, axis = 1))
-    # nn_temp_se_mad = mad(nn_temp_se)
 
     avg_gem_sal_rmse = np.sqrt(np.mean(gem_sal_se, axis = 1))
-    # gem_sal_se_mad = mad(gem_sal_se)
     avg_nn_sal_rmse = np.sqrt(np.mean(nn_sal_se, axis = 1))
-    # nn_sal_se_mad = mad(nn_sal_se)
 
     avg_gem_temp_bias = np.mean(gems_T_resid, axis = 1)
-    # gem_temp_bias_mad = mad(gems_T_resid)
     avg_nn_temp_bias = np.mean(pred_T_resid, axis = 1)
-    # nn_temp_bias_mad = mad(pred_T_resid)
 
     avg_gem_sal_bias = np.mean(gems_S_resid, axis = 1)
-    # gem_sal_bias_mad = mad(gems_S_resid)
     avg_nn_sal_bias = np.mean(pred_S_resid, axis = 1)
-    # nn_sal_bias_mad = mad(pred_S_resid)
+
+    # Identify indices for the training, validation, and testing datasets
+    train_indices = train_dataset.indices
+    val_indices = val_dataset.indices
+    test_indices = test_dataset.indices
+    
+    ## Multiple linear regression
+    
+
+    def prepare_features(inputs_array, max_degree=3):
+        """
+        Prepare the feature matrix for regression by including polynomial terms.
+
+        Args:
+        - inputs_array (numpy.ndarray): Array of input features, shape (n_samples, n_features).
+        - max_degree (int): Maximum degree of polynomial features.
+
+        Returns:
+        - X (numpy.ndarray): Feature matrix of shape (n_samples, n_features_expanded).
+        """
+        # Generate polynomial features up to the specified degree
+        poly = PolynomialFeatures(degree=max_degree, include_bias=False)
+        X = poly.fit_transform(inputs_array)
+        return X
+
+    def fit_pcs_regression_exact_gpu(X, pcs):
+        """
+        Fit regression models to predict principal component scores from features using exact least squares on GPU.
+
+        Args:
+        - X (numpy.ndarray): Feature matrix, shape (n_samples, n_features_expanded).
+        - pcs (numpy.ndarray): Principal component scores, shape (n_samples, n_components).
+
+        Returns:
+        - beta (torch.Tensor): Coefficient matrix, shape (n_features_expanded, n_components).
+        """
+        # Convert data to torch tensors and move to GPU
+        X_tensor = torch.tensor(X, dtype=torch.float32).to(DEVICE)
+        pcs_tensor = torch.tensor(pcs, dtype=torch.float32).to(DEVICE)
+
+        # Compute the pseudoinverse of X
+        # Note: For large matrices, torch.linalg.lstsq may be more efficient
+        X_pinv = torch.pinverse(X_tensor)
+        
+        print(f"{X_pinv.shape=}")
+
+        # Compute the coefficients (beta) analytically
+        beta = X_pinv @ pcs_tensor
+
+        return beta
+
+    def predict_pcs_exact_gpu(beta, X_new):
+        """
+        Predict principal component scores using the exact coefficients on GPU.
+
+        Args:
+        - beta (torch.Tensor): Coefficient matrix, shape (n_features_expanded, n_components).
+        - X_new (numpy.ndarray): New feature matrix, shape (n_samples_new, n_features_expanded).
+
+        Returns:
+        - pcs_pred (numpy.ndarray): Predicted principal component scores, shape (n_samples_new, n_components).
+        """
+        with torch.no_grad():
+            X_new_tensor = torch.tensor(X_new, dtype=torch.float32).to(DEVICE)
+            pcs_pred_tensor = X_new_tensor @ beta
+            pcs_pred = pcs_pred_tensor.cpu().numpy()
+        return pcs_pred
+
+    def inverse_transform(pcs, pca_temp, pca_sal, n_components):
+        """
+        Inverse the PCA transformation to reconstruct temperature and salinity profiles.
+
+        Args:
+        - pcs (numpy.ndarray): Concatenated PCA components for temperature and salinity.
+        - pca_temp, pca_sal: PCA models for temperature and salinity respectively.
+        - n_components (int): Number of PCA components for each.
+
+        Returns:
+        - temp_profiles (numpy.ndarray): Reconstructed temperature profiles.
+        - sal_profiles (numpy.ndarray): Reconstructed salinity profiles.
+        """
+        temp_profiles = pca_temp.inverse_transform(pcs[:, :n_components]).T
+        sal_profiles = pca_sal.inverse_transform(pcs[:, n_components:]).T
+        return temp_profiles, sal_profiles
+
+    # define polynomial degree
+    MLR_degree = 1
+    # Collect inputs and PCS from the training dataset
+    MLR_indices = train_indices + val_indices
+    inputs_list_train, pcs_list_train = full_dataset.__getitem__(MLR_indices)
+
+    # Convert lists to numpy arrays
+    inputs_array_train = np.array(inputs_list_train.T)  # Shape: (n_samples_train, n_features)
+    pcs_array_train = np.array(pcs_list_train)
+    pcs_T_train, pcs_S_train = np.hsplit(pcs_list_train, 2)
+    pcs_T_train = pcs_T_train.T        # Shape: (n_samples_train, n_components)
+    pcs_S_train = pcs_S_train.T        # Shape: (n_samples_train, n_components)
+    
+    # Prepare features for training
+    X_train = prepare_features(inputs_array_train, max_degree=MLR_degree)
+    # Initialize the StandardScaler
+    scaler = StandardScaler()
+    X_avgs = X_train.mean(axis=0)
+    # Fit the scaler on the training data
+    X_train_scaled = scaler.fit_transform(X_train) + 1
+
+    # Fit regression model on GPU
+    print("Beginning multiple linear regression using PyTorch on GPU")
+    start_time = time.perf_counter()
+    beta_T = fit_pcs_regression_exact_gpu(X_train, pcs_T_train)
+    beta_S = fit_pcs_regression_exact_gpu(X_train, pcs_S_train)
+    
+    end_time = time.perf_counter()
+    elapsed_time = (end_time - start_time)
+    print(f"MLR fit completed in {elapsed_time:.2f} seconds.")
+
+    # Prepare inputs for the validation dataset
+    inputs_list_val, _ = full_dataset.__getitem__(val_indices)
+    inputs_array_val = np.array(inputs_list_val.T)  # Shape: (n_samples_val, n_features)
+    # Prepare features for validation
+    X_val = prepare_features(inputs_array_val, max_degree=MLR_degree)
+    X_val_scaled = scaler.fit_transform(X_val) + 1
+    
+    # Predict the principal component scores for the validation data
+    pcs_pred_val_T = predict_pcs_exact_gpu(beta_T, X_val)
+    pcs_pred_val_S = predict_pcs_exact_gpu(beta_S, X_val)
+    pcs_pred_val = np.hstack([pcs_pred_val_T, pcs_pred_val_S])
+
+    # Reconstruct the temperature and salinity profiles using the inverse PCA transformation
+    temp_MLR_profiles, sal_MLR_profiles = inverse_transform(pcs_pred_val, pca_temp, pca_sal, n_components)
+    
+    # Extract the original temperature and salinity profiles
+    original_temp_profiles = original_profiles[:, 0, :]  # Shape: (n_samples, depth_levels)
+    original_sal_profiles = original_profiles[:, 1, :]   # Shape: (n_samples, depth_levels)
+
+    # Calculate residuals
+    mlr_T_resid = temp_MLR_profiles - original_temp_profiles  # Shape: (n_samples, depth_levels)
+    mlr_S_resid = sal_MLR_profiles - original_sal_profiles    # Shape: (n_samples, depth_levels)
+
+    # Compute squared errors
+    mlr_temp_se = mlr_T_resid**2  # Shape: (depth_levels, n_samples)
+    mlr_sal_se = mlr_S_resid**2   # Shape: (depth_levels, n_samples)
+
+    # Compute average RMSE
+    avg_mlr_temp_rmse = np.sqrt(np.mean(mlr_temp_se, axis=1))  # Shape: (depth_levels,)
+    avg_mlr_sal_rmse = np.sqrt(np.mean(mlr_sal_se, axis=1))    # Shape: (depth_levels,)
+
+    # Compute average bias
+    avg_mlr_temp_bias = np.mean(mlr_T_resid, axis=1)  # Shape: (depth_levels,)
+    avg_mlr_sal_bias = np.mean(mlr_S_resid, axis=1)   # Shape: (depth_levels,)
 
     fig = plt.figure(figsize=(18,18))
+
+    # Temperature RMSE Plot
     ax = fig.add_subplot(2,2,1)
     ax.axvline(0, color='k', linestyle='--', linewidth=0.5)
     ax.grid(color='gray', linestyle='--', linewidth=0.5)
-    #     axs[0,0].fill_betweenx(depth_levels, nn_temp_se_depth - nn_temp_std_depth, nn_temp_se_depth + nn_temp_std_depth, color='xkcd:dark red', alpha=0.1, label='Avg T RMSE ± 1 std: NN')
-    plt.plot(ist.rmse.values, ist.depth.values, linewidth = 3, label = 'ISOP', color='xkcd:blue')
-    # ax.fill_betweenx(ist.depth.values, ist.rmse.values - ist.mad.values, ist.rmse.values + ist.mad.values, color='xkcd:blue', alpha=0.1, label='± mad')
-    plt.plot(avg_gem_temp_rmse, np.arange(0,1801), linewidth = 3, label = 'GEM', color='xkcd:orange')
-    # ax.fill_betweenx(our_depths, avg_gem_temp_rmse - gem_temp_se_mad, avg_gem_temp_rmse + gem_temp_se_mad, color='xkcd:orange', alpha=0.1, label='± mad')
-    plt.plot(avg_nn_temp_rmse, np.arange(0,1801), linewidth = 3, label = 'NeSPReSO', color='xkcd:gray')
-    # ax.fill_betweenx(our_depths, avg_nn_temp_rmse - nn_temp_se_mad, avg_nn_temp_rmse + nn_temp_se_mad, color='xkcd:gray', alpha=0.1, label='± mad')
+    plt.plot(ist.rmse.values, ist.depth.values, linewidth=3, label='ISOP', color='xkcd:blue')
+    plt.plot(avg_gem_temp_rmse, np.arange(0,1801), linewidth=3, label='GEM', color='xkcd:orange')
+    plt.plot(avg_mlr_temp_rmse, np.arange(0,1801), linewidth=3, label='MLR', color='xkcd:green')
+    plt.plot(avg_nn_temp_rmse, np.arange(0,1801), linewidth=3, label='NeSPReSO', color='xkcd:gray')
     ax.invert_yaxis()
     plt.legend()
     plt.xlabel("Temperature RMSE [°C]")
     plt.ylabel("Depth [m]")
-    plt.title("Average temperature RMSE")
+    plt.title("Average Temperature RMSE")
 
+    # Salinity RMSE Plot
     ax = fig.add_subplot(2,2,2)
     ax.axvline(0, color='k', linestyle='--', linewidth=0.5)
     ax.grid(color='gray', linestyle='--', linewidth=0.5)
-    plt.plot(iss.rmse.values, iss.depth.values, linewidth = 3, label = 'ISOP', color='xkcd:blue')
-    # ax.fill_betweenx(iss.depth.values, iss.rmse.values - iss.mad.values, iss.rmse.values + iss.mad.values, color='xkcd:green', alpha=0.1, label='± mad')
-    plt.plot(avg_gem_sal_rmse, np.arange(0,1801), linewidth = 3, label = 'GEM', color='xkcd:orange')
-    # ax.fill_betweenx(our_depths, avg_gem_sal_rmse - gem_sal_se_mad, avg_gem_sal_rmse + gem_sal_se_mad, color='xkcd:pink', alpha=0.1, label='± mad')
-    plt.plot(avg_nn_sal_rmse, np.arange(0,1801), linewidth = 3, label = 'NeSPReSO', color='xkcd:gray')
-    # ax.fill_betweenx(our_depths, avg_nn_sal_rmse - nn_sal_se_mad, avg_nn_sal_rmse + nn_sal_se_mad, color='xkcd:gray', alpha=0.1, label='± mad')
+    plt.plot(iss.rmse.values, iss.depth.values, linewidth=3, label='ISOP', color='xkcd:blue')
+    plt.plot(avg_gem_sal_rmse, np.arange(0,1801), linewidth=3, label='GEM', color='xkcd:orange')
+    plt.plot(avg_mlr_sal_rmse, np.arange(0,1801), linewidth=3, label='MLR', color='xkcd:green')
+    plt.plot(avg_nn_sal_rmse, np.arange(0,1801), linewidth=3, label='NeSPReSO', color='xkcd:gray')
     ax.invert_yaxis()
     plt.legend()
     plt.xlabel("Salinity RMSE [PSU]")
-    plt.title("Average salinity RMSE")
+    plt.title("Average Salinity RMSE")
 
+    # Temperature Bias Plot
     ax = fig.add_subplot(2,2,3)
     ax.axvline(0, color='k', linestyle='--', linewidth=0.5)
     ax.grid(color='gray', linestyle='--', linewidth=0.5)
-    plt.plot(ist.bias.values, ist.depth.values, linewidth = 3, label = 'ISOP', color='xkcd:blue')
-    # ax.fill_betweenx(ist.depth.values, ist.bias.values - ist.mad.values, ist.bias.values + ist.mad.values, color='xkcd:blue', alpha=0.1, label='± mad')
-    plt.plot(avg_gem_temp_bias, np.arange(0,1801), linewidth = 3, label = 'GEM', color='xkcd:orange')
-    # ax.fill_betweenx(our_depths, avg_gem_temp_bias - gem_temp_bias_mad, avg_gem_temp_bias + gem_temp_bias_mad, color='xkcd:orange', alpha=0.1, label='± mad')
-    plt.plot(avg_nn_temp_bias, np.arange(0,1801), linewidth = 3, label = 'NeSPReSO', color='xkcd:gray')
-    # ax.fill_betweenx(our_depths, avg_nn_temp_bias - nn_temp_bias_mad, avg_nn_temp_bias + nn_temp_bias_mad, color='xkcd:gray', alpha=0.1, label='± mad')
+    plt.plot(ist.bias.values, ist.depth.values, linewidth=3, label='ISOP', color='xkcd:blue')
+    plt.plot(avg_gem_temp_bias, np.arange(0,1801), linewidth=3, label='GEM', color='xkcd:orange')
+    plt.plot(avg_mlr_temp_bias, np.arange(0,1801), linewidth=3, label='MLR', color='xkcd:green')
+    plt.plot(avg_nn_temp_bias, np.arange(0,1801), linewidth=3, label='NeSPReSO', color='xkcd:gray')
     ax.invert_yaxis()
     plt.legend()
     plt.xlabel("Temperature Bias [°C]")
     plt.ylabel("Depth [m]")
-    plt.title("Average temperature Bias")
+    plt.title("Average Temperature Bias")
 
+    # Salinity Bias Plot
     ax = fig.add_subplot(2,2,4)
     ax.axvline(0, color='k', linestyle='--', linewidth=0.5)
     ax.grid(color='gray', linestyle='--', linewidth=0.5)
-    plt.plot(iss.bias.values, iss.depth.values, linewidth = 3, label = 'ISOP', color='xkcd:blue')
-    # ax.fill_betweenx(iss.depth.values, iss.bias.values - iss.mad.values, iss.bias.values + iss.mad.values, color='xkcd:green', alpha=0.1, label='± mad')
-    plt.plot(avg_gem_sal_bias, np.arange(0,1801), linewidth = 3, label = 'GEM', color='xkcd:orange')
-    # ax.fill_betweenx(our_depths, avg_gem_sal_bias - gem_sal_bias_mad, avg_gem_sal_bias + gem_sal_bias_mad, color='xkcd:pink', alpha=0.1, label='± mad')
-    plt.plot(avg_nn_sal_bias, np.arange(0,1801), linewidth = 3, label = 'NeSPReSO', color='xkcd:gray')
-    # ax.fill_betweenx(our_depths, avg_nn_sal_bias - nn_sal_bias_mad, avg_nn_sal_bias + nn_sal_bias_mad, color='xkcd:gray', alpha=0.1, label='± mad')
+    plt.plot(iss.bias.values, iss.depth.values, linewidth=3, label='ISOP', color='xkcd:blue')
+    plt.plot(avg_gem_sal_bias, np.arange(0,1801), linewidth=3, label='GEM', color='xkcd:orange')
+    plt.plot(avg_mlr_sal_bias, np.arange(0,1801), linewidth=3, label='MLR', color='xkcd:green')
+    plt.plot(avg_nn_sal_bias, np.arange(0,1801), linewidth=3, label='NeSPReSO', color='xkcd:gray')
     ax.invert_yaxis()
     plt.legend()
     plt.xlabel("Salinity Bias [PSU]")
-    plt.title("Average salinity Bias")
+    plt.title("Average Salinity Bias")
 
-#     # Temperature RMSE
-#     axs[0,0].plot(nn_temp_se_depth, depth_levels, 'xkcd:dark red', linestyle='-', linewidth = 2.5, label='Avg T RMSE: NN')
-#     axs[0,0].fill_betweenx(depth_levels, nn_temp_se_depth - nn_temp_std_depth, nn_temp_se_depth + nn_temp_std_depth, color='xkcd:dark red', alpha=0.1, label='Avg T RMSE ± 1 std: NN')
-#     axs[0,0].plot(gem_temp_se_depth, depth_levels, 'xkcd:blue', linestyle='-', linewidth = 2.5, label='Avg T RMSE: GEM')
-#     axs[0,0].fill_betweenx(depth_levels, gem_temp_se_depth - gem_temp_std_depth, gem_temp_se_depth + gem_temp_std_depth, color='xkcd:blue', alpha=0.1, label='Avg T RMSE ± 1 std: GEM')
-#     axs[0,0].invert_yaxis()
-#     axs[0,0].legend(loc='lower right', fontsize=14)
-#     axs[0,0].set_title("Temperature RMSE by Depth", fontsize=24)
-#     axs[0,0].set_ylabel("Depth")
-#     axs[0,0].set_xlabel("RMSE")
-#     #grid on
+    plt.tight_layout()
+    plt.show()
     
+    # visualize features    
+    feature_names = [
+        "timecos", "timesin",
+        "latcos", "latsin",
+        "loncos", "lonsin",
+        "sst", "sss", "ssh"
+    ]
+
+    def plot_coefficients_heatmap(beta, feature_names, title, normalize=True, threshold=1e-4):
+        """
+        Plots a heatmap of regression coefficients with optional per-PC normalization and thresholding.
+
+        Args:
+        - beta (torch.Tensor): Coefficient matrix, shape (n_features, n_components).
+        - feature_names (list): List of feature names corresponding to the rows of beta.
+        - title (str): Title of the heatmap.
+        - normalize (bool): Whether to apply per-PC Max-Abs normalization. Default is True.
+        - threshold (float): Threshold below which coefficients are set to zero. Default is 1e-4.
+        """
+        # Convert to NumPy
+        beta_np = beta.cpu().numpy()
+
+        if normalize:
+            # Apply Max-Abs normalization per PC (column-wise)
+            max_abs_per_pc = np.max(np.abs(beta_np), axis=0)  # Shape: (n_components,)
+            
+            # Handle cases where the maximum is zero to avoid division by zero
+            max_abs_per_pc[max_abs_per_pc == 0] = 1
+            
+            # Normalize each column (PC) by its maximum absolute value
+            beta_np = beta_np / max_abs_per_pc  # Broadcasting division
+
+        # Thresholding: Set coefficients with abs < threshold to zero
+        beta_np_thresholded = np.where(np.abs(beta_np) < threshold, 0, beta_np)
+
+        # Create a DataFrame for seaborn
+        df_beta = pd.DataFrame(
+            beta_np_thresholded,
+            index=feature_names,
+            columns=[f'PC{i+1}' for i in range(beta_np_thresholded.shape[1])]
+        )
+
+        plt.figure(figsize=(20, 10))
+        sns.heatmap(
+            df_beta,
+            cmap='coolwarm',
+            center=0,
+            annot=False,
+            fmt=".2f",
+            vmin=-1,  # Since normalization scales coefficients between -1 and 1
+            vmax=1,
+            linewidths=0.5,
+            linecolor='gray'
+        )
+        plt.title(title, fontsize=16)
+        plt.xlabel('Principal Components', fontsize=14)
+        plt.ylabel('Input Features', fontsize=14)
+        plt.tight_layout()
+        plt.show()
+
+    beta_T_scaled = beta_T.cpu() / X_avgs[:,None]
+    beta_S_scaled = beta_S.cpu() / X_avgs[:,None]
+    beta_T_dropped = torch.cat((beta_T_scaled[:2], beta_T_scaled[6:]), dim=0)
+    beta_S_dropped = torch.cat((beta_S_scaled[:2], beta_S_scaled[6:]), dim=0)
+    feature_names_dropped = feature_names[:2] + feature_names[6:]
+    
+    # Plot Heatmap for Temperature PCs with Normalization
+    plot_coefficients_heatmap(
+        beta_T_dropped,
+        feature_names_dropped,
+        "Normalized Regression Coefficients for Temperature PCs",
+        normalize=True
+    )
+
+    # Plot Heatmap for Salinity PCs with Normalization
+    plot_coefficients_heatmap(
+        beta_S_dropped,
+        feature_names_dropped,
+        "Normalized Regression Coefficients for Salinity PCs",
+        normalize=True
+    )
+
     # Heatmaps of the RMSE
     # dpt_range = np.arange(0,201)
     dpt_range = isop_depths[isop_depths<=1800].astype(int)
@@ -1995,11 +2154,6 @@ if __name__ == "__main__":
     plot_bin_map(lon_bins, lat_bins, grid_avg_sal_rmse_nn, num_prof_nn, "Salinity", "RMSE")
     
     # same maps, but bias    
-    # Calculate average temperature bias for NN, GEM and ISOP
-    # nn_t_bias = np.mean(pred_T[:, :] - original_profiles[:, 0, :], axis = 0)
-    # nn_s_bias = np.mean(pred_S[:, :] - original_profiles[:, 1, :], axis = 0)
-    # gem_t_bias = np.mean(gem_temp.T - original_profiles[:, 0, :], axis = 0)
-    # gem_s_bias = np.mean(gem_sal.T - original_profiles[:, 1, :], axis = 0)
     
     avg_nn_t_bias, num_prof_nn = calculate_average_in_bin(  lon_centers, lat_centers, lon_val, lat_val, pred_T_resid, dpt_range, is_rmse=False)
     avg_nn_s_bias, num_prof_nn = calculate_average_in_bin(  lon_centers, lat_centers, lon_val, lat_val, pred_S_resid, dpt_range, is_rmse=False)
@@ -2094,154 +2248,11 @@ if __name__ == "__main__":
     plot_comparison_maps(lon_centr, lat_centr, avg_bias_nn_t, avg_bias_gem_t, "temperature", "GEM", "Bias")
     plot_comparison_maps(lon_centr, lat_centr, avg_bias_nn_s, avg_bias_gem_s, "salinity", "GEM", "Bias")
     
-    
-    # #GDEM
-    # plot_comparison_maps(lon_centers, lat_centers, avg_rmse_nn_t, avg_rmse_gdem_t, "temperature", "GDEM")
-    # plot_comparison_maps(lon_centers, lat_centers, avg_rmse_nn_s, avg_rmse_gdem_s, "salinity", "GDEM")
-    
     # Residual calculations
     nn_temp_residuals = pred_T - original_profiles[:, 0, :]
     nn_sal_residuals = pred_S - original_profiles[:, 1, :]
     
-    # print(f'shape of residuals is: {len(nn_temp_residuals)} - {nn_temp_residuals[0].shape}')
-
-    # Call the plot function for temperature residuals
-    # plot_residual_profiles_for_top_bins(lon_bins, lat_bins, lon_val, lat_val, nn_temp_residuals, avg_temp_rmse_nn, num_prof_nn, 'Temperature', min_depth=min_depth, max_depth=max_depth, top_n=9)
-
-    # # Call the plot function for salinity residuals
-    # plot_residual_profiles_for_top_bins(lon_bins, lat_bins, lon_val, lat_val, nn_sal_residuals, avg_sal_rmse_nn, num_prof_nn, 'Salinity', min_depth=min_depth, max_depth=max_depth, top_n=9)
-    
-    # viz() uncomment this and add a indent to the previous lines to visualize the results with viz()
-    if gen_paula_profiles:
-        def prepare_inputs_paula(data, input_params):
-            """
-            Transforms the data from the pickle file into the format expected by the model.
-
-            Args:
-            - data (dict): Data loaded from the pickle file.
-            - input_params (dict): Dictionary indicating which features to include.
-
-            Returns:
-            - torch.Tensor: Tensor of transformed input data.
-            """
-            num_samples = len(data['time'])  # Assuming all arrays in 'data' have the same length
-            inputs = []
-
-            # Iterate over each sample and create input features
-            for i in range(num_samples):
-                sample_inputs = []
-                
-                if input_params.get("timecos", False):
-                    sample_inputs.append(np.cos(2 * np.pi * (data['time'][i] % 365) / 365))
-                
-                if input_params.get("timesin", False):
-                    sample_inputs.append(np.sin(2 * np.pi * (data['time'][i] % 365) / 365))
-                
-                if input_params.get("latcos", False):
-                    sample_inputs.append(np.cos(2 * np.pi * (data['lat'][i] / 180)))
-                
-                if input_params.get("latsin", False):
-                    sample_inputs.append(np.sin(2 * np.pi * (data['lat'][i] / 180)))
-                
-                if input_params.get("loncos", False):
-                    sample_inputs.append(np.cos(2 * np.pi * (data['lon'][i] / 360)))
-                
-                if input_params.get("lonsin", False):
-                    sample_inputs.append(np.sin(2 * np.pi * (data['lon'][i] / 360)))
-
-                if input_params.get("sat", False):
-                    if input_params.get("sss", False):
-                        sample_inputs.append(data['sss'][i])
-                    if input_params.get("sst", False):
-                        sample_inputs.append(data['sst'][i] - 273.15)
-                    if input_params.get("ssh", False):
-                        sample_inputs.append(data['ssh'][i])
-                        
-                # Convert the list of inputs for this sample to a tensor and add to the main list
-                inputs.append(torch.tensor(sample_inputs, dtype=torch.float32))
-
-            # Convert the list of tensors to a single tensor
-            inputs_tensor = torch.stack(inputs)
-
-            return inputs_tensor
-        
-        # Load data from pickle file
-        with open('/unity/g2/jmiranda/SubsurfaceFields/GEM_SubsurfaceFields/paula_sat_data.pkl', 'rb') as file:
-            data_paula = pickle.load(file)
-            
-        # Prepare the inputs
-        inputs_tensor = prepare_inputs_paula(data_paula, input_params)
-        # Move the inputs tensor to the same device as the model
-        inputs_tensor = inputs_tensor.to(device)
-
-        # Get predictions
-        model.eval()
-        with torch.no_grad():
-            paula_predictions_pcs = model(inputs_tensor)
-            paula_predictions_pcs_cpu = paula_predictions_pcs.cpu().numpy()
-            paula_predictions = val_dataset.dataset.inverse_transform(paula_predictions_pcs_cpu)
-        
-        # Specify the filename to save to
-        filename = '/unity/g2/jmiranda/SubsurfaceFields/GEM_SubsurfaceFields/paula_predictions_20240319_sst_sss.pkl'
-
-        # Open the file in write mode and save the dictionary
-        with open(filename, 'wb') as file:
-            pickle.dump(paula_predictions, file)
-
-        print(f"Data has been saved to {filename}")
-    
-    # # use the entire dataset
-    
-    # # Entire dataset:
-    # print("Now let's see how it performs on the entire dataset")
-    # val_predictions_bkp = val_predictions
-    # val_dataset_bkp = val_dataset
-    # val_predictions_pcs_bkp = val_predictions_pcs
-    # val_loader_bkp = val_loader
-    
-    # # Get predictions for the entire dataset
-    # train_dataset_0, val_dataset, test_dataset_0 = split_dataset(full_dataset, 0, 1, 0)
-    # val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False)
-    # val_predictions_pcs = get_predictions(trained_model, val_loader, device)
-    # val_predictions = val_dataset.dataset.inverse_transform(val_predictions_pcs)
-    
-    # viz()
-    
-    # if n_runs > 1:
-    #     #load and aggregate all models
-    #     model_directory = "/unity/g2/jmiranda/SubsurfaceFields/GEM_SubsurfaceFields/saved_models/"
-    #     if not input_params['sat']:
-    #         suffix = "_sat.pth"
-    #         model_files = [f for f in os.listdir(model_directory) if not f.endswith(suffix)]
-    #     else:
-    #         model_files = [f for f in os.listdir(model_directory) if f.endswith(suffix)]
-            
-    #     models = []
-    #     for file in model_files:
-    #         model_path = os.path.join(model_directory, file)
-    #         model = torch.load(model_path)
-    #         models.append(model)
-
-    #     # Collect predictions from all models
-    #     ensemble_temp_val_predictions = np.zeros_like(pred_T)
-    #     ensemble_sal_val_predictions = np.zeros_like(pred_S)
-    #     ct = 0
-    #     for model in models:
-    #         predictions_pcs = get_predictions(model, val_loader, device)
-    #         predictions = val_dataset.dataset.inverse_transform(predictions_pcs)        
-    #         ensemble_temp_val_predictions += predictions[0]
-    #         ensemble_sal_val_predictions += predictions[1]
-    #         ct += 1
-
-    #     # Averaging the predictions
-    #     ensemble_temp_val_predictions /= ct
-    #     ensemble_sal_val_predictions /= ct
-
-    #     val_predictions = (ensemble_temp_val_predictions, ensemble_sal_val_predictions)
-        
-    #     viz()
-
-    # GLIDER: Load the MATLAB file
+    ## GLIDER: Load the MATLAB file
     file_path = '/unity/g2/jmiranda/SubsurfaceFields/Data/Glider_binned_data_for_heat_content_IA_mission_lowpass_LCE_Campeche_cyclone.mat'
     gl_data = scipy.io.loadmat(file_path)
 
@@ -2533,38 +2544,6 @@ if __name__ == "__main__":
     S_diff3 = S_pred3_binned - S3
     S_diff4 = S_pred4_binned - S4
 
-    # # Plot for Temperature
-    # plot_field(T1, d1, gld_depths, "Temperature", "T1 - Original")
-    # plot_field(T_pred1, d1, pred_depths, "Temperature", "T1 - Predicted")
-    # plot_field(T_diff1, d1, gld_depths, "T Differences", "T1 - Difference")
-
-    # plot_field(T2, d2, gld_depths, "Temperature", "T2 - Original")
-    # plot_field(T_pred2, d2, pred_depths, "Temperature", "T2 - Predicted")
-    # plot_field(T_diff2, d2, gld_depths, "T Differences", "T2 - Difference")
-
-    # plot_field(T3, d3, gld_depths, "Temperature", "T3 - Original")
-    # plot_field(T_pred3, d3, pred_depths, "Temperature", "T3 - Predicted")
-    # plot_field(T_diff3, d3, gld_depths, "T Differences", "T3 - Difference")
-
-    # plot_field(T4, d4, gld_depths, "Temperature", "T4 - Original")
-    # plot_field(T_pred4, d4, pred_depths, "Temperature", "T4 - Predicted")
-    # plot_field(T_diff4, d4, gld_depths, "T Differences", "T4 - Difference")
-
-    # plot_field(S1, d1, gld_depths, "Salinity", "S1 - Original")
-    # plot_field(S_pred1, d1, pred_depths, "Salinity", "S1 - Predicted")
-    # plot_field(S_diff1, d1, gld_depths, "S Differences", "S1 - Difference")
-
-    # plot_field(S2, d2, gld_depths, "Salinity", "S2 - Original")
-    # plot_field(S_pred2, d2, pred_depths, "Salinity", "S2 - Predicted")
-    # plot_field(S_diff2, d2, gld_depths, "S Differences", "S2 - Difference")
-
-    # plot_field(S3, d3, gld_depths, "Salinity", "S3 - Original")
-    # plot_field(S_pred3, d3, pred_depths, "Salinity", "S3 - Predicted")
-
-    # plot_field(S4, d4, gld_depths, "Salinity", "S4 - Original")
-    # plot_field(S_pred4, d4, pred_depths, "Salinity", "S4 - Predicted")
-    # plot_field(S_diff4, d4, gld_depths, "S Differences", "S4 - Difference")
-
     def plot_field_subplot(data, distances, depths, variable_name, title, subplot_pos, fig):
         """
         Plot a field as a subplot.
@@ -2676,7 +2655,6 @@ if __name__ == "__main__":
     plt.tight_layout()  # Adjusts subplot params so that subplots fit into the figure area
     plt.show()
     
-    from scipy.stats import pearsonr
 
     def calculate_correlation(observation, prediction):
         """
@@ -2793,11 +2771,6 @@ if __name__ == "__main__":
     
     lat_all = full_dataset.LAT
     lon_all = full_dataset.LON
-
-    # Identify indices for the training, validation, and testing datasets
-    train_indices = train_dataset.indices
-    val_indices = val_dataset.indices
-    test_indices = test_dataset.indices
     
     # Initialize lists for latitudes and longitudes of each dataset
     lat_train, lon_train = lat_all[train_indices], lon_all[train_indices]
@@ -2830,164 +2803,164 @@ if __name__ == "__main__":
     plt.title("Geographic distribution of available T and S profiles", fontsize=22, fontweight="bold")
     plt.show()
     
-    # Meunier data plots
+    # # Meunier data plots
 
 
 
-    # Perform linear regression
-    slope, intercept, r_value, p_value, std_err = linregress(full_dataset.SH1950, full_dataset.AVISO_ADT)
+    # # Perform linear regression
+    # slope, intercept, r_value, p_value, std_err = linregress(full_dataset.SH1950, full_dataset.AVISO_ADT)
 
-    # Print the results
-    print(f"Slope: {slope}")
-    print(f"Intercept: {intercept}")
-    print(f"Coefficient of determination (R²): {r_value**2}")
-    print(f"P-value: {p_value}")
-    print(f"Standard error of the regression estimate: {std_err}")
+    # # Print the results
+    # print(f"Slope: {slope}")
+    # print(f"Intercept: {intercept}")
+    # print(f"Coefficient of determination (R²): {r_value**2}")
+    # print(f"P-value: {p_value}")
+    # print(f"Standard error of the regression estimate: {std_err}")
 
-    # Normalize ADT values for comparison
-    ADT_normalized = full_dataset.SH1950*slope + intercept
+    # # Normalize ADT values for comparison
+    # ADT_normalized = full_dataset.SH1950*slope + intercept
 
-    # Plot histograms
-    plt.figure(figsize=(6, 6))
+    # # Plot histograms
+    # plt.figure(figsize=(6, 6))
 
-    # Histogram of ADT
-    plt.hist(ADT_normalized, bins=100, alpha=0.5, density=True, label='SH1950', edgecolor='k')
+    # # Histogram of ADT
+    # plt.hist(ADT_normalized, bins=100, alpha=0.5, density=True, label='SH1950', edgecolor='k')
 
-    # Generate a KDE plot for SSH
-    sns.kdeplot(full_dataset.AVISO_ADT, color="r", label='ADT')
+    # # Generate a KDE plot for SSH
+    # sns.kdeplot(full_dataset.AVISO_ADT, color="r", label='ADT')
 
-    plt.xlabel('SSH [m]')
-    plt.ylabel('Frequency')
-    plt.title('SSH Distribution')
-    plt.legend(loc='upper right')
+    # plt.xlabel('SSH [m]')
+    # plt.ylabel('Frequency')
+    # plt.title('SSH Distribution')
+    # plt.legend(loc='upper right')
 
-    plt.show()
+    # plt.show()
     
-    # create a plot of the location and SH of the profiles:
-    fig = plt.figure(figsize=(10, 8))
-    ax = fig.add_subplot(1, 1, 1, projection=ccrs.PlateCarree())
-    ax.add_feature(cfeature.LAND.with_scale('50m'), color='black')
-    # ax.add_feature(cfeature.OCEAN.with_scale('110m'))  # Adds ocean feature, might include basic bathymetry
-    ax.coastlines(resolution='50m')
+    # # create a plot of the location and SH of the profiles:
+    # fig = plt.figure(figsize=(10, 8))
+    # ax = fig.add_subplot(1, 1, 1, projection=ccrs.PlateCarree())
+    # ax.add_feature(cfeature.LAND.with_scale('50m'), color='black')
+    # # ax.add_feature(cfeature.OCEAN.with_scale('110m'))  # Adds ocean feature, might include basic bathymetry
+    # ax.coastlines(resolution='50m')
 
-    # Plot points for each dataset in one go
-    scatter = ax.scatter(full_dataset.LON, full_dataset.LAT, c = ADT_normalized, transform=ccrs.Geodetic(), s=2, cmap='jet')
-    ax.set_xticks(np.arange(-99, -79, 2))
-    ax.set_yticks(np.arange(18, 34, 2))
-    plt.xticks(fontsize=11)  # Adjust the font size as needed
-    plt.yticks(fontsize=11)  # Adjust the font size as needed
-    ax.grid(color='gray', linestyle='--', linewidth=0.51)
-    cbar = plt.colorbar(scatter, label='SH1950', shrink=0.78)
-    cbar.set_label('SH1950 [m]', fontsize=16)
-    cbar.ax.tick_params(labelsize=16)
-    plt.xlabel('Longitude', fontsize=16)
-    plt.ylabel('Latitude', fontsize=16)
-    plt.title('ARGO locations')
-    plt.show()
+    # # Plot points for each dataset in one go
+    # scatter = ax.scatter(full_dataset.LON, full_dataset.LAT, c = ADT_normalized, transform=ccrs.Geodetic(), s=2, cmap='jet')
+    # ax.set_xticks(np.arange(-99, -79, 2))
+    # ax.set_yticks(np.arange(18, 34, 2))
+    # plt.xticks(fontsize=11)  # Adjust the font size as needed
+    # plt.yticks(fontsize=11)  # Adjust the font size as needed
+    # ax.grid(color='gray', linestyle='--', linewidth=0.51)
+    # cbar = plt.colorbar(scatter, label='SH1950', shrink=0.78)
+    # cbar.set_label('SH1950 [m]', fontsize=16)
+    # cbar.ax.tick_params(labelsize=16)
+    # plt.xlabel('Longitude', fontsize=16)
+    # plt.ylabel('Latitude', fontsize=16)
+    # plt.title('ARGO locations')
+    # plt.show()
     
-    # T-S diagram
+    # # T-S diagram
         
-    tempL=np.linspace(np.min(full_dataset.TEMP)-1,np.max(full_dataset.TEMP)+1,156)
+    # tempL=np.linspace(np.min(full_dataset.TEMP)-1,np.max(full_dataset.TEMP)+1,156)
 
-    salL=np.linspace(np.min(full_dataset.SAL)-1,np.max(full_dataset.SAL)+1,156)
+    # salL=np.linspace(np.min(full_dataset.SAL)-1,np.max(full_dataset.SAL)+1,156)
 
-    Tg, Sg = np.meshgrid(tempL,salL)
-    sigma_theta = gsw.sigma0(Sg, Tg)
-    cnt = np.linspace(sigma_theta.min(), sigma_theta.max(),156)
+    # Tg, Sg = np.meshgrid(tempL,salL)
+    # sigma_theta = gsw.sigma0(Sg, Tg)
+    # cnt = np.linspace(sigma_theta.min(), sigma_theta.max(),156)
     
-    # Normalize the ADT values for color mapping
-    norm = mcolors.Normalize(vmin=ADT_normalized.min(), vmax=ADT_normalized.max())
-    cmap = plt.cm.jet  # Choose a colormap
+    # # Normalize the ADT values for color mapping
+    # norm = mcolors.Normalize(vmin=ADT_normalized.min(), vmax=ADT_normalized.max())
+    # cmap = plt.cm.jet  # Choose a colormap
 
-    # Create the T-S plot
-    fig, ax = plt.subplots(figsize=(10, 8))
-    cs = ax.contour(Sg, Tg, sigma_theta, colors='grey', zorder=1)
+    # # Create the T-S plot
+    # fig, ax = plt.subplots(figsize=(10, 8))
+    # cs = ax.contour(Sg, Tg, sigma_theta, colors='grey', zorder=1)
     
-    # Plot each line
-    for i in range(full_dataset.TEMP.shape[1]):  # Assuming TEMP and SAL have the same second dimension
-        # TEMP[:, i] and SAL[:, i] form the x and y coordinates of the ith line
-        color = cmap(norm(ADT_normalized[i]))  # Map the ADT value to a color
-        ax.plot(full_dataset.SAL[:, i], full_dataset.TEMP[:, i], color=color, linewidth=0.5)
+    # # Plot each line
+    # for i in range(full_dataset.TEMP.shape[1]):  # Assuming TEMP and SAL have the same second dimension
+    #     # TEMP[:, i] and SAL[:, i] form the x and y coordinates of the ith line
+    #     color = cmap(norm(ADT_normalized[i]))  # Map the ADT value to a color
+    #     ax.plot(full_dataset.SAL[:, i], full_dataset.TEMP[:, i], color=color, linewidth=0.5)
 
-    for i in range(pred_T.shape[1]):  # Assuming TEMP and SAL have the same second dimension
-        # TEMP[:, i] and SAL[:, i] form the x and y coordinates of the ith line
-        # color = cmap(norm(ADT_normalized[i]))  # Map the ADT value to a color
-        ax.plot(pred_S[:, i], pred_T[:, i], color='pink', linewidth=0.2)
+    # for i in range(pred_T.shape[1]):  # Assuming TEMP and SAL have the same second dimension
+    #     # TEMP[:, i] and SAL[:, i] form the x and y coordinates of the ith line
+    #     # color = cmap(norm(ADT_normalized[i]))  # Map the ADT value to a color
+    #     ax.plot(pred_S[:, i], pred_T[:, i], color='pink', linewidth=0.2)
     
-    sm = plt.cm.ScalarMappable(cmap=cmap, norm=norm)
-    sm.set_array([])  # This line is necessary for ScalarMappable to work with colorbar
+    # sm = plt.cm.ScalarMappable(cmap=cmap, norm=norm)
+    # sm.set_array([])  # This line is necessary for ScalarMappable to work with colorbar
     
-    # Mark the cores of the water masses with circles and labels
-    cores = {
-        "SAAIW ": (34.9, 6.5),
-        "GCW ": (36.4, 22.3),
-        "NASUW ": (36.8, 22)
-    }
+    # # Mark the cores of the water masses with circles and labels
+    # cores = {
+    #     "SAAIW ": (34.9, 6.5),
+    #     "GCW ": (36.4, 22.3),
+    #     "NASUW ": (36.8, 22)
+    # }
 
-    for label, (salinity, temperature) in cores.items():
-        ax.plot(salinity, temperature, 'o', markersize=7, color='black')
-        ax.text(salinity, temperature, label, fontsize=11, verticalalignment='bottom', horizontalalignment='right', fontweight='bold')
+    # for label, (salinity, temperature) in cores.items():
+    #     ax.plot(salinity, temperature, 'o', markersize=7, color='black')
+    #     ax.text(salinity, temperature, label, fontsize=11, verticalalignment='bottom', horizontalalignment='right', fontweight='bold')
 
-    # cbar = fig.colorbar(sm, ax=ax, orientation='vertical', fraction=0.036, pad=0.04)
-    # cbar.set_label('SH1950', fontsize=12)
-    # cbar.ax.tick_params(labelsize=11)
-    # set x lims to 34.5 to 37.5
-    ax.set_xlim(34.5, 37.5)
-    cl=plt.clabel(cs,fontsize=10,inline=False,fmt='%.1f',colors='k')
-    plt.xlabel('Salinity [PSU]')
-    plt.ylabel('Temperature [°C]')
-    plt.title('T-S Diagram')
+    # # cbar = fig.colorbar(sm, ax=ax, orientation='vertical', fraction=0.036, pad=0.04)
+    # # cbar.set_label('SH1950', fontsize=12)
+    # # cbar.ax.tick_params(labelsize=11)
+    # # set x lims to 34.5 to 37.5
+    # ax.set_xlim(34.5, 37.5)
+    # cl=plt.clabel(cs,fontsize=10,inline=False,fmt='%.1f',colors='k')
+    # plt.xlabel('Salinity [PSU]')
+    # plt.ylabel('Temperature [°C]')
+    # plt.title('T-S Diagram')
     
-    # ax.set_xticks(np.arange(34.5, 37.5, 0.5))
+    # # ax.set_xticks(np.arange(34.5, 37.5, 0.5))
 
-    plt.show()
+    # plt.show()
     
-    fig = plt.figure(figsize=(6, 6))
-    plt.plot(ADT_normalized, full_dataset.AVISO_ADT, '.', markersize=0.6)
-    # add a trend line
-    plt.plot([ADT_normalized.min(), ADT_normalized.max()], [ADT_normalized.min(), ADT_normalized.max()], 'k')
-    plt.xlabel('SH1950 [m]')
-    plt.ylabel('SSH [m]')
-    plt.title('SH1950 vs SSH')
-    plt.show()
+    # fig = plt.figure(figsize=(6, 6))
+    # plt.plot(ADT_normalized, full_dataset.AVISO_ADT, '.', markersize=0.6)
+    # # add a trend line
+    # plt.plot([ADT_normalized.min(), ADT_normalized.max()], [ADT_normalized.min(), ADT_normalized.max()], 'k')
+    # plt.xlabel('SH1950 [m]')
+    # plt.ylabel('SSH [m]')
+    # plt.title('SH1950 vs SSH')
+    # plt.show()
     
-    # compare T and S profile against PCA reconstruction
-    prof_number = 300
-    prof_number = np.atleast_1d(prof_number)
-    depths = np.arange(0, 501, 1)
-    pca_prof = full_dataset.get_profiles(prof_number,True)
-    pca_T = pca_prof[depths,0,:]
-    pca_S = pca_prof[depths,1,:]
-    ori_prof = full_dataset.get_profiles(prof_number,False)
-    ori_T = ori_prof[depths,0,:]
-    ori_S = ori_prof[depths,1,:]
+    # # compare T and S profile against PCA reconstruction
+    # prof_number = 300
+    # prof_number = np.atleast_1d(prof_number)
+    # depths = np.arange(0, 501, 1)
+    # pca_prof = full_dataset.get_profiles(prof_number,True)
+    # pca_T = pca_prof[depths,0,:]
+    # pca_S = pca_prof[depths,1,:]
+    # ori_prof = full_dataset.get_profiles(prof_number,False)
+    # ori_T = ori_prof[depths,0,:]
+    # ori_S = ori_prof[depths,1,:]
     
     
-    fig = plt.figure(figsize=(10, 8))
-    ax1 = fig.add_subplot(1, 2, 1)
-    ax1.plot(pca_T, depths, label='15 PCS recon', color='r', linewidth=2)
-    ax1.plot(ori_T, depths, label='Original', color='k', linewidth=1)
-    ax1.set_xlabel('Temperature [°C]')
-    ax1.set_ylabel('Depth [m]')
-    ax1.set_title('Temperature')
-    ax1.grid()
-    #invert y axis
-    ax1.invert_yaxis()
-    ax1.legend(fontsize=12)
+    # fig = plt.figure(figsize=(10, 8))
+    # ax1 = fig.add_subplot(1, 2, 1)
+    # ax1.plot(pca_T, depths, label='15 PCS recon', color='r', linewidth=2)
+    # ax1.plot(ori_T, depths, label='Original', color='k', linewidth=1)
+    # ax1.set_xlabel('Temperature [°C]')
+    # ax1.set_ylabel('Depth [m]')
+    # ax1.set_title('Temperature')
+    # ax1.grid()
+    # #invert y axis
+    # ax1.invert_yaxis()
+    # ax1.legend(fontsize=12)
     
-    ax2 = fig.add_subplot(1, 2, 2)
-    ax2.plot(pca_S, depths, label='15 PCS recon', color='c', linewidth=2)
-    ax2.plot(ori_S, depths, label='Original', color='k', linewidth=1)
-    ax2.set_xlabel('Salinity [PSU])')
-    # ax2.set_ylabel('Depth [m]')
-    ax2.set_title('Salinity')
-    ax2.grid()
-    #invert y axis
-    ax2.invert_yaxis()
-    ax2.legend(fontsize=12)
+    # ax2 = fig.add_subplot(1, 2, 2)
+    # ax2.plot(pca_S, depths, label='15 PCS recon', color='c', linewidth=2)
+    # ax2.plot(ori_S, depths, label='Original', color='k', linewidth=1)
+    # ax2.set_xlabel('Salinity [PSU])')
+    # # ax2.set_ylabel('Depth [m]')
+    # ax2.set_title('Salinity')
+    # ax2.grid()
+    # #invert y axis
+    # ax2.invert_yaxis()
+    # ax2.legend(fontsize=12)
     
     # calculate average bias and rmse for depth ranges
-    print("Depth range \t NeSPReSO T RMSE \t GEM T RMSE \t ISOP T RMSE \t NeSPReSO T Bias \t GEM T Bias \t ISOP T Bias \t NeSPReSO S RMSE \t GEM S RMSE \t ISOP S RMSE \t NeSPReSO S Bias \t GEM S Bias \t ISOP S Bias \t NeSPReSO T R^2 \t GEM T R^2 \t NeSPReSO S R^2 \t GEM S R^2")
+    print("Depth range \t NeSPReSO T RMSE \t GEM T RMSE \t MLR T RMSE \t ISOP T RMSE \t NeSPReSO T Bias \t GEM T Bias \t MLR T Bias \t ISOP T Bias \t NeSPReSO S RMSE \t GEM S RMSE \t MLR S RMSE \t ISOP S RMSE \t NeSPReSO S Bias \t GEM S Bias \t MLR S Bias \t ISOP S Bias \t NeSPReSO T R^2 \t GEM T R^2 \t MLR T R^2 \t NeSPReSO S R^2 \t GEM S R^2 \t MLR S R^2")
     intervals = [(min_depth, 20), (20, 100), (100, 200), (200, 500), (500, 1000), (1000, max_depth), (0, 1000), (min_depth, max_depth)]    
     
     for i in range(len(intervals)):
@@ -3006,6 +2979,9 @@ if __name__ == "__main__":
         nn_s = pred_S[calc_depths, :]
         gem_t = gem_temp[:,calc_depths].T
         gem_s = gem_sal[:,calc_depths].T
+        mlr_t = temp_MLR_profiles[calc_depths,:]
+        mlr_s = sal_MLR_profiles[calc_depths,:]
+        
         nn_t_rmse = rmse(nn_t, ori_t)
         gem_t_rmse = rmse(gem_t, ori_t)
         nn_t_bias = bias(nn_t, ori_t)
@@ -3014,6 +2990,11 @@ if __name__ == "__main__":
         gem_s_rmse = rmse(gem_s, ori_s)
         nn_s_bias = bias(nn_s, ori_s)
         gem_s_bias = bias(gem_s, ori_s)
+        
+        mlr_t_rmse = rmse(mlr_t, ori_t)
+        mlr_t_bias = bias(mlr_t, ori_t)
+        mlr_s_rmse = rmse(mlr_s, ori_s)
+        mlr_s_bias = bias(mlr_s, ori_s)
         
         isop_avg_t_rmse = np.mean(ist.rmse.values[i_isop_dpt])
         isop_avg_t_bias = np.mean(ist.bias.values[i_isop_dpt])
@@ -3024,9 +3005,11 @@ if __name__ == "__main__":
         gem_T_corr = calculate_correlation(gem_t, ori_t)
         nn_S_corr = calculate_correlation(nn_s, ori_s)
         gem_S_corr = calculate_correlation(gem_s, ori_s)
+        mlr_T_corr = calculate_correlation(mlr_t, ori_t)
+        mlr_S_corr = calculate_correlation(mlr_s, ori_s)
                 
-        print(f"[{min_d}-{max_d}] \t {nn_t_rmse:.3f} \t {gem_t_rmse:.3f} \t {isop_avg_t_rmse:.3f} \t {nn_t_bias:.3f} \t {gem_t_bias:.3f} \t {isop_avg_t_bias:.3f} \t {nn_s_rmse:.3f} \t {gem_s_rmse:.3f} \t {isop_avg_s_rmse:.3f} \t {nn_s_bias:.3f} \t {gem_s_bias:.3f} \t {isop_avg_s_bias:.3f} \t {nn_T_corr:.3f} \t {gem_T_corr:.3f} \t {nn_S_corr:.3f} \t {gem_S_corr:.3f}")
-        # print(f"[{min_d}-{max_d}] & {nn_t_rmse:.3f} & {gem_t_rmse:.3f} & {isop_avg_t_rmse:.3f} & {nn_t_bias:.3f} & {gem_t_bias:.3f} & {isop_avg_t_bias:.3f} & {nn_s_rmse:.3f} & {gem_s_rmse:.3f} & {isop_avg_s_rmse:.3f} & {nn_s_bias:.3f} & {gem_s_bias:.3f} & {isop_avg_s_bias:.3f} \\\\")
+        print(f"[{min_d}-{max_d}] \t {nn_t_rmse:.3f} \t {gem_t_rmse:.3f} \t {mlr_t_rmse:.3f} \t {isop_avg_t_rmse:.3f} \t {nn_t_bias:.3f} \t {gem_t_bias:.3f} \t {mlr_t_bias:.3f} \t {isop_avg_t_bias:.3f} \t {nn_s_rmse:.3f} \t {gem_s_rmse:.3f} \t {mlr_s_rmse:.3f} \t {isop_avg_s_rmse:.3f} \t {nn_s_bias:.3f} \t {gem_s_bias:.3f} \t {mlr_s_bias:.3f} \t {isop_avg_s_bias:.3f} \t {nn_T_corr:.3f} \t {gem_T_corr:.3f} \t {mlr_T_corr:.3f} \t {nn_S_corr:.3f} \t {gem_S_corr:.3f} \t {mlr_S_corr:.3f}")
+        # print(f"[{min_d}-{max_d}] \t {nn_t_rmse:.3f} \t {gem_t_rmse:.3f} \t {isop_avg_t_rmse:.3f} \t {nn_t_bias:.3f} \t {gem_t_bias:.3f} \t {isop_avg_t_bias:.3f} \t {nn_s_rmse:.3f} \t {gem_s_rmse:.3f} \t {isop_avg_s_rmse:.3f} \t {nn_s_bias:.3f} \t {gem_s_bias:.3f} \t {isop_avg_s_bias:.3f} \t {nn_T_corr:.3f} \t {gem_T_corr:.3f} \t {nn_S_corr:.3f} \t {gem_S_corr:.3f}")
         # print("\hline")
         
         
@@ -3337,8 +3320,7 @@ if __name__ == "__main__":
     ## Reviews
     
     # Make a bar plot showing how many profiles are in the training, validation and test datasets per month
-    import pandas as pd
-    import calendar
+
     
     def count_profiles_per_month(dataset, indices):
         dates = [datetime.fromordinal(int(d)) for d in dataset.TIME[indices]]
@@ -3383,217 +3365,6 @@ if __name__ == "__main__":
 
     # Set y-axis to show percentages from 0 to 100
     plt.ylim(0, 100)
-
-    plt.tight_layout()
-    plt.show()
-
-
-    ## Multiple linear regression
-    
-    from sklearn.preprocessing import PolynomialFeatures
-
-    def prepare_features(inputs_array, max_degree=3):
-        """
-        Prepare the feature matrix for regression by including polynomial terms.
-
-        Args:
-        - inputs_array (numpy.ndarray): Array of input features, shape (n_samples, n_features).
-        - max_degree (int): Maximum degree of polynomial features.
-
-        Returns:
-        - X (numpy.ndarray): Feature matrix of shape (n_samples, n_features_expanded).
-        """
-        # Generate polynomial features up to the specified degree
-        poly = PolynomialFeatures(degree=max_degree, include_bias=False)
-        X = poly.fit_transform(inputs_array)
-        return X
-
-    def fit_pcs_regression_exact_gpu(X, pcs):
-        """
-        Fit regression models to predict principal component scores from features using exact least squares on GPU.
-
-        Args:
-        - X (numpy.ndarray): Feature matrix, shape (n_samples, n_features_expanded).
-        - pcs (numpy.ndarray): Principal component scores, shape (n_samples, n_components).
-
-        Returns:
-        - beta (torch.Tensor): Coefficient matrix, shape (n_features_expanded, n_components).
-        """
-        # Convert data to torch tensors and move to GPU
-        X_tensor = torch.tensor(X, dtype=torch.float32).to(DEVICE)
-        pcs_tensor = torch.tensor(pcs, dtype=torch.float32).to(DEVICE)
-
-        # Compute the pseudoinverse of X
-        # Note: For large matrices, torch.linalg.lstsq may be more efficient
-        X_pinv = torch.pinverse(X_tensor)
-        
-        print(f"{X_pinv.shape=}")
-
-        # Compute the coefficients (beta) analytically
-        beta = X_pinv @ pcs_tensor
-
-        return beta
-
-    def predict_pcs_exact_gpu(beta, X_new):
-        """
-        Predict principal component scores using the exact coefficients on GPU.
-
-        Args:
-        - beta (torch.Tensor): Coefficient matrix, shape (n_features_expanded, n_components).
-        - X_new (numpy.ndarray): New feature matrix, shape (n_samples_new, n_features_expanded).
-
-        Returns:
-        - pcs_pred (numpy.ndarray): Predicted principal component scores, shape (n_samples_new, n_components).
-        """
-        with torch.no_grad():
-            X_new_tensor = torch.tensor(X_new, dtype=torch.float32).to(DEVICE)
-            pcs_pred_tensor = X_new_tensor @ beta
-            pcs_pred = pcs_pred_tensor.cpu().numpy()
-        return pcs_pred
-
-    def inverse_transform(pcs, pca_temp, pca_sal, n_components):
-        """
-        Inverse the PCA transformation to reconstruct temperature and salinity profiles.
-
-        Args:
-        - pcs (numpy.ndarray): Concatenated PCA components for temperature and salinity.
-        - pca_temp, pca_sal: PCA models for temperature and salinity respectively.
-        - n_components (int): Number of PCA components for each.
-
-        Returns:
-        - temp_profiles (numpy.ndarray): Reconstructed temperature profiles.
-        - sal_profiles (numpy.ndarray): Reconstructed salinity profiles.
-        """
-        temp_profiles = pca_temp.inverse_transform(pcs[:, :n_components]).T
-        sal_profiles = pca_sal.inverse_transform(pcs[:, n_components:]).T
-        return temp_profiles, sal_profiles
-
-    # Your existing code starts here:
-
-    # Assuming full_dataset is your dataset object and train_indices, val_indices are defined
-    # And pca_temp, pca_sal, n_components are available
-
-    # Collect inputs and PCS from the training dataset
-    inputs_list_train, pcs_list_train = full_dataset.__getitem__(train_indices)
-
-    # Convert lists to numpy arrays
-    inputs_array_train = np.array(inputs_list_train.T)  # Shape: (n_samples_train, n_features)
-    pcs_array_train = np.array(pcs_list_train)
-    pcs_T_train, pcs_S_train = np.hsplit(pcs_list_train, 2)
-    pcs_T_train = pcs_T_train.T        # Shape: (n_samples_train, n_components)
-    pcs_S_train = pcs_S_train.T        # Shape: (n_samples_train, n_components)
-    
-    # Prepare features for training
-    X_train = prepare_features(inputs_array_train, max_degree=1)
-
-    # Fit regression model on GPU
-    print("Beginning multiple linear regression using PyTorch on GPU")
-    start_time = time.perf_counter()
-    beta_T = fit_pcs_regression_exact_gpu(X_train, pcs_T_train)
-    beta_S = fit_pcs_regression_exact_gpu(X_train, pcs_S_train)
-    
-    end_time = time.perf_counter()
-    elapsed_time = (end_time - start_time)
-    print(f"MLR fit completed in {elapsed_time:.2f} seconds.")
-
-    # Prepare inputs for the validation dataset
-    inputs_list_val, _ = full_dataset.__getitem__(val_indices)
-    inputs_array_val = np.array(inputs_list_val.T)  # Shape: (n_samples_val, n_features)
-    # Prepare features for validation
-    X_val = prepare_features(inputs_array_val, max_degree=1)
-
-    # Predict the principal component scores for the validation data
-    pcs_pred_val_T = predict_pcs_exact_gpu(beta_T, X_val)
-    pcs_pred_val_S = predict_pcs_exact_gpu(beta_S, X_val)
-    pcs_pred_val = np.hstack([pcs_pred_val_T, pcs_pred_val_S])
-
-    # Reconstruct the temperature and salinity profiles using the inverse PCA transformation
-    temp_MLR_profiles, sal_MLR_profiles = inverse_transform(pcs_pred_val, pca_temp, pca_sal, n_components)
-    
-    # # Transpose temp_MLR_profiles and sal_MLR_profiles
-    # # to match the shape of original_profiles
-    # temp_MLR_profiles = temp_MLR_profiles.T  # Shape: (n_samples, depth_levels)
-    # sal_MLR_profiles = sal_MLR_profiles.T    # Shape: (n_samples, depth_levels)
-
-    # Extract the original temperature and salinity profiles
-    original_temp_profiles = original_profiles[:, 0, :]  # Shape: (n_samples, depth_levels)
-    original_sal_profiles = original_profiles[:, 1, :]   # Shape: (n_samples, depth_levels)
-
-    # Calculate residuals
-    mlr_T_resid = temp_MLR_profiles - original_temp_profiles  # Shape: (n_samples, depth_levels)
-    mlr_S_resid = sal_MLR_profiles - original_sal_profiles    # Shape: (n_samples, depth_levels)
-
-    # # Transpose residuals to match the shape used in plotting (depth_levels, n_samples)
-    # mlr_T_resid = mlr_T_resid.T  # Shape: (depth_levels, n_samples)
-    # mlr_S_resid = mlr_S_resid.T  # Shape: (depth_levels, n_samples)
-
-    # Compute squared errors
-    mlr_temp_se = mlr_T_resid**2  # Shape: (depth_levels, n_samples)
-    mlr_sal_se = mlr_S_resid**2   # Shape: (depth_levels, n_samples)
-
-    # Compute average RMSE
-    avg_mlr_temp_rmse = np.sqrt(np.mean(mlr_temp_se, axis=1))  # Shape: (depth_levels,)
-    avg_mlr_sal_rmse = np.sqrt(np.mean(mlr_sal_se, axis=1))    # Shape: (depth_levels,)
-
-    # Compute average bias
-    avg_mlr_temp_bias = np.mean(mlr_T_resid, axis=1)  # Shape: (depth_levels,)
-    avg_mlr_sal_bias = np.mean(mlr_S_resid, axis=1)   # Shape: (depth_levels,)
-
-    fig = plt.figure(figsize=(18,18))
-
-    # Temperature RMSE Plot
-    ax = fig.add_subplot(2,2,1)
-    ax.axvline(0, color='k', linestyle='--', linewidth=0.5)
-    ax.grid(color='gray', linestyle='--', linewidth=0.5)
-    plt.plot(ist.rmse.values, ist.depth.values, linewidth=3, label='ISOP', color='xkcd:blue')
-    plt.plot(avg_gem_temp_rmse, np.arange(0,1801), linewidth=3, label='GEM', color='xkcd:orange')
-    plt.plot(avg_nn_temp_rmse, np.arange(0,1801), linewidth=3, label='NeSPReSO', color='xkcd:gray')
-    plt.plot(avg_mlr_temp_rmse, np.arange(0,1801), linewidth=3, label='MLR', color='xkcd:green')
-    ax.invert_yaxis()
-    plt.legend()
-    plt.xlabel("Temperature RMSE [°C]")
-    plt.ylabel("Depth [m]")
-    plt.title("Average Temperature RMSE")
-
-    # Salinity RMSE Plot
-    ax = fig.add_subplot(2,2,2)
-    ax.axvline(0, color='k', linestyle='--', linewidth=0.5)
-    ax.grid(color='gray', linestyle='--', linewidth=0.5)
-    plt.plot(iss.rmse.values, iss.depth.values, linewidth=3, label='ISOP', color='xkcd:blue')
-    plt.plot(avg_gem_sal_rmse, np.arange(0,1801), linewidth=3, label='GEM', color='xkcd:orange')
-    plt.plot(avg_nn_sal_rmse, np.arange(0,1801), linewidth=3, label='NeSPReSO', color='xkcd:gray')
-    plt.plot(avg_mlr_sal_rmse, np.arange(0,1801), linewidth=3, label='MLR', color='xkcd:green')
-    ax.invert_yaxis()
-    plt.legend()
-    plt.xlabel("Salinity RMSE [PSU]")
-    plt.title("Average Salinity RMSE")
-
-    # Temperature Bias Plot
-    ax = fig.add_subplot(2,2,3)
-    ax.axvline(0, color='k', linestyle='--', linewidth=0.5)
-    ax.grid(color='gray', linestyle='--', linewidth=0.5)
-    plt.plot(ist.bias.values, ist.depth.values, linewidth=3, label='ISOP', color='xkcd:blue')
-    plt.plot(avg_gem_temp_bias, np.arange(0,1801), linewidth=3, label='GEM', color='xkcd:orange')
-    plt.plot(avg_nn_temp_bias, np.arange(0,1801), linewidth=3, label='NeSPReSO', color='xkcd:gray')
-    plt.plot(avg_mlr_temp_bias, np.arange(0,1801), linewidth=3, label='MLR', color='xkcd:green')
-    ax.invert_yaxis()
-    plt.legend()
-    plt.xlabel("Temperature Bias [°C]")
-    plt.ylabel("Depth [m]")
-    plt.title("Average Temperature Bias")
-
-    # Salinity Bias Plot
-    ax = fig.add_subplot(2,2,4)
-    ax.axvline(0, color='k', linestyle='--', linewidth=0.5)
-    ax.grid(color='gray', linestyle='--', linewidth=0.5)
-    plt.plot(iss.bias.values, iss.depth.values, linewidth=3, label='ISOP', color='xkcd:blue')
-    plt.plot(avg_gem_sal_bias, np.arange(0,1801), linewidth=3, label='GEM', color='xkcd:orange')
-    plt.plot(avg_nn_sal_bias, np.arange(0,1801), linewidth=3, label='NeSPReSO', color='xkcd:gray')
-    plt.plot(avg_mlr_sal_bias, np.arange(0,1801), linewidth=3, label='MLR', color='xkcd:green')
-    ax.invert_yaxis()
-    plt.legend()
-    plt.xlabel("Salinity Bias [PSU]")
-    plt.title("Average Salinity Bias")
 
     plt.tight_layout()
     plt.show()

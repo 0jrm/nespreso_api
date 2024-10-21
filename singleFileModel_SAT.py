@@ -37,6 +37,7 @@ from sklearn.preprocessing import PolynomialFeatures
 from sklearn.preprocessing import StandardScaler
 import plotly.express as px
 from scipy.stats import pearsonr
+from matplotlib.ticker import FormatStrFormatter
 
 # from matplotlib.dates import date2num, num2date
 # from sklearn.cluster import MiniBatchKMeans
@@ -997,7 +998,7 @@ class PCALoss(nn.Module): #min test loss ~ 13
         
         # Combine the MSE for temperature and salinity
         # total_mse = (mse_temp/(8.6) + mse_sal/(35.2))/self.n_samples # divide by the mean T and S values
-        total_mse = (mse_temp/(37.86) + mse_sal/(0.28))/self.n_samples # divide by the mean T and S values
+        total_mse = (mse_temp/(37.86) + mse_sal/(0.28))/self.n_samples # divide by the T and S variances
         # total_mse = (mse_temp/(2.01) + mse_sal/(0.03))/self.n_samples # divide by the mean T and S values
         return total_mse
     
@@ -1329,7 +1330,7 @@ def plot_comparison_maps(lon_centers, lat_centers, avg_var_nn, avg_var_compare, 
 
     # Titles for each subplot
     if variable_name == "Bias":
-        dif_name = "Magnitude diff."
+        dif_name = "Difference of magnitude"
     else:
         dif_name = "Difference"
     titles = [f"NeSPReSO", f"{name_compare}", f"{dif_name} (lower is better)"]
@@ -1359,7 +1360,7 @@ def plot_comparison_maps(lon_centers, lat_centers, avg_var_nn, avg_var_compare, 
         axes[i].grid(color='gray', linestyle='--', linewidth=0.5)
 
     # Adding colorbar for the first two plots
-    fig.colorbar(pcm, ax=axes[1], orientation="vertical", pad=0.04, fraction=0.0315).set_label(label=f"Average RMSE {units}", size=14)
+    fig.colorbar(pcm, ax=axes[1], orientation="vertical", pad=0.04, fraction=0.0315)
     fig.suptitle(f"Average {title_prefix} {variable_name} by region", fontsize=28, y=0.705, fontweight="bold")
 
     if n_plots == 3:
@@ -1627,6 +1628,9 @@ if __name__ == "__main__":
             now_str = now.strftime("%Y-%m-%d %H:%M:%S")
             save_model_path += now_str + suffix
 
+            pca_temp = full_dataset.pca_temp
+            pca_sal = full_dataset.pca_sal
+            
             # Save checkpoint with model state and PCA components
             checkpoint = {
                 'model_state_dict': trained_model.state_dict(),
@@ -2118,31 +2122,38 @@ if __name__ == "__main__":
     beta_S_dropped = torch.cat((beta_S_scaled[:2], beta_S_scaled[6:]), dim=0)
     feature_names_dropped = feature_names[:2] + feature_names[6:]
     
-    # Plot Heatmap for Temperature PCs with Normalization
-    plot_coefficients_heatmap(
-        beta_T_dropped,
-        feature_names_dropped,
-        "Normalized Regression Coefficients for Temperature PCs",
-        normalize=True
-    )
+    # # Plot Heatmap for Temperature PCs with Normalization
+    # plot_coefficients_heatmap(
+    #     beta_T_dropped,
+    #     feature_names_dropped,
+    #     "Normalized Regression Coefficients for Temperature PCs",
+    #     normalize=True
+    # )
 
-    # Plot Heatmap for Salinity PCs with Normalization
-    plot_coefficients_heatmap(
-        beta_S_dropped,
-        feature_names_dropped,
-        "Normalized Regression Coefficients for Salinity PCs",
-        normalize=True
-    )
+    # # Plot Heatmap for Salinity PCs with Normalization
+    # plot_coefficients_heatmap(
+    #     beta_S_dropped,
+    #     feature_names_dropped,
+    #     "Normalized Regression Coefficients for Salinity PCs",
+    #     normalize=True
+    # )
 
     # Heatmaps of the RMSE
     # dpt_range = np.arange(0,201)
-    dpt_range = isop_depths[isop_depths<=1800].astype(int)
+    upper_limit = 0
+    lower_limit = 1800
+    dpt_range = isop_depths[(isop_depths <= lower_limit) & (isop_depths >= upper_limit)].astype(int)
 
+    print(f"Statistics/Plots for Depth range: [{lower_limit}, {upper_limit}]")
+    
     # Calculate average temperature RMSE for NN and GEM !
     grid_avg_temp_rmse_nn, num_prof_nn = calculate_average_in_bin(lon_centers, lat_centers, lon_val, lat_val, pred_T_resid, dpt_range, is_rmse=True)  
     grid_avg_temp_rmse_gem, num_prof_gem = calculate_average_in_bin(lon_centers, lat_centers, lon_val, lat_val, gems_T_resid, dpt_range, is_rmse=True)  
     grid_avg_temp_rmse_gain = grid_avg_temp_rmse_nn - grid_avg_temp_rmse_gem
-
+    # same for MLR
+    grid_avg_temp_rmse_mlr, num_prof_mlr = calculate_average_in_bin(lon_centers, lat_centers, lon_val, lat_val, mlr_T_resid, dpt_range, is_rmse=True)
+    grid_avg_temp_rmse_gain_mlr = grid_avg_temp_rmse_nn - grid_avg_temp_rmse_mlr
+    
     plot_bin_map(lon_bins, lat_bins, grid_avg_temp_rmse_nn, num_prof_nn, "Temperature", "RMSE")
     
     #now let's do the same for salinity
@@ -2150,7 +2161,10 @@ if __name__ == "__main__":
     grid_avg_sal_rmse_nn, num_prof_nn = calculate_average_in_bin(lon_centers, lat_centers, lon_val, lat_val, pred_S_resid, dpt_range, is_rmse=True)
     grid_avg_sal_rmse_gem, num_prof_gem = calculate_average_in_bin(lon_centers, lat_centers, lon_val, lat_val, gems_S_resid, dpt_range, is_rmse=True)
     grid_avg_sal_rmse_gain = grid_avg_sal_rmse_nn - grid_avg_sal_rmse_gem
-
+    # same for MLR
+    grid_avg_sal_rmse_mlr, num_prof_mlr = calculate_average_in_bin(lon_centers, lat_centers, lon_val, lat_val, mlr_S_resid, dpt_range, is_rmse=True)
+    grid_avg_sal_rmse_gain_mlr = grid_avg_sal_rmse_nn - grid_avg_sal_rmse_mlr
+    
     plot_bin_map(lon_bins, lat_bins, grid_avg_sal_rmse_nn, num_prof_nn, "Salinity", "RMSE")
     
     # same maps, but bias    
@@ -2159,6 +2173,9 @@ if __name__ == "__main__":
     avg_nn_s_bias, num_prof_nn = calculate_average_in_bin(  lon_centers, lat_centers, lon_val, lat_val, pred_S_resid, dpt_range, is_rmse=False)
     avg_gem_t_bias, num_prof_gem = calculate_average_in_bin(lon_centers, lat_centers, lon_val, lat_val, gems_T_resid, dpt_range, is_rmse=False)
     avg_gem_s_bias, num_prof_gem = calculate_average_in_bin(lon_centers, lat_centers, lon_val, lat_val, gems_S_resid, dpt_range, is_rmse=False)
+    # same for MLR
+    avg_mlr_t_bias, num_prof_mlr = calculate_average_in_bin(lon_centers, lat_centers, lon_val, lat_val, mlr_T_resid, dpt_range, is_rmse=False)
+    avg_mlr_s_bias, num_prof_mlr = calculate_average_in_bin(lon_centers, lat_centers, lon_val, lat_val, mlr_S_resid, dpt_range, is_rmse=False)
     
     #TODO: fix the bias color scale (negative values are not being shown properly)
     plot_bin_map(lon_bins, lat_bins, avg_nn_t_bias, num_prof_nn, "Temperature", "Bias")
@@ -2181,44 +2198,152 @@ if __name__ == "__main__":
             return 'Winter'
 
     seasons = [get_season(date) for date in python_dates]
-
+    
     # Calculate and plot statistics for each season
-    for season in ['Spring', 'Summer', 'Autumn', 'Winter']:
-        season_mask = np.array(seasons) == season
+    seasons = ['Spring', 'Summer', 'Autumn', 'Winter']
+    
+    # Initialize lists to store data for all seasons
+    nn_temp_rmse_all = []
+    nn_sal_rmse_all = []
+    nn_temp_bias_all = []
+    nn_sal_bias_all = []
+    gem_temp_rmse_all = []
+    gem_sal_rmse_all = []
+    gem_temp_bias_all = []
+    gem_sal_bias_all = []
+    mlr_temp_rmse_all = []
+    mlr_sal_rmse_all = []
+    mlr_temp_bias_all = []
+    mlr_sal_bias_all = []
+
+    for season in seasons:
+        season_mask = np.array([get_season(date) for date in python_dates]) == season
         
-        # Temperature RMSE
-        grid_avg_temp_rmse_nn_season, num_prof_nn_season = calculate_average_in_bin(
-            lon_centers, lat_centers, lon_val[season_mask], lat_val[season_mask], 
-            pred_T_resid[:,season_mask], dpt_range, is_rmse=True
-        )
+        # Calculate RMSE and bias by depth for each season for both NN and GEM
+        nn_temp_rmse = np.sqrt(np.nanmean((pred_T_resid[:,season_mask])**2, axis=1))
+        nn_sal_rmse = np.sqrt(np.nanmean((pred_S_resid[:,season_mask])**2, axis=1))
+        nn_temp_bias = np.nanmean(pred_T_resid[:,season_mask], axis=1)
+        nn_sal_bias = np.nanmean(pred_S_resid[:,season_mask], axis=1)
+        gem_temp_rmse = np.sqrt(np.nanmean((gems_T_resid[:,season_mask])**2, axis=1))
+        gem_sal_rmse = np.sqrt(np.nanmean((gems_S_resid[:,season_mask])**2, axis=1))
+        gem_temp_bias = np.nanmean(gems_T_resid[:,season_mask], axis=1)
+        gem_sal_bias = np.nanmean(gems_S_resid[:,season_mask], axis=1)
+        mlr_temp_rmse = np.sqrt(np.nanmean((mlr_T_resid[:,season_mask])**2, axis=1))
+        mlr_sal_rmse = np.sqrt(np.nanmean((mlr_S_resid[:,season_mask])**2, axis=1))
+        mlr_temp_bias = np.nanmean(mlr_T_resid[:,season_mask], axis=1)
+        mlr_sal_bias = np.nanmean(mlr_S_resid[:,season_mask], axis=1)
+        
+        # Append data to lists
+        nn_temp_rmse_all.append(nn_temp_rmse)
+        nn_sal_rmse_all.append(nn_sal_rmse)
+        nn_temp_bias_all.append(nn_temp_bias)
+        nn_sal_bias_all.append(nn_sal_bias)
+        gem_temp_rmse_all.append(gem_temp_rmse)
+        gem_sal_rmse_all.append(gem_sal_rmse)
+        gem_temp_bias_all.append(gem_temp_bias)
+        gem_sal_bias_all.append(gem_sal_bias)
+        mlr_temp_rmse_all.append(mlr_temp_rmse)
+        mlr_sal_rmse_all.append(mlr_sal_rmse)
+        mlr_temp_bias_all.append(mlr_temp_bias)
+        mlr_sal_bias_all.append(mlr_sal_bias)
+        
+    # Create the figures
+    fig_rmse, axs_rmse = plt.subplots(4, 2, figsize=(20, 30))
+    fig_bias, axs_bias = plt.subplots(4, 2, figsize=(20, 30))
+
+    fig_rmse.suptitle("RMSE by Depth for Each Season", fontsize=20)
+    fig_bias.suptitle("Bias by Depth for Each Season", fontsize=20)
+
+    # Find max values for consistent x-axis scales
+    max_temp_rmse = max(np.max(nn_temp_rmse_all), np.max(gem_temp_rmse_all))
+    max_sal_rmse = max(np.max(nn_sal_rmse_all), np.max(gem_sal_rmse_all))
+    max_temp_bias = max(np.max(np.abs(nn_temp_bias_all)), np.max(np.abs(gem_temp_bias_all)))
+    max_sal_bias = max(np.max(np.abs(nn_sal_bias_all)), np.max(np.abs(gem_sal_bias_all)))
+
+    for i, season in enumerate(seasons):
+        # RMSE plots
+        axs_rmse[i, 0].plot(gem_temp_rmse_all[i], np.arange(0,1801), linewidth=3, label='GEM', color='xkcd:orange')
+        axs_rmse[i, 0].plot(mlr_temp_rmse_all[i], np.arange(0,1801), linewidth=3, label='MLR', color='xkcd:green')
+        axs_rmse[i, 0].plot(nn_temp_rmse_all[i], np.arange(0,1801), linewidth=3, label='NeSPReSO', color='xkcd:gray')
+        axs_rmse[i, 0].invert_yaxis()
+        if i==3:
+            axs_rmse[i, 0].set_xlabel("Temperature RMSE [°C]")
+        axs_rmse[i, 0].set_ylabel("Depth [m]")
+        axs_rmse[i, 0].set_title(f"{season} - Temperature RMSE")
+        axs_rmse[i, 0].legend()
+        axs_rmse[i, 0].grid(True)
+        axs_rmse[i, 0].set_xlim(0, max_temp_rmse)
+
+        axs_rmse[i, 1].plot(gem_sal_rmse_all[i], np.arange(0,1801), linewidth=3, label='GEM', color='xkcd:orange')
+        axs_rmse[i, 1].plot(mlr_sal_rmse_all[i], np.arange(0,1801), linewidth=3, label='MLR', color='xkcd:green')
+        axs_rmse[i, 1].plot(nn_sal_rmse_all[i], np.arange(0,1801), linewidth=3, label='NeSPReSO', color='xkcd:gray')
+        axs_rmse[i, 1].invert_yaxis()
+        if i==3:
+            axs_rmse[i, 1].set_xlabel("Salinity RMSE [PSU]")
+        axs_rmse[i, 1].set_title(f"{season} - Salinity RMSE")
+        axs_rmse[i, 1].legend()
+        axs_rmse[i, 1].grid(True)
+        axs_rmse[i, 1].set_xlim(0, max_sal_rmse)
+
+        # Bias plots
+        axs_bias[i, 0].plot(gem_temp_bias_all[i], np.arange(0,1801), linewidth=3, label='GEM', color='xkcd:orange')
+        axs_bias[i, 0].plot(mlr_temp_bias_all[i], np.arange(0,1801), linewidth=3, label='MLR', color='xkcd:green')
+        axs_bias[i, 0].plot(nn_temp_bias_all[i], np.arange(0,1801), linewidth=3, label='NeSPReSO', color='xkcd:gray')
+        axs_bias[i, 0].invert_yaxis()
+        if i==3:
+            axs_bias[i, 0].set_xlabel("Temperature Bias [°C]")
+        axs_bias[i, 0].set_ylabel("Depth [m]")
+        axs_bias[i, 0].set_title(f"{season} - Temperature Bias")
+        axs_bias[i, 0].legend()
+        axs_bias[i, 0].grid(True)
+        axs_bias[i, 0].set_xlim(-max_temp_bias, max_temp_bias)
+
+        axs_bias[i, 1].plot(gem_sal_bias_all[i], np.arange(0,1801), linewidth=3, label='GEM', color='xkcd:orange')
+        axs_bias[i, 1].plot(mlr_sal_bias_all[i], np.arange(0,1801), linewidth=3, label='MLR', color='xkcd:green')
+        axs_bias[i, 1].plot(nn_sal_bias_all[i], np.arange(0,1801), linewidth=3, label='NeSPReSO', color='xkcd:gray')
+        axs_bias[i, 1].invert_yaxis()
+        if i==3:
+            axs_bias[i, 1].set_xlabel("Salinity Bias [PSU]")
+        axs_bias[i, 1].set_title(f"{season} - Salinity Bias")
+        axs_bias[i, 1].legend()
+        axs_bias[i, 1].grid(True)
+        axs_bias[i, 1].set_xlim(-max_sal_bias, max_sal_bias)
+
+    plt.tight_layout()
+    plt.show()
+        # # Temperature RMSE
+        # grid_avg_temp_rmse_nn_season, num_prof_nn_season = calculate_average_in_bin(
+        #     lon_centers, lat_centers, lon_val[season_mask], lat_val[season_mask], 
+        #     pred_T_resid[:,season_mask], dpt_range, is_rmse=True
+        # )
         
         
-        plot_bin_map(lon_bins, lat_bins, grid_avg_temp_rmse_nn_season, num_prof_nn_season, 
-                     f"Temperature - {season}", "RMSE")
+        # plot_bin_map(lon_bins, lat_bins, grid_avg_temp_rmse_nn_season, num_prof_nn_season, 
+        #              f"Temperature - {season}", "RMSE")
         
-        # Salinity RMSE
-        grid_avg_sal_rmse_nn_season, _ = calculate_average_in_bin(
-            lon_centers, lat_centers, lon_val[season_mask], lat_val[season_mask], 
-            pred_S_resid[:,season_mask], dpt_range, is_rmse=True
-        )
-        plot_bin_map(lon_bins, lat_bins, grid_avg_sal_rmse_nn_season, num_prof_nn_season, 
-                     f"Salinity - {season}", "RMSE")
+        # # Salinity RMSE
+        # grid_avg_sal_rmse_nn_season, _ = calculate_average_in_bin(
+        #     lon_centers, lat_centers, lon_val[season_mask], lat_val[season_mask], 
+        #     pred_S_resid[:,season_mask], dpt_range, is_rmse=True
+        # )
+        # plot_bin_map(lon_bins, lat_bins, grid_avg_sal_rmse_nn_season, num_prof_nn_season, 
+        #              f"Salinity - {season}", "RMSE")
         
-        # Temperature Bias
-        avg_nn_t_bias_season, _ = calculate_average_in_bin(
-            lon_centers, lat_centers, lon_val[season_mask], lat_val[season_mask], 
-            pred_T_resid[:,season_mask], dpt_range, is_rmse=False
-        )
-        plot_bin_map(lon_bins, lat_bins, avg_nn_t_bias_season, num_prof_nn_season, 
-                     f"Temperature - {season}", "Bias")
+        # # Temperature Bias
+        # avg_nn_t_bias_season, _ = calculate_average_in_bin(
+        #     lon_centers, lat_centers, lon_val[season_mask], lat_val[season_mask], 
+        #     pred_T_resid[:,season_mask], dpt_range, is_rmse=False
+        # )
+        # plot_bin_map(lon_bins, lat_bins, avg_nn_t_bias_season, num_prof_nn_season, 
+        #              f"Temperature - {season}", "Bias")
         
-        # Salinity Bias
-        avg_nn_s_bias_season, _ = calculate_average_in_bin(
-            lon_centers, lat_centers, lon_val[season_mask], lat_val[season_mask], 
-            pred_S_resid[:,season_mask], dpt_range, is_rmse=False
-        )
-        plot_bin_map(lon_bins, lat_bins, avg_nn_s_bias_season, num_prof_nn_season, 
-                     f"Salinity - {season}", "Bias")
+        # # Salinity Bias
+        # avg_nn_s_bias_season, _ = calculate_average_in_bin(
+        #     lon_centers, lat_centers, lon_val[season_mask], lat_val[season_mask], 
+        #     pred_S_resid[:,season_mask], dpt_range, is_rmse=False
+        # )
+        # plot_bin_map(lon_bins, lat_bins, avg_nn_s_bias_season, num_prof_nn_season, 
+        #              f"Salinity - {season}", "Bias")
 
     # Comparison maps    
     avg_rmse_nn_t  = grid_avg_temp_rmse_nn
@@ -2229,6 +2354,10 @@ if __name__ == "__main__":
     avg_rmse_gem_s = grid_avg_sal_rmse_gem
     avg_bias_gem_t = avg_gem_t_bias
     avg_bias_gem_s = avg_gem_s_bias
+    avg_rmse_mlr_t = grid_avg_temp_rmse_mlr
+    avg_rmse_mlr_s = grid_avg_sal_rmse_mlr
+    avg_bias_mlr_t = avg_mlr_t_bias
+    avg_bias_mlr_s = avg_mlr_s_bias
     
     lon_centr = lon_centers[:-1]
     lat_centr = lat_centers[:-1]
@@ -2241,12 +2370,19 @@ if __name__ == "__main__":
     plot_comparison_maps(lon_centr, lat_centr, avg_rmse_nn_t, avg_rmse_isop_t, "temperature", "ISOP")
     plot_comparison_maps(lon_centr, lat_centr, avg_rmse_nn_s, avg_rmse_isop_s, "salinity", "ISOP")
     
+    #MLR
+    plot_comparison_maps(lon_centr, lat_centr, avg_rmse_nn_t, avg_rmse_mlr_t, "temperature", "MLR")
+    plot_comparison_maps(lon_centr, lat_centr, avg_rmse_nn_s, avg_rmse_mlr_s, "salinity", "MLR")
+    
     print("the following are bias plots")
     plot_comparison_maps(lon_centr, lat_centr, avg_bias_nn_t, avg_bias_isop_t, "temperature", "ISOP", "Bias")
     plot_comparison_maps(lon_centr, lat_centr, avg_bias_nn_s, avg_bias_isop_s, "salinity", "ISOP", "Bias")
     
     plot_comparison_maps(lon_centr, lat_centr, avg_bias_nn_t, avg_bias_gem_t, "temperature", "GEM", "Bias")
     plot_comparison_maps(lon_centr, lat_centr, avg_bias_nn_s, avg_bias_gem_s, "salinity", "GEM", "Bias")
+    
+    plot_comparison_maps(lon_centr, lat_centr, avg_bias_nn_t, avg_bias_mlr_t, "temperature", "MLR", "Bias")
+    plot_comparison_maps(lon_centr, lat_centr, avg_bias_nn_s, avg_bias_mlr_s, "salinity", "MLR", "Bias")
     
     # Residual calculations
     nn_temp_residuals = pred_T - original_profiles[:, 0, :]
@@ -2615,7 +2751,7 @@ if __name__ == "__main__":
     plot_field_subplot(S1, d1, gld_depths, "Salinity", "Glider S", 322, fig)
     plot_field_subplot(S_pred1, d1, pred_depths, "Salinity", "Synthetic S", 324, fig)
     plot_field_subplot(S_diff1, d1, gld_depths, "S Difference", "S Difference", 326, fig)
-    plt.suptitle(f"Posseidon Crossing #1 \n{t1[0].strftime('%Y-%m-%d')} to {t1[-1].strftime('%Y-%m-%d')}", fontsize=18, fontweight="bold")
+    plt.suptitle(f"Poseidon Crossing #1 \n{t1[0].strftime('%Y-%m-%d')} to {t1[-1].strftime('%Y-%m-%d')}", fontsize=18, fontweight="bold")
     plt.tight_layout()  # Adjusts subplot params so that subplots fit into the figure area
     plt.show()
 
@@ -2627,7 +2763,7 @@ if __name__ == "__main__":
     plot_field_subplot(S2, d2, gld_depths, "Salinity", "Glider S", 322, fig)
     plot_field_subplot(S_pred2, d2, pred_depths, "Salinity", "Synthetic S", 324, fig)
     plot_field_subplot(S_diff2, d2, gld_depths, "S Difference", "S Difference", 326, fig)
-    plt.suptitle(f"Posseidon Crossing #2 \n{t2[0].strftime('%Y-%m-%d')} to {t2[-1].strftime('%Y-%m-%d')}", fontsize=18, fontweight="bold")
+    plt.suptitle(f"Poseidon Crossing #2 \n{t2[0].strftime('%Y-%m-%d')} to {t2[-1].strftime('%Y-%m-%d')}", fontsize=18, fontweight="bold")
     plt.tight_layout()  # Adjusts subplot params so that subplots fit into the figure area
     plt.show()
 
@@ -2764,8 +2900,8 @@ if __name__ == "__main__":
     correlation_S4 = calculate_correlation(S4, S_pred4_binned)
     
     print("Crossing & T RMSE & T Bias & T R^2 & S RMSE & S Bias & S R^2")
-    print(f"Posseidon #1 & {rmse(T_pred1_binned, T1):.3f} & {bias(T_pred1_binned, T1):.3f} & {correlation_T1:.3f} & {rmse(S_pred1_binned, S1):.3f} & {bias(S_pred1_binned, S1):.3f} & {correlation_S1:.3f}\\\\")
-    print(f"Posseidon #2 & {rmse(T_pred2_binned, T2):.3f} & {bias(T_pred2_binned, T2):.3f} & {correlation_T2:.3f} & {rmse(S_pred2_binned, S2):.3f} & {bias(S_pred2_binned, S2):.3f} & {correlation_S2:.3f}\\\\")
+    print(f"Poseidon #1 & {rmse(T_pred1_binned, T1):.3f} & {bias(T_pred1_binned, T1):.3f} & {correlation_T1:.3f} & {rmse(S_pred1_binned, S1):.3f} & {bias(S_pred1_binned, S1):.3f} & {correlation_S1:.3f}\\\\")
+    print(f"Poseidon #2 & {rmse(T_pred2_binned, T2):.3f} & {bias(T_pred2_binned, T2):.3f} & {correlation_T2:.3f} & {rmse(S_pred2_binned, S2):.3f} & {bias(S_pred2_binned, S2):.3f} & {correlation_S2:.3f}\\\\")
     print(f"Campeche #1  & {rmse(T_pred3_binned, T3):.3f} & {bias(T_pred3_binned, T3):.3f} & {correlation_T3:.3f} & {rmse(S_pred3_binned, S3):.3f} & {bias(S_pred3_binned, S3):.3f} & {correlation_S3:.3f} \\\\")
     print(f"Intense LCE  & {rmse(T_pred4_binned, T4):.3f} & {bias(T_pred4_binned, T4):.3f} & {correlation_T4:.3f} & {rmse(S_pred4_binned, S4):.3f} & {bias(S_pred4_binned, S4):.3f} & {correlation_S4:.3f} \\\\")          
     
@@ -2800,9 +2936,119 @@ if __name__ == "__main__":
     # Add a legend
     plt.legend(loc='lower right',fontsize=14)
 
-    plt.title("Geographic distribution of available T and S profiles", fontsize=22, fontweight="bold")
+    plt.title("Data availability", fontsize=22, fontweight="bold")
     plt.show()
     
+    # get ssh data
+    aviso_folder = "/unity/f1/ozavala/DATA/GOFFISH/AVISO/GoM/"
+    bbox = (18, 32, -99, -81)
+    # t1_date = datenum_to_datetime(np.median(gl_data['t1'][0]))
+    # t2_date = datenum_to_datetime(np.median(gl_data['t2'][0]))
+    # t3_date = datenum_to_datetime(np.median(gl_data['t3'][0]))
+    # t4_date = datenum_to_datetime(np.median(gl_data['t4'][0]))
+    t1_date = datenum_to_datetime(gl_data['t1'][0].mean())
+    t2_date = datenum_to_datetime(gl_data['t2'][0].mean())
+    t3_date = datenum_to_datetime(gl_data['t3'][0].mean())
+    t4_date = datenum_to_datetime(gl_data['t4'][0].mean())
+    # t1_date = datetime.combine(t1_date.date(), datetime.min.time())
+    # t2_date = datetime.combine(t2_date.date(), datetime.min.time())
+    # t3_date = datetime.combine(t3_date.date(), datetime.min.time())
+    # t4_date = datetime.combine(t4_date.date(), datetime.min.time())
+    aviso1_adt, aviso_lats, aviso_lons = get_aviso_by_date(aviso_folder, t1_date, bbox)
+    X, Y = np.meshgrid(aviso_lons.values, aviso_lats.values)
+    aviso2_adt, _, _ = get_aviso_by_date(aviso_folder, t2_date, bbox)
+    aviso3_adt, _, _ = get_aviso_by_date(aviso_folder, t3_date, bbox)
+    aviso4_adt, _, _ = get_aviso_by_date(aviso_folder, t4_date, bbox)
+    
+    # Create individual plots for glider tracks with the same colorbar scale
+    fig = plt.figure(figsize=(12, 12))
+
+    # Subplot 1
+    ax1 = fig.add_subplot(2, 2, 1, projection=ccrs.PlateCarree())
+    ax1.add_feature(cfeature.LAND.with_scale('50m'), color='black', zorder=0)
+    ax1.coastlines(resolution='50m')
+    cf1 = ax1.contourf(X, Y, aviso1_adt.adt.values, cmap='jet', levels=50, extend='both')
+    ax1.plot(longitudes_T1, latitudes_T1, color='#FF69B4', linewidth=2, transform=ccrs.Geodetic(), label='Poseidon crossing #1')
+    ax1.set_xticks(np.arange(-99, -79, 2))
+    ax1.set_yticks(np.arange(18, 34, 2))
+    ax1.set_extent([-99, -81, 18, 32])
+    ax1.grid(color='gray', linestyle='--', linewidth=0.5)
+    ax1.tick_params(axis='both', which='major', labelsize=10)
+
+    # Add colorbar for subplot 1
+    cbar1 = plt.colorbar(cf1, ax=ax1, fraction=0.036, pad=0.04)
+    # Format the colorbar ticks to two decimal places
+    cbar1.ax.yaxis.set_major_formatter(FormatStrFormatter('%.2f'))
+    # Add colorbar title
+    cbar1.set_label('ADT (m)', fontsize=10)
+    cbar1.ax.yaxis.set_major_formatter(FormatStrFormatter('%.2f'))
+    cbar1.set_label('ADT (m)', fontsize=8)
+    cbar1.ax.tick_params(labelsize=8)  # Make the colorbar ticks smaller
+    ax1.title.set_text(t1_date.strftime('%Y-%m-%d'))
+    
+    # Subplot 2
+    ax2 = fig.add_subplot(2, 2, 2, projection=ccrs.PlateCarree())
+    ax2.add_feature(cfeature.LAND.with_scale('50m'), color='black', zorder=0)
+    ax2.coastlines(resolution='50m')
+    cf2 = ax2.contourf(X, Y, aviso2_adt.adt.values, cmap='jet', levels=50, extend='both')
+    ax2.plot(longitudes_T2, latitudes_T2, color='#FF69B4', linewidth=2, transform=ccrs.Geodetic(), label='Poseidon crossing #2')
+    ax2.set_xticks(np.arange(-99, -79, 2))
+    ax2.set_yticks(np.arange(18, 34, 2))
+    ax2.set_extent([-99, -81, 18, 32])
+    ax2.grid(color='gray', linestyle='--', linewidth=0.5)
+    ax2.tick_params(axis='both', which='major', labelsize=10)
+
+    # Add colorbar for subplot 2
+    cbar2 = plt.colorbar(cf2, ax=ax2, fraction=0.036, pad=0.04)
+    cbar2.ax.yaxis.set_major_formatter(FormatStrFormatter('%.2f'))
+    cbar2.set_label('ADT (m)', fontsize=8)
+    cbar2.ax.tick_params(labelsize=8)
+    ax2.title.set_text(t2_date.strftime('%Y-%m-%d'))
+
+    # Subplot 3
+    ax3 = fig.add_subplot(2, 2, 3, projection=ccrs.PlateCarree())
+    ax3.add_feature(cfeature.LAND.with_scale('50m'), color='black', zorder=0)
+    ax3.coastlines(resolution='50m')
+    cf3 = ax3.contourf(X, Y, aviso3_adt.adt.values, cmap='jet', levels=50, extend='both')
+    ax3.plot(longitudes_T3, latitudes_T3, color='#FF69B4', linewidth=2, transform=ccrs.Geodetic(), label='Campeche')
+    ax3.set_xticks(np.arange(-99, -79, 2))
+    ax3.set_yticks(np.arange(18, 34, 2))
+    ax3.set_extent([-99, -81, 18, 32])
+    ax3.grid(color='gray', linestyle='--', linewidth=0.5)
+    ax3.tick_params(axis='both', which='major', labelsize=10)
+
+    # Add colorbar for subplot 3
+    cbar3 = plt.colorbar(cf3, ax=ax3, fraction=0.036, pad=0.04)
+    cbar3.ax.yaxis.set_major_formatter(FormatStrFormatter('%.2f'))
+    cbar3.set_label('ADT (m)', fontsize=8)
+    cbar3.ax.tick_params(labelsize=8)
+    ax3.title.set_text(t3_date.strftime('%Y-%m-%d'))
+
+    # Subplot 4
+    ax4 = fig.add_subplot(2, 2, 4, projection=ccrs.PlateCarree())
+    ax4.add_feature(cfeature.LAND.with_scale('50m'), color='black', zorder=0)
+    ax4.coastlines(resolution='50m')
+    cf4 = ax4.contourf(X, Y, aviso4_adt.adt.values, cmap='jet', levels=50, extend='both')
+    ax4.plot(longitudes_T4, latitudes_T4, color='#FF69B4', linewidth=2, transform=ccrs.Geodetic(), label='Intense LCE')
+    ax4.set_xticks(np.arange(-99, -79, 2))
+    ax4.set_yticks(np.arange(18, 34, 2))
+    ax4.set_extent([-99, -81, 18, 32])
+    ax4.grid(color='gray', linestyle='--', linewidth=0.5)
+    ax4.tick_params(axis='both', which='major', labelsize=10)
+
+    # Add colorbar for subplot 4
+    cbar4 = plt.colorbar(cf4, ax=ax4, fraction=0.036, pad=0.04)
+    cbar4.ax.yaxis.set_major_formatter(FormatStrFormatter('%.2f'))
+    cbar4.set_label('ADT (m)', fontsize=8)
+    cbar4.ax.tick_params(labelsize=8)
+    ax4.title.set_text(t4_date.strftime('%Y-%m-%d'))
+
+    # Add a title for the entire figure
+    plt.suptitle("Gliders", fontsize=22, fontweight="bold")
+
+    # Display the plot
+    plt.show()
+
     # # Meunier data plots
 
 
@@ -3359,12 +3605,16 @@ if __name__ == "__main__":
     # Rotate x-axis labels
     plt.xticks(rotation=45, ha='right')
 
+    # Add total number labels on top of each bar
+    for i, total in enumerate(df_total):
+        ax.text(i, 0, f'Total:\n{total:,.0f}', ha='center', va='bottom', )
+
     # Add percentage labels on each bar segment
     for container in ax.containers:
         ax.bar_label(container, fmt='%.1f%%', label_type='center')
 
     # Set y-axis to show percentages from 0 to 100
-    plt.ylim(0, 100)
+    plt.ylim(0, 100)  # Increase to 105 to accommodate total labels?
 
     plt.tight_layout()
     plt.show()

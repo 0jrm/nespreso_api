@@ -33,9 +33,9 @@ from tqdm import tqdm  # For the progress bar
     
 # from matplotlib.dates import date2num, num2date
 # from sklearn.cluster import MiniBatchKMeans
-sys.path.append("/COAPS-storage/unity/g2/jmiranda/SubsurfaceFields/GEM_SubsurfaceFields/eoas_pyutils/")
+sys.path.append("/unity/g2/jmiranda/SubsurfaceFields/GEM_SubsurfaceFields/eoas_pyutils/")
 from io_utils.coaps_io_data import get_aviso_by_date, get_sst_by_date, get_sss_by_date
-sys.path.append("/COAPS-storage/unity/g2/jmiranda/SubsurfaceFields/GEM_SubsurfaceFields/")
+sys.path.append("/unity/g2/jmiranda/SubsurfaceFields/GEM_SubsurfaceFields/")
 
 plt.rcParams.update({'font.size': 18})
 # Set the seed for reproducibility
@@ -77,9 +77,9 @@ def load_satellite_data(TIME, LAT, LON):
     """
     New method to load SST and SSH data
     """
-    aviso_folder = "/COAPS-storage/unity/f1/ozavala/DATA/GOFFISH/AVISO/GoM/"
-    sst_folder = "/COAPS-storage/unity/f1/ozavala/DATA/GOFFISH/SST/OISST"
-    sss_folder = "/COAPS-storage/Net/work/ozavala/DATA/GOFFISH/SSS/SMAP_Global/"
+    aviso_folder = "/unity/f1/ozavala/DATA/GOFFISH/AVISO/GoM/"
+    sst_folder = "/unity/f1/ozavala/DATA/GOFFISH/SST/OISST"
+    sss_folder = "/Net/work/ozavala/DATA/GOFFISH/SSS/SMAP_Global/"
     min_lat = 18.0
     max_lat = 31.0
     min_lon = -98.0
@@ -140,9 +140,6 @@ def load_satellite_data(TIME, LAT, LON):
             sst_date, sst_lats, sst_lons = get_sst_by_date(sst_folder, c_date, bbox)
             interpolator_sst = RegularGridInterpolator((sst_lats, sst_lons), sst_date.analysed_sst.values[0], bounds_error=False, fill_value=None)
             sst_data[date_idx] = interpolator_sst(coordinates)
-            if (sst_data[date_idx] < 0).any() or (sst_data[date_idx] > 350).any():
-                sst_data[date_idx] = np.nan
-                print(f"Invalid SST on date {c_date}, value: {sst_data[date_idx]}, coordinates: {coordinates}, lats: {sst_lats}, lons: {sst_lons}")
         except Exception as e:
             print("SST not found for date ", c_date, "Error: ", str(e))
             continue
@@ -236,10 +233,10 @@ class TemperatureSalinityDataset(torch.utils.data.Dataset):
         - n_components (int): Number of PCA components to retain.
         """
         self.n_components = n_components
-        self.data_path =  "/COAPS-storage/unity/g2/jmiranda/SubsurfaceFields/Data/ARGO_GoM_20220920.mat"
-        self.aviso_folder = "/COAPS-storage/unity/f1/ozavala/DATA/GOFFISH/AVISO/GoM/"
-        self.sst_folder   = "/COAPS-storage/unity/f1/ozavala/DATA/GOFFISH/SST/OISST"
-        self.sss_folder   = "/COAPS-storage/Net/work/ozavala/DATA/GOFFISH/SSS/SMAP_Global/"
+        self.data_path =  "/unity/g2/jmiranda/SubsurfaceFields/Data/ARGO_GoM_20220920.mat"
+        self.aviso_folder = "/unity/f1/ozavala/DATA/GOFFISH/AVISO/GoM/"
+        self.sst_folder   = "/unity/f1/ozavala/DATA/GOFFISH/SST/OISST"
+        self.sss_folder   = "/Net/work/ozavala/DATA/GOFFISH/SSS/SMAP_Global/"
         
         self.max_depth = max_depth
         self.min_depth = min_depth # data quality is poor above 20m
@@ -288,7 +285,7 @@ class TemperatureSalinityDataset(torch.utils.data.Dataset):
     # def adjust_ADT(self):
     #     #  Remove the daily mean ADT from the AVISO_ADT
         
-    #     gom_mean = xr.load_dataset('/COAPS-storage/unity/g2/jmiranda/SubsurfaceFields/Data/gom_mean_adt_2013_2022.nc')
+    #     gom_mean = xr.load_dataset('/unity/g2/jmiranda/SubsurfaceFields/Data/gom_mean_adt_2013_2022.nc')
     #     self.mean_adt = gom_mean.gom_mean_adt.values
     #     self.time_mean_adt = np.floor(gom_mean.time.values)
 
@@ -340,9 +337,9 @@ class TemperatureSalinityDataset(torch.utils.data.Dataset):
         Returns:
             tuple: Tuple containing arrays for SSS, SST, and AVISO data.
         """
-        aviso_folder = "/COAPS-storage/unity/f1/ozavala/DATA/GOFFISH/AVISO/GoM/"
-        sst_folder = "/COAPS-storage/unity/f1/ozavala/DATA/GOFFISH/SST/OISST"
-        sss_folder = "/COAPS-storage/Net/work/ozavala/DATA/GOFFISH/SSS/SMAP_Global/"
+        aviso_folder = "/unity/f1/ozavala/DATA/GOFFISH/AVISO/GoM/"
+        sst_folder = "/unity/f1/ozavala/DATA/GOFFISH/SST/OISST"
+        sss_folder = "/Net/work/ozavala/DATA/GOFFISH/SSS/SMAP_Global/"
         min_lat = 18.0
         max_lat = 31.0
         min_lon = -98.0
@@ -1606,7 +1603,7 @@ if __name__ == "__main__":
     }
     num_samples = 1 #profiles that will be plotted
     # Define the path of the pickle file
-    dataset_pickle_file = '/COAPS-storage/unity/g2/jmiranda/SubsurfaceFields/GEM_SubsurfaceFields/config_dataset_full.pkl'
+    dataset_pickle_file = '/unity/g2/jmiranda/SubsurfaceFields/GEM_SubsurfaceFields/config_dataset_full.pkl'
 
     if os.path.exists(dataset_pickle_file):
         # Load data from the pickle file
@@ -1706,7 +1703,7 @@ if __name__ == "__main__":
     printParams()
     
     if load_trained_model:
-        model_path = '/COAPS-storage/unity/g2/jmiranda/SubsurfaceFields/GEM_SubsurfaceFields/saved_models/model_Test Loss: 14.2710_2024-02-26 12:47:18_sat.pth'
+        model_path = '/unity/g2/jmiranda/SubsurfaceFields/GEM_SubsurfaceFields/saved_models/model_Test Loss: 14.2710_2024-02-26 12:47:18_sat.pth'
         trained_model = torch.load(model_path)
     else:
         for run in enumerate(np.arange(n_runs)):
@@ -1722,7 +1719,7 @@ if __name__ == "__main__":
             test_loss = evaluate_model(trained_model, test_loader, criterion, device)
             print(f"Test Loss: {test_loss:.4f}")
 
-            save_model_path = "/COAPS-storage/unity/g2/jmiranda/SubsurfaceFields/GEM_SubsurfaceFields/saved_models/model_"
+            save_model_path = "/unity/g2/jmiranda/SubsurfaceFields/GEM_SubsurfaceFields/saved_models/model_"
             save_model_path += f"Test Loss: {test_loss:.4f}" + "_"
             suffix = ".pth"
             if input_params['sat']:
@@ -1744,7 +1741,7 @@ if __name__ == "__main__":
     val_predictions = val_dataset.dataset.inverse_transform(val_predictions_pcs)
     
     # load ISOP results
-    file_path_new = '/COAPS-storage/unity/g2/jmiranda/SubsurfaceFields/Data/ISOP1_rmse_bias_1deg_maps.nc'
+    file_path_new = '/unity/g2/jmiranda/SubsurfaceFields/Data/ISOP1_rmse_bias_1deg_maps.nc'
     data_ISOP = xr.open_dataset(file_path_new)
 
     # Create bins for longitude and latitude
@@ -1845,8 +1842,8 @@ if __name__ == "__main__":
     
     # !!! remaking rmse and bias plots !!!
 
-    ist = xr.open_dataset('/COAPS-storage/unity/g2/jmiranda/SubsurfaceFields/Data/isop1_stats_temp.nc')
-    iss = xr.open_dataset('/COAPS-storage/unity/g2/jmiranda/SubsurfaceFields/Data/isop1_stats_salt.nc')
+    ist = xr.open_dataset('/unity/g2/jmiranda/SubsurfaceFields/Data/isop1_stats_temp.nc')
+    iss = xr.open_dataset('/unity/g2/jmiranda/SubsurfaceFields/Data/isop1_stats_salt.nc')
 
     our_depths = np.arange(0,1801)
     isop_depths = ist.depth.values
@@ -2110,7 +2107,7 @@ if __name__ == "__main__":
             return inputs_tensor
         
         # Load data from pickle file
-        with open('/COAPS-storage/unity/g2/jmiranda/SubsurfaceFields/GEM_SubsurfaceFields/paula_sat_data.pkl', 'rb') as file:
+        with open('/unity/g2/jmiranda/SubsurfaceFields/GEM_SubsurfaceFields/paula_sat_data.pkl', 'rb') as file:
             data_paula = pickle.load(file)
             
         # Prepare the inputs
@@ -2126,7 +2123,7 @@ if __name__ == "__main__":
             paula_predictions = val_dataset.dataset.inverse_transform(paula_predictions_pcs_cpu)
         
         # Specify the filename to save to
-        filename = '/COAPS-storage/unity/g2/jmiranda/SubsurfaceFields/GEM_SubsurfaceFields/paula_predictions_20240319_sst_sss.pkl'
+        filename = '/unity/g2/jmiranda/SubsurfaceFields/GEM_SubsurfaceFields/paula_predictions_20240319_sst_sss.pkl'
 
         # Open the file in write mode and save the dictionary
         with open(filename, 'wb') as file:
@@ -2153,7 +2150,7 @@ if __name__ == "__main__":
     
     # if n_runs > 1:
     #     #load and aggregate all models
-    #     model_directory = "/COAPS-storage/unity/g2/jmiranda/SubsurfaceFields/GEM_SubsurfaceFields/saved_models/"
+    #     model_directory = "/unity/g2/jmiranda/SubsurfaceFields/GEM_SubsurfaceFields/saved_models/"
     #     if not input_params['sat']:
     #         suffix = "_sat.pth"
     #         model_files = [f for f in os.listdir(model_directory) if not f.endswith(suffix)]
@@ -2186,7 +2183,7 @@ if __name__ == "__main__":
     #     viz()
 
     # GLIDER: Load the MATLAB file
-    file_path = '/COAPS-storage/unity/g2/jmiranda/SubsurfaceFields/Data/Glider_binned_data_for_heat_content_IA_mission_lowpass_LCE_Campeche_cyclone.mat'
+    file_path = '/unity/g2/jmiranda/SubsurfaceFields/Data/Glider_binned_data_for_heat_content_IA_mission_lowpass_LCE_Campeche_cyclone.mat'
     gl_data = scipy.io.loadmat(file_path)
 
     # Display the keys to understand the structure of the data
@@ -3055,7 +3052,7 @@ if __name__ == "__main__":
     plt.tight_layout()
     plt.show()
     
-    # filename = "/COAPS-storage/unity/g2/jmiranda/SubsurfaceFields/GEM_SubsurfaceFields/Test_dataset.nc"
+    # filename = "/unity/g2/jmiranda/SubsurfaceFields/GEM_SubsurfaceFields/Test_dataset.nc"
     # # Creating the NetCDF file
     # create_netcdf(filename, sst_val, lat_val, lon_val, date_val, T_profiles_val, S_profiles_val, depth)
 
@@ -3171,7 +3168,7 @@ if __name__ == "__main__":
         return aggregated_data
 
     # Example usage:
-    folder_path = '/COAPS-storage/unity/g2/jmiranda/SubsurfaceFields/Data/NatureRun/'
+    folder_path = '/unity/g2/jmiranda/SubsurfaceFields/Data/NatureRun/'
     ssh_nature_run = aggregate_from_mat(folder_path, 'ssh10')['ssh10'].flatten()
 
     a = full_dataset.AVISO_ADT

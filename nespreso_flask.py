@@ -1,5 +1,9 @@
+import sys
+sys.path.append("eoas_pyutils/")
+import copy
 import csv
 from datetime import datetime
+from nn_model import PredictionModel
 from flask import Flask, request, send_file, jsonify
 from werkzeug.exceptions import BadRequest
 from functools import wraps
@@ -10,18 +14,19 @@ import pickle
 import torch
 import numpy as np
 import xarray as xr
-from singleFileModel_SAT import TemperatureSalinityDataset, PredictionModel, load_satellite_data, prepare_inputs
-import time
+from singleFileModel_SAT import load_satellite_data, prepare_inputs
+from TemperatureSalinityDataset import TemperatureSalinityDataset
 
 app = Flask(__name__)
 
 # Global variables for model, dataset, and device
 model = None
-full_dataset = None
+model_checkpoint = None
 device = None
 
 # Define the path to the CSV log file
-CSV_LOG_FILE = '/var/www/virtualhosts/nespreso.coaps.fsu.edu/nespreso_api/nespreso_queries_log.csv'
+# CSV_LOG_FILE = '/var/www/virtualhosts/nespreso.coaps.fsu.edu/nespreso_api/nespreso_queries_log.csv'
+CSV_LOG_FILE = './nespreso_queries_log.csv'
 
 # Ensure the CSV file has a header row if it doesn't exist
 if not os.path.exists(CSV_LOG_FILE):
@@ -71,22 +76,17 @@ def save_to_netcdf(pred_T, pred_S, depth, sss, sst, aviso, times, lat, lon, file
     ds.to_netcdf(file_name, encoding=encoding)
 
 def load_model_and_dataset():
-    global model, full_dataset, device
+
+    global model,  device, model_checkpoint
     device = torch.device("cpu")
     print(f"Loading dataset and model to {device}")
     
-    # Load dataset
-    dataset_pickle_file = '/unity/g2/jmiranda/SubsurfaceFields/GEM_SubsurfaceFields/config_dataset_full.pkl'
-    if os.path.exists(dataset_pickle_file):
-        with open(dataset_pickle_file, 'rb') as file:
-            data = pickle.load(file)
-            full_dataset = data['full_dataset']
-    
-    full_dataset.n_components = 15
-    
     # Load model
-    model_path = '/unity/g2/jmiranda/SubsurfaceFields/GEM_SubsurfaceFields/saved_models/model_Test Loss: 14.2710_2024-02-26 12:47:18_sat.pth'
-    model = torch.load(model_path, map_location=device)
+    model_path = './data/model_0.8847_2024-10-09 20:45:20_sat.pth'
+    model_checkpoint = torch.load(model_path, map_location=device)
+    model_checkpoint = copy.deepcopy(model_checkpoint)
+    model = PredictionModel(input_dim=9, layers_config=[512,512], output_dim=30, dropout_prob=0.2)
+    model.load_state_dict(model_checkpoint["model_state_dict"])
     model.to(device)
     print("Model loaded successfully.")
     model.eval()
@@ -166,17 +166,18 @@ def predict():
         sss, sst, aviso = load_satellite_data(times, lat, lon)
         missing_data = np.max([np.sum(np.isnan(sss)), np.sum(np.isnan(sst)), np.sum(np.isnan(aviso))])
         dtime = [datetime_to_datenum(time) for time in times]
-        input_data = prepare_inputs(dtime, lat, lon, sss, sst, aviso, full_dataset.input_params)
+        input_data = prepare_inputs(dtime, lat, lon, sss, sst, aviso, model_checkpoint["input_params"])
         input_data = input_data.to(device)
 
         with torch.no_grad():
             pcs_predictions = model(input_data)
         pcs_predictions = pcs_predictions.cpu().numpy()
-        synthetics = full_dataset.inverse_transform(pcs_predictions)
 
-        pred_T = synthetics[0]
-        pred_S = synthetics[1]
-        depth = np.arange(full_dataset.min_depth, full_dataset.max_depth + 1)
+        pca_temp, pca_sal = model_checkpoint["pca_temp"], model_checkpoint["pca_sal"] #type class 'sklearn.decomposition._pca.PCA'
+
+        pred_T = pca_temp.inverse_transform(pcs_predictions[:, :15]).T
+        pred_S = pca_sal.inverse_transform(pcs_predictions[:, 15:]).T
+        depth = np.arange(0, 1801)
 
         # Log request information to CSV with aggregated data
         log_entry = [

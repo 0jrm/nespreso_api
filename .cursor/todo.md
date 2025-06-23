@@ -20,7 +20,7 @@ A pure, async data transformer that maps (lat, lon, ts) to tensors.
 Checklist
 
 [x] Move load_satellite_data, prepare_inputs, and the MATLAB‐date helper into services/accessor/sat.py.
-[ ] Replace NumPy time conversion with np.datetime64 arithmetic to drop bespoke datetime_to_datenum. (SKIPPED: don't fix what isn't broken)
+[~] Replace NumPy time conversion with np.datetime64 arithmetic to drop bespoke datetime_to_datenum. (SKIPPED: don't fix what isn't broken)
 [x] Cache remote tiles in data/cache/ with an LRU keyed by day to avoid N× identical downloads in batch calls. (LRU cache implemented in code)
 [~] Guarantee that accessor returns tensors with the exact statistics frozen in models/stats.yaml; add a hypothesis property test for shape and NaN-free output. (No stats.yaml found, but property test implemented)
 

@@ -1,0 +1,40 @@
+openapi: 3.0.0
+info:
+  title: NeSPReSO API
+  version: 1.0.0
+paths:
+  /v1/profile:
+    post:
+      summary: Predict synthetic temperature and salinity profiles
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                lat:
+                  type: array
+                  items:
+                    type: number
+                lon:
+                  type: array
+                  items:
+                    type: number
+                date:
+                  type: array
+                  items:
+                    type: string
+                    format: date
+      responses:
+        '200':
+          description: NetCDF file with predicted profiles
+          content:
+            application/x-netcdf:
+              schema:
+                type: string
+                format: binary
+        '400':
+          description: Invalid input
+        '503':
+          description: Satellite data unavailable 

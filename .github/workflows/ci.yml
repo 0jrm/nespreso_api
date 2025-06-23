@@ -1,0 +1,45 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install ruff==0.4.4 black==24.4.2 mypy==1.10.0 pytest==8.2.2 prometheus_client==0.22.1 tenacity==9.1.2 hypothesis requests
+      - name: Lint (ruff)
+        run: ruff nespreso_api
+      - name: Format (black)
+        run: black --check nespreso_api
+      - name: Type check (mypy)
+        run: mypy --strict nespreso_api
+      - name: Unit tests (pytest)
+        run: pytest -q nespreso_api/services/kernel/test_handler.py nespreso_api/services/accessor/test_sat.py
+      - name: Smoke test (Flask API)
+        run: |
+          nohup python nespreso_api/wsgi.py &
+          sleep 10
+          python nespreso_api/services/api/test_api.py
+      - name: Upload TorchScript model artefact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ocean_tensorscript.pt
+          path: nespreso_api/models/ocean_tensorscript.pt
+      - name: Upload NetCDF sample artefact
+        uses: actions/upload-artifact@v4
+        with:
+          name: NeSPReSO_sample.nc
+          path: NeSPReSO_*.nc
+          if-no-files-found: ignore 

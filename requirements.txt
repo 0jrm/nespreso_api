@@ -1,0 +1,6 @@
+ruff==0.4.4
+black==24.4.2
+mypy==1.10.0
+pytest==8.2.2
+prometheus_client==0.22.1
+tenacity==9.1.2 

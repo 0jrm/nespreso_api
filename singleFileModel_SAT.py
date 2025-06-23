@@ -1,7 +1,7 @@
 #%%
 import sys
-sys.path.append("eoas_pyutils/")
 import os
+sys.path.append(os.path.join(os.path.dirname(__file__), "eoas-pyutils"))
 import glob
 import numpy as np
 import matplotlib.pyplot as plt

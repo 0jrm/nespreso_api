@@ -2,6 +2,7 @@
 import sys
 import os
 import logging
+from services.api.app import create_app
 
 # Configure logging
 logging.basicConfig(
@@ -19,10 +20,13 @@ if project_home not in sys.path:
     logging.info(f"Added {project_home} to sys.path")
 
 try:
-    from app import app as application
+    app = create_app()
     logging.info("WSGI application loaded successfully.")
 except Exception as e:
     logging.exception("Failed to load WSGI application.")
     raise
 
 logging.info("!!!!!!!!!! Done initializing WSGI application !!!!!!!!!!!!!!!!!")
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=5000, debug=True)

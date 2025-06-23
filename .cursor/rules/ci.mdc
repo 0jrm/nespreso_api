@@ -1,0 +1,8 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+- All new code passes `ruff check`, `black --check`, `pytest -q`, and `mypy --strict`.
+- GitHub Actions workflow file lives at `.github/workflows/ci.yml`.
+- Bump `VERSION` in `deployment/Chart.yaml` when model weights change.

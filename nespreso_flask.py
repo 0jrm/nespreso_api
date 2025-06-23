@@ -82,7 +82,7 @@ def load_model_and_dataset():
     print(f"Loading dataset and model to {device}")
     
     # Load model
-    model_path = './data/model_0.8847_2024-10-09 20:45:20_sat.pth'
+    model_path = '/unity/g2/jmiranda/SubsurfaceFields/GEM_SubsurfaceFields/saved_models/model_Test Loss: 0.8945_2024-10-09 20:35:59_sat.pth'
     model_checkpoint = torch.load(model_path, map_location=device)
     model_checkpoint = copy.deepcopy(model_checkpoint)
     model = PredictionModel(input_dim=9, layers_config=[512,512], output_dim=30, dropout_prob=0.2)

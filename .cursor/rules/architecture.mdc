@@ -1,0 +1,10 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+- Always use the python environment `nespreso`. Use `conda` whenever possible,
+- No satellite I/O inside `services/kernel/**`.
+- No model inference inside `services/accessor/**`.
+- Shared dataclasses live in `services/common/`.
+- If new satellite variables are added, extend `FeatureVector` and update `normaliser.yaml`.

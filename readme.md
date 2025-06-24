@@ -109,7 +109,7 @@ curl -X POST http://localhost:5000/v1/profile \
 
 - **WSGI/Gunicorn:** You can run the app with Gunicorn for production:
   ```bash
-  gunicorn -w 2 -b 0.0.0.0:5000 'wsgi:app'
+  PYTHONPATH=nespreso_api:nespreso_api/eoas-pyutils gunicorn -w 2 -b 0.0.0.0:5000 'nespreso_api.wsgi:app'
   ```
 - **Apache/WSGI:** See `wsgi.py` and your Apache config for integration.
 - **Prometheus:** Scrape `/metrics` for latency and error monitoring.

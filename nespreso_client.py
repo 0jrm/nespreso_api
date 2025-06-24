@@ -20,7 +20,8 @@ async def fetch_predictions(lat, lon, date, filename="output.nc", api_url=None):
     """
     # Default to new endpoint
     if api_url is None:
-        api_url = "http://127.0.0.1:5000/v1/profile"
+        api_url = "http://0.0.0.0:5000/v1/profile" # remote
+        # api_url = "http://127.0.0.1:5000/v1/profile" # local
     if api_url.endswith("/predict"):
         warnings.warn("You are using the deprecated /predict endpoint. Please use /v1/profile.")
 

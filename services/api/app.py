@@ -3,7 +3,6 @@ from pydantic import BaseModel, ValidationError, field_validator
 from typing import List
 import numpy as np
 import torch
-import io
 import xarray as xr
 import logging
 import sys
@@ -66,13 +65,18 @@ def write_netcdf_to_bytes(pred_T, pred_S, depth, sss, sst, aviso, times, lat, lo
         'profile_number': profile_number,
         'depth': depth
     })
+    # Prefer NetCDF4 engine with compression, fall back to scipy without compression.
     comp = dict(zlib=True, complevel=9)
     encoding = {var: comp for var in ds.data_vars}
     encoding.update({var: comp for var in ds.coords if var != 'profile_number'})
-    file_obj = io.BytesIO()
-    ds.to_netcdf(file_obj, encoding=encoding)
-    file_obj.seek(0)
-    return file_obj
+
+    try:
+        # Write directly to bytes using the NetCDF4 engine (keeps file handle management internal).
+        return ds.to_netcdf(None, mode="w", engine="netcdf4", encoding=encoding)
+    except Exception as e:
+        logger.warning(f"Falling back to default NetCDF engine (no compression): {e}")
+        # The scipy engine does not support compression, so we omit the encoding.
+        return ds.to_netcdf(None, mode="w", engine="scipy")
 
 # --- Blueprint and app factory ---
 def create_app(config: dict = None) -> Flask:
@@ -130,7 +134,7 @@ def create_app(config: dict = None) -> Flask:
             # --- NetCDF in-memory ---
             netcdf_bytes = write_netcdf_to_bytes(pred_T, pred_S, depth, sss, sst, aviso, times, lat, lon)
             # --- Response ---
-            response = make_response(netcdf_bytes.read())
+            response = make_response(netcdf_bytes)
             response.headers["Content-Type"] = "application/x-netcdf"
             response.headers["Content-Disposition"] = f"attachment; filename=NeSPReSO_{dates[0]}_to_{dates[-1]}.nc"
             # Add snapshot headers (placeholders)

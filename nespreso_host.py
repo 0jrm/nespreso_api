@@ -72,7 +72,7 @@ def save_to_netcdf(pred_T, pred_S, depth, sss, sst, aviso, times, lat, lon, file
     encoding = {var: comp for var in ds.data_vars}
     encoding.update({var: comp for var in ds.coords if var != 'profile_number'}) 
 
-    ds.to_netcdf(file_name, encoding=encoding)
+    ds.to_netcdf(file_name, encoding=encoding, engine="netcdf4")
 
 def load_model_and_dataset():
     device = torch.device("cpu")

@@ -6,7 +6,7 @@ from services.api.app import create_app
 
 # Configure logging
 logging.basicConfig(
-    filename='/var/www/virtualhosts/nespreso.coaps.fsu.edu/nespreso_api/wsgi.log',
+    filename='wsgi.log',
     level=logging.INFO,
     format='%(asctime)s %(levelname)s %(message)s'
 )

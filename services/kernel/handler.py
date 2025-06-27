@@ -1,9 +1,10 @@
 import torch
 import os
 import copy
+import pickle
 
 _MODEL_PATH = os.path.join(os.path.dirname(__file__), '../../models/ocean_tensorscript.pt')
-_CHECKPOINT_PATH = '/unity/g2/jmiranda/SubsurfaceFields/GEM_SubsurfaceFields/saved_models/model_Test Loss: 0.8945_2024-10-09 20:35:59_sat.pth'
+_pca_stats_path = os.path.join(os.path.dirname(__file__), '../../models/pca_stats.pkl')
 _model = None
 _pca_temp = None
 _pca_sal = None
@@ -32,8 +33,9 @@ def infer(batch: torch.Tensor) -> torch.Tensor:
 def get_pca_objects():
     global _pca_temp, _pca_sal, _input_params
     if _pca_temp is None or _pca_sal is None or _input_params is None:
-        checkpoint = torch.load(_CHECKPOINT_PATH, map_location='cpu', weights_only=False)
-        _pca_temp = checkpoint['pca_temp']
-        _pca_sal = checkpoint['pca_sal']
-        _input_params = checkpoint['input_params']
+        with open(_pca_stats_path, 'rb') as f:
+            stats = pickle.load(f)
+        _pca_temp = stats['pca_temp']
+        _pca_sal = stats['pca_sal']
+        _input_params = stats['input_params']
     return _pca_temp, _pca_sal, _input_params 

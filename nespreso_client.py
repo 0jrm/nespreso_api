@@ -73,7 +73,7 @@ def get_predictions(lat, lon, date, filename="output.nc", api_url=None):
 if __name__ == "__main__":
     latitudes = [25.0, 26.0, 27.0]
     longitudes = [-83.0, -84.0, -85.0]
-    dates = ["2015-08-20", "2018-08-21", "2018-08-22"]
+    dates = ["2024-10-25", "2024-10-25","2024-10-25"]
     output_file = "my_output.nc"
     result = get_predictions(latitudes, longitudes, dates, filename=output_file)
     print("Result:", result)

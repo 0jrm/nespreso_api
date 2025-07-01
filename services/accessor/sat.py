@@ -1,11 +1,19 @@
 import torch
 import numpy as np
-from datetime import datetime
+import xarray as xr
+from datetime import datetime, timedelta
+import calendar
 from scipy.interpolate import RegularGridInterpolator
-from io_utils.coaps_io_data import get_aviso_by_date, get_sst_ghrsst_by_date, get_sss_by_date
 from functools import lru_cache
 from tenacity import retry, stop_after_attempt, wait_fixed, RetryError
-
+import os
+import earthaccess
+import copernicusmarine
+import sys
+from pathlib import Path
+import tempfile, shutil, time, gc
+sys.path.append("/unity/g2/jmiranda/nespreso_api/eoas-pyutils")
+from io_utils.coaps_io_data import get_aviso_by_date, get_sst_ghrsst_by_date, get_sss_by_date
 # Helper: MATLAB datenum to np.datetime64
 # MATLAB datenum 1.0 is 0000-01-01, Python datetime starts at 0001-01-01
 # We'll use np.datetime64 for all time handling
@@ -29,7 +37,168 @@ def cached_get_aviso_by_date(aviso_folder, c_date, bbox):
 def cached_get_sst_ghrsst_by_date(sst_folder, c_date, bbox):
     return get_sst_ghrsst_by_date(sst_folder, c_date, bbox)
 
-@retry(stop=stop_after_attempt(3), wait=wait_fixed(1))
+# ------------------------------------------------------------------
+def _assert_writable(dir_):
+    if not os.path.isdir(dir_):
+        raise FileNotFoundError(f"Directory does not exist: {dir_}")
+    if not os.access(dir_, os.W_OK):
+        raise PermissionError(f"No write permission: {dir_}")
+
+def _atomic_move(src, dst):
+    """Move src→dst safely across file-systems."""
+    try:
+        os.replace(src, dst)          # python ≥3.3 – atomic if same FS
+    except OSError:
+        import shutil                 # cross-device fallback
+        shutil.move(src, dst)
+        
+# ------------------------------------------------------------------
+#  1.  GHRSST / MUR  (daily) ---------------------------------------
+# ------------------------------------------------------------------
+def ensure_sst_available(sst_root, date_):
+    year_dir  = os.path.join(sst_root, f"{date_.year:04d}")
+    fname     = f"{date_.strftime('%Y%m%d')}090000-" \
+                "JPL-L4_GHRSST-SSTfnd-MUR-GLOB-v02.0-fv04.1_subset.nc"
+    final     = os.path.join(year_dir, fname)
+
+    if os.path.exists(final):
+        return final
+
+    if not os.path.exists(year_dir):
+        os.makedirs(year_dir)
+    
+    _assert_writable(year_dir)
+
+    t0 = date_.strftime("%Y-%m-%dT09:00:00Z")
+    results = earthaccess.search_data(
+        short_name="MUR-JPL-L4-GLOB-v4.1",          # <- fixed name
+        temporal=( (date_ - timedelta(hours=24)).isoformat()+"Z",
+                (date_).isoformat()+"Z" )
+    )
+
+    if not results:
+        print(f"SST not available for {t0}")
+        return None
+
+    with tempfile.TemporaryDirectory(dir=year_dir) as tmp:
+        tmpfile = earthaccess.download(results[0], local_path=tmp)[0]
+        os.replace(tmpfile, final)          # or _atomic_move(...)
+
+    return final
+
+# ------------------------------------------------------------------
+#  2.  SMAP SSS  (8-day running mean) ------------------------------
+# ------------------------------------------------------------------
+def ensure_sss_available(sss_root, date_):
+    year_dir = os.path.join(sss_root, f"{date_.year:04d}")
+    doy      = date_.timetuple().tm_yday
+    fname    = f"RSS_smap_SSS_L3_8day_running_{date_.year}_{doy:03d}_FNL_v06.0.nc"
+    final    = os.path.join(year_dir, fname)
+
+    if os.path.exists(final):
+        return final
+    
+    if not os.path.exists(year_dir):
+        os.makedirs(year_dir)
+    
+    _assert_writable(year_dir)
+
+    t0 = date_.strftime("%Y-%m-%dT12:00:00Z")
+    results = earthaccess.search_data(
+        short_name="SMAP_RSS_L3_SSS_SMI_8DAY-RUNNINGMEAN_V6",
+        temporal=( (date_ - timedelta(days=8)).isoformat()+"Z",
+                (date_).isoformat()+"Z" )
+    )
+    
+    if not results:
+        print(f"SSS not available for {t0}")
+        return None
+    
+    with tempfile.TemporaryDirectory(dir=year_dir) as tmp:
+        tmpfile = earthaccess.download(results[0], local_path=tmp)[0]
+        os.replace(tmpfile, final)          # or _atomic_move(...)
+
+    return final
+
+# ------------------------------------------------------------------
+#  3.  AVISO / DUACS  (monthly) ------------------------------------
+# ------------------------------------------------------------------
+def ensure_aviso_available(aviso_root: str, date_: datetime) -> Path:
+    """
+    For the month containing *date_*:
+    • Fetch every daily DUACS file (0.125° NRT, P1D) via Copernicus Marine.
+    • Concatenate lazily, rechunk, and write a single <YYYY>-<MM>.nc
+      in *aviso_root*.
+    • The function is idempotent: if the monthly file already exists, it
+      is returned immediately.
+
+    Robustness / hygiene
+    --------------------
+    1. Reads daily granules with the *netcdf4* engine (read-only, releases
+       file handles promptly).  
+    2. Writes the monthly aggregate with *h5netcdf* (pure-python, thread-
+       friendly).  
+    3. Uses a manually-managed temporary directory; cleanup is forced in
+       a finally-block, after closing datasets, running GC, and giving the
+       OS a short grace period.  
+    4. Final file move is atomic across filesystems.
+    """
+    month_tag = f"{date_.year}-{date_.month:02d}"
+    final = Path(aviso_root) / f"{month_tag}.nc"
+    if final.exists():
+        return final
+
+    _assert_writable(Path(aviso_root))           # your helper
+
+    # ---------- create temp workspace ----------
+    tmpdir = tempfile.mkdtemp(dir=aviso_root)    # manual cleanup
+    try:
+        pattern = f"*{date_.year}{date_.month:02d}??*.nc"  # YYYYMMDD
+        resp = copernicusmarine.get(
+            dataset_id=(
+                "cmems_obs-sl_glo_phy-ssh_my_allsat-l4-duacs-0.125deg_P1D"
+            ),
+            filter=pattern,
+            output_directory=tmpdir,
+            overwrite=False
+        )
+        daily_files = sorted(Path(f.file_path) for f in resp.files)
+        if not daily_files:
+            raise FileNotFoundError(f"No DUACS files for {month_tag}")
+
+        # ---------- read lazily, concat, decode ----------
+        ds = xr.open_mfdataset(
+            daily_files,
+            combine="nested", concat_dim="time",
+            parallel=False,           # simpler, fewer handles
+            decode_times=False,
+            engine="netcdf4"          # read-only backend
+        )
+        ds = xr.decode_cf(ds)
+
+        # ---------- rechunk & write ----------
+        ds = ds.chunk({"time": -1, "latitude": 171, "longitude": 173})
+        encoding = {v: {"zlib": True, "complevel": 0} for v in ds.data_vars}
+
+        tmp_month = Path(tmpdir) / f"{month_tag}.nc"
+        ds.to_netcdf(tmp_month, engine="h5netcdf", encoding=encoding)
+        ds.close()
+        del ds                       # drop last reference
+
+        # ---------- ensure handles are gone ----------
+        gc.collect()
+        time.sleep(0.1)              # OS breathing room
+
+        # ---------- atomic publish ----------
+        _atomic_move(tmp_month, final)
+
+    finally:
+        # best-effort cleanup
+        shutil.rmtree(tmpdir, ignore_errors=True)
+
+    return final
+    
+# @retry(stop=stop_after_attempt(3), wait=wait_fixed(1))
 def load_satellite_data(times, lat, lon):
     """
     Load SSS, SST, and AVISO data for the given times, latitudes, and longitudes.
@@ -50,6 +219,9 @@ def load_satellite_data(times, lat, lon):
     sst_data = np.nan * np.ones(len(times))
     aviso_data = np.nan * np.ones(len(times))
     for c_date in unique_dates:
+        ensure_sst_available(sst_folder, c_date)
+        ensure_sss_available(sss_folder, c_date)
+        ensure_aviso_available(aviso_folder, c_date)
         date_idx = np.array([date_obj == c_date for date_obj in times])
         coordinates = np.array([lat[date_idx], lon[date_idx]]).T
         try:
@@ -129,3 +301,51 @@ def validate_accessor_output(tensor, expected_shape=None):
         assert tensor.shape == expected_shape, f"Shape {tensor.shape} != expected {expected_shape}"
     assert not torch.isnan(tensor).any(), "Output contains NaNs"
     return True 
+
+if __name__ == "__main__":
+    ## Simple test
+    # #test load_satellite_data for 2024-10-25
+    # times = np.array([datetime(2024, 10, 25)])
+    # lat = np.array([25.0])
+    # lon = np.array([-83.0])
+    # sss, sst, ssh = load_satellite_data(times, lat, lon)
+    # print(sss)
+    # print(sst)
+    # print(ssh)
+
+    ## Download all DUACS files for 1993-2024
+    # aviso_folder = "/unity/f1/ozavala/DATA/GOFFISH/AVISO/GoM/"
+    # # gets all first day of each month from 1993 to 2024
+    # dates = [datetime(year, month, 1) for year in range(1993, 2025) for month in range(1, 13)]
+    # for c_date in dates:
+    #     print(f"date: {c_date}")
+    #     ensure_aviso_available(aviso_folder, c_date)
+    # print("Done!")
+
+    ## Download all SMAP SSS files for 1993-2024
+    sss_folder = "/Net/work/ozavala/DATA/GOFFISH/SSS/SMAP_Global/"
+    # # gets all days from 1993 to 2024
+    dates = [
+        datetime(year, month, day)
+        for year in range(2000, 2025)
+        for month in range(1, 13)
+        for day in range(1, calendar.monthrange(year, month)[1] + 1)
+    ]
+    for c_date in dates:
+        print(f"date: {c_date}")
+        ensure_sss_available(sss_folder, c_date)
+    print("Done!")
+    
+    ## Download all SST files for 1993-2024
+    sst_folder = "/unity/f1/ozavala/DATA/GOFFISH/SST/OISST"
+    # # gets all days from 1993 to 2024
+    dates = [
+        datetime(year, month, day)
+        for year in range(2003, 2025)
+        for month in range(1, 13)
+        for day in range(1, calendar.monthrange(year, month)[1] + 1)
+    ]
+    for c_date in dates:
+        print(f"date: {c_date}")
+        ensure_sst_available(sst_folder, c_date)
+    print("Done!")

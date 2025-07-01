@@ -95,13 +95,28 @@ curl -X POST http://localhost:5000/v1/profile \
 ## Project Structure
 
 - `services/kernel/handler.py` — Loads TorchScript model, exposes `infer`, provides PCA objects
-- `services/accessor/sat.py` — Loads satellite data, prepares model inputs, LRU-cached, circuit-breaker protected
+- `services/accessor/sat.py` — Loads and downloads satellite data (see below), prepares model inputs, LRU-cached, circuit-breaker protected
 - `services/api/app.py` — Flask app factory, `/v1/profile` endpoint, Pydantic validation, in-memory NetCDF, logging, metrics, batch guard
 - `wsgi.py` — Entrypoint for running the modular Flask app
 - `nespreso_client.py` — Python client for the API
 - `docs/api.yaml` — OpenAPI documentation for all endpoints
 - `requirements.txt` / `requirements.yml` — All dependencies
 - `.github/workflows/ci.yml` — CI pipeline with artefact upload and smoke test
+
+---
+
+## Satellite Data Download Utilities
+
+The file `services/accessor/sat.py` provides robust utilities for downloading and caching satellite data required by the model:
+
+- **Sea Surface Temperature (SST):**
+  - `ensure_sst_available(sst_root, date_)` downloads daily GHRSST/MUR files for a given date if not already present.
+- **Sea Surface Salinity (SSS):**
+  - `ensure_sss_available(sss_root, date_)` downloads 8-day running mean SMAP SSS files for a given date if not already present.
+- **Sea Surface Height (SSH/AVISO):**
+  - `ensure_aviso_available(aviso_root, date_)` downloads and aggregates all daily DUACS/AVISO files for a month, writing a single monthly file.
+
+These functions use the `earthaccess` and `copernicusmarine` libraries to search and download data from NASA and Copernicus Marine services. They are idempotent and will not re-download files that already exist locally. See the top of `sat.py` for example usage and more details.
 
 ---
 
@@ -119,10 +134,17 @@ curl -X POST http://localhost:5000/v1/profile \
 
 ## Testing and CI
 
-- **Run all tests:**
+- **Run all tests (from project root):**
   ```bash
-  conda run -n nespreso pytest
+  PYTHONPATH=nespreso_api:nespreso_api/eoas-pyutils conda run -n nespreso pytest
   ```
+  This ensures all local modules are found and all tests in the repo are executed.
+
+- **Run only the eoas-pyutils tests:**
+  ```bash
+  PYTHONPATH=nespreso_api/eoas-pyutils conda run -n nespreso pytest nespreso_api/eoas-pyutils/tests
+  ```
+
 - **CI:** Linting, type-checking, property-based tests, and a live smoke test are run on every push.
 - **Property-based tests:** Ensure NetCDF outputs are monotonic and physically valid.
 

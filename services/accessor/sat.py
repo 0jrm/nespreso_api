@@ -164,8 +164,8 @@ def ensure_aviso_available(aviso_root: str, date_: datetime) -> Path:
         )
         daily_files = sorted(Path(f.file_path) for f in resp.files)
         if not daily_files:
-            raise FileNotFoundError(f"No DUACS files for {month_tag}")
-
+            print(f"SSH not available for {pattern}")
+            return None
         # ---------- read lazily, concat, decode ----------
         ds = xr.open_mfdataset(
             daily_files,
@@ -313,21 +313,21 @@ if __name__ == "__main__":
     # print(sst)
     # print(ssh)
 
-    ## Download all DUACS files for 1993-2024
-    # aviso_folder = "/unity/f1/ozavala/DATA/GOFFISH/AVISO/GoM/"
-    # # gets all first day of each month from 1993 to 2024
-    # dates = [datetime(year, month, 1) for year in range(1993, 2025) for month in range(1, 13)]
-    # for c_date in dates:
-    #     print(f"date: {c_date}")
-    #     ensure_aviso_available(aviso_folder, c_date)
-    # print("Done!")
+    # Download all DUACS files for 2024-2025
+    aviso_folder = "/unity/f1/ozavala/DATA/GOFFISH/AVISO/GoM/"
+    # gets all first day of each month
+    dates = [datetime(year, month, 1) for year in range(2024, 2026) for month in range(1, 13)]
+    for c_date in dates:
+        print(f"date: {c_date}")
+        ensure_aviso_available(aviso_folder, c_date)
+    print("Done!")
 
-    ## Download all SMAP SSS files for 1993-2024
+    ## Download all SMAP SSS files for 2025
     sss_folder = "/Net/work/ozavala/DATA/GOFFISH/SSS/SMAP_Global/"
-    # # gets all days from 1993 to 2024
+    # # gets all days from 2025
     dates = [
         datetime(year, month, day)
-        for year in range(2000, 2025)
+        for year in range(2025, 2026)
         for month in range(1, 13)
         for day in range(1, calendar.monthrange(year, month)[1] + 1)
     ]
@@ -336,12 +336,12 @@ if __name__ == "__main__":
         ensure_sss_available(sss_folder, c_date)
     print("Done!")
     
-    ## Download all SST files for 1993-2024
+    ## Download all SST files for 2025
     sst_folder = "/unity/f1/ozavala/DATA/GOFFISH/SST/OISST"
-    # # gets all days from 1993 to 2024
+    # # gets all days from 2025
     dates = [
         datetime(year, month, day)
-        for year in range(2003, 2025)
+        for year in range(2025, 2026)
         for month in range(1, 13)
         for day in range(1, calendar.monthrange(year, month)[1] + 1)
     ]

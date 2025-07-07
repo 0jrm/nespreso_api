@@ -10,7 +10,7 @@ This document describes the organization of the NeSPReSO repository (API and cli
       - `metrics.py` – Prometheus metrics endpoint and request timing middleware. Defines the `/metrics` route and histograms/counters for monitoring.
       - *Tests:* `test_api.py` (smoke test for the profile endpoint), `test_property_netcdf.py` (property-based tests on the NetCDF output), `test_equivalence.py` (ensures `/predict` and `/v1/profile` outputs are identical).
     - **`accessor/`** – Satellite data access and input preparation.
-      - `sat.py` – Functions to load satellite data (SSS, SST, SSH) for given coordinates and dates. Uses cached remote data sources and interpolates values. Also includes `prepare_inputs(...)` to transform inputs (time, lat, lon, etc.) into the feature tensor expected by the model.
+      - `sat.py` – Functions to load/download satellite data (SSS, SST, SSH) for given coordinates and dates. Uses cached remote data sources and interpolates values. Also includes `prepare_inputs(...)` to transform inputs (time, lat, lon, etc.) into the feature tensor expected by the model.
       - *Tests:* `test_sat.py` (Hypothesis tests to ensure `prepare_inputs` output shape and absence of NaNs).
     - **`kernel/`** – ML model handling (the "core" prediction engine).
       - `handler.py` – Loads the TorchScript model and PCA objects, and provides `infer(batch)` to perform a prediction on an input tensor. Also provides `get_pca_objects()` to retrieve the PCA transformers needed to post-process model output. This layer is kept framework-specific (PyTorch) and isolated from Flask or data concerns.

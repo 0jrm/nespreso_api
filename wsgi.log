@@ -1,0 +1,146 @@
+2025-07-07 15:48:53,867 INFO ================== Initializing Nespreso API ===========================
+2025-07-07 15:48:53,868 INFO Added /var/www/virtualhosts/nespreso.coaps.fsu.edu/nespreso_api to sys.path
+2025-07-07 15:48:53,871 INFO WSGI application loaded successfully.
+2025-07-07 15:48:53,871 INFO !!!!!!!!!! Done initializing WSGI application !!!!!!!!!!!!!!!!!
+2025-07-07 15:48:53,947 INFO [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://146.201.220.56:5000
+2025-07-07 15:48:53,947 INFO [33mPress CTRL+C to quit[0m
+2025-07-07 15:48:53,966 INFO  * Restarting with watchdog (inotify)
+2025-07-07 15:48:56,641 INFO ================== Initializing Nespreso API ===========================
+2025-07-07 15:48:56,641 INFO Added /var/www/virtualhosts/nespreso.coaps.fsu.edu/nespreso_api to sys.path
+2025-07-07 15:48:56,643 INFO WSGI application loaded successfully.
+2025-07-07 15:48:56,643 INFO !!!!!!!!!! Done initializing WSGI application !!!!!!!!!!!!!!!!!
+2025-07-07 15:48:56,644 WARNING  * Debugger is active!
+2025-07-07 15:48:56,645 INFO  * Debugger PIN: 133-001-605
+2025-07-07 15:52:07,621 INFO ================== Initializing Nespreso API ===========================
+2025-07-07 15:52:07,621 INFO Added /var/www/virtualhosts/nespreso.coaps.fsu.edu/nespreso_api to sys.path
+2025-07-07 15:52:07,622 INFO WSGI application loaded successfully.
+2025-07-07 15:52:07,622 INFO !!!!!!!!!! Done initializing WSGI application !!!!!!!!!!!!!!!!!
+2025-07-07 15:52:07,631 INFO [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://146.201.220.56:5000
+2025-07-07 15:52:07,631 INFO [33mPress CTRL+C to quit[0m
+2025-07-07 15:52:07,636 INFO  * Restarting with watchdog (inotify)
+2025-07-07 15:52:09,981 INFO ================== Initializing Nespreso API ===========================
+2025-07-07 15:52:09,982 INFO Added /var/www/virtualhosts/nespreso.coaps.fsu.edu/nespreso_api to sys.path
+2025-07-07 15:52:09,983 INFO WSGI application loaded successfully.
+2025-07-07 15:52:09,983 INFO !!!!!!!!!! Done initializing WSGI application !!!!!!!!!!!!!!!!!
+2025-07-07 15:52:09,984 WARNING  * Debugger is active!
+2025-07-07 15:52:09,985 INFO  * Debugger PIN: 133-001-605
+2025-07-07 15:52:14,852 INFO  * Detected change in '/unity/g2/jmiranda/nespreso_api/services/accessor/sat.py', reloading
+2025-07-07 15:52:15,985 INFO  * Restarting with watchdog (inotify)
+2025-07-07 15:52:18,375 INFO ================== Initializing Nespreso API ===========================
+2025-07-07 15:52:18,375 INFO Added /var/www/virtualhosts/nespreso.coaps.fsu.edu/nespreso_api to sys.path
+2025-07-07 15:52:18,376 INFO WSGI application loaded successfully.
+2025-07-07 15:52:18,376 INFO !!!!!!!!!! Done initializing WSGI application !!!!!!!!!!!!!!!!!
+2025-07-07 15:52:18,378 WARNING  * Debugger is active!
+2025-07-07 15:52:18,378 INFO  * Debugger PIN: 133-001-605
+2025-07-07 15:52:20,115 INFO  * Detected change in '/unity/g2/jmiranda/nespreso_api/services/accessor/sat.py', reloading
+2025-07-07 15:52:21,250 INFO  * Restarting with watchdog (inotify)
+2025-07-07 15:52:23,690 INFO ================== Initializing Nespreso API ===========================
+2025-07-07 15:52:23,690 INFO Added /var/www/virtualhosts/nespreso.coaps.fsu.edu/nespreso_api to sys.path
+2025-07-07 15:52:23,691 INFO WSGI application loaded successfully.
+2025-07-07 15:52:23,692 INFO !!!!!!!!!! Done initializing WSGI application !!!!!!!!!!!!!!!!!
+2025-07-07 15:52:23,693 WARNING  * Debugger is active!
+2025-07-07 15:52:23,694 INFO  * Debugger PIN: 133-001-605
+2025-07-07 15:52:25,394 INFO  * Detected change in '/unity/g2/jmiranda/nespreso_api/services/accessor/sat.py', reloading
+2025-07-07 15:52:26,139 INFO  * Restarting with watchdog (inotify)
+2025-07-07 15:52:28,487 INFO ================== Initializing Nespreso API ===========================
+2025-07-07 15:52:28,487 INFO Added /var/www/virtualhosts/nespreso.coaps.fsu.edu/nespreso_api to sys.path
+2025-07-07 15:52:28,489 INFO WSGI application loaded successfully.
+2025-07-07 15:52:28,489 INFO !!!!!!!!!! Done initializing WSGI application !!!!!!!!!!!!!!!!!
+2025-07-07 15:52:28,490 WARNING  * Debugger is active!
+2025-07-07 15:52:28,491 INFO  * Debugger PIN: 133-001-605
+2025-07-07 15:52:30,591 INFO  * Detected change in '/unity/g2/jmiranda/nespreso_api/services/accessor/sat.py', reloading
+2025-07-07 15:52:31,685 INFO  * Restarting with watchdog (inotify)
+2025-07-07 15:52:34,218 INFO ================== Initializing Nespreso API ===========================
+2025-07-07 15:52:34,218 INFO Added /var/www/virtualhosts/nespreso.coaps.fsu.edu/nespreso_api to sys.path
+2025-07-07 15:52:34,219 INFO WSGI application loaded successfully.
+2025-07-07 15:52:34,220 INFO !!!!!!!!!! Done initializing WSGI application !!!!!!!!!!!!!!!!!
+2025-07-07 15:52:34,223 WARNING  * Debugger is active!
+2025-07-07 15:52:34,223 INFO  * Debugger PIN: 133-001-605
+2025-07-07 15:52:35,805 INFO  * Detected change in '/unity/g2/jmiranda/nespreso_api/services/accessor/sat.py', reloading
+2025-07-07 15:52:36,753 INFO  * Restarting with watchdog (inotify)
+2025-07-07 15:52:39,108 INFO ================== Initializing Nespreso API ===========================
+2025-07-07 15:52:39,108 INFO Added /var/www/virtualhosts/nespreso.coaps.fsu.edu/nespreso_api to sys.path
+2025-07-07 15:52:39,109 INFO WSGI application loaded successfully.
+2025-07-07 15:52:39,109 INFO !!!!!!!!!! Done initializing WSGI application !!!!!!!!!!!!!!!!!
+2025-07-07 15:52:39,111 WARNING  * Debugger is active!
+2025-07-07 15:52:39,112 INFO  * Debugger PIN: 133-001-605
+2025-07-07 15:52:40,993 INFO  * Detected change in '/unity/g2/jmiranda/nespreso_api/services/accessor/sat.py', reloading
+2025-07-07 15:52:41,994 INFO  * Restarting with watchdog (inotify)
+2025-07-07 15:52:44,401 INFO ================== Initializing Nespreso API ===========================
+2025-07-07 15:52:44,401 INFO Added /var/www/virtualhosts/nespreso.coaps.fsu.edu/nespreso_api to sys.path
+2025-07-07 15:52:44,402 INFO WSGI application loaded successfully.
+2025-07-07 15:52:44,403 INFO !!!!!!!!!! Done initializing WSGI application !!!!!!!!!!!!!!!!!
+2025-07-07 15:52:44,404 WARNING  * Debugger is active!
+2025-07-07 15:52:44,405 INFO  * Debugger PIN: 133-001-605
+2025-07-07 15:52:46,161 INFO  * Detected change in '/unity/g2/jmiranda/nespreso_api/services/accessor/sat.py', reloading
+2025-07-07 15:52:47,272 INFO  * Restarting with watchdog (inotify)
+2025-07-07 15:52:49,643 INFO ================== Initializing Nespreso API ===========================
+2025-07-07 15:52:49,643 INFO Added /var/www/virtualhosts/nespreso.coaps.fsu.edu/nespreso_api to sys.path
+2025-07-07 15:52:49,645 INFO WSGI application loaded successfully.
+2025-07-07 15:52:49,645 INFO !!!!!!!!!! Done initializing WSGI application !!!!!!!!!!!!!!!!!
+2025-07-07 15:52:49,646 WARNING  * Debugger is active!
+2025-07-07 15:52:49,647 INFO  * Debugger PIN: 133-001-605
+2025-07-07 15:52:51,337 INFO  * Detected change in '/unity/g2/jmiranda/nespreso_api/services/accessor/sat.py', reloading
+2025-07-07 15:52:52,113 INFO  * Restarting with watchdog (inotify)
+2025-07-07 15:52:54,719 INFO ================== Initializing Nespreso API ===========================
+2025-07-07 15:52:54,719 INFO Added /var/www/virtualhosts/nespreso.coaps.fsu.edu/nespreso_api to sys.path
+2025-07-07 15:52:54,721 INFO WSGI application loaded successfully.
+2025-07-07 15:52:54,721 INFO !!!!!!!!!! Done initializing WSGI application !!!!!!!!!!!!!!!!!
+2025-07-07 15:52:54,723 WARNING  * Debugger is active!
+2025-07-07 15:52:54,723 INFO  * Debugger PIN: 133-001-605
+2025-07-07 15:52:56,538 INFO  * Detected change in '/unity/g2/jmiranda/nespreso_api/services/accessor/sat.py', reloading
+2025-07-07 15:52:57,473 INFO  * Restarting with watchdog (inotify)
+2025-07-07 15:52:59,851 INFO ================== Initializing Nespreso API ===========================
+2025-07-07 15:52:59,851 INFO Added /var/www/virtualhosts/nespreso.coaps.fsu.edu/nespreso_api to sys.path
+2025-07-07 15:52:59,852 INFO WSGI application loaded successfully.
+2025-07-07 15:52:59,852 INFO !!!!!!!!!! Done initializing WSGI application !!!!!!!!!!!!!!!!!
+2025-07-07 15:52:59,854 WARNING  * Debugger is active!
+2025-07-07 15:52:59,855 INFO  * Debugger PIN: 133-001-605
+2025-07-07 15:53:01,694 INFO  * Detected change in '/unity/g2/jmiranda/nespreso_api/services/accessor/sat.py', reloading
+2025-07-07 15:53:02,341 INFO  * Restarting with watchdog (inotify)
+2025-07-07 15:53:04,860 INFO ================== Initializing Nespreso API ===========================
+2025-07-07 15:53:04,860 INFO Added /var/www/virtualhosts/nespreso.coaps.fsu.edu/nespreso_api to sys.path
+2025-07-07 15:53:04,862 INFO WSGI application loaded successfully.
+2025-07-07 15:53:04,862 INFO !!!!!!!!!! Done initializing WSGI application !!!!!!!!!!!!!!!!!
+2025-07-07 15:53:04,864 WARNING  * Debugger is active!
+2025-07-07 15:53:04,864 INFO  * Debugger PIN: 133-001-605
+2025-07-07 15:53:06,920 INFO  * Detected change in '/unity/g2/jmiranda/nespreso_api/services/accessor/sat.py', reloading
+2025-07-07 15:53:08,077 INFO  * Restarting with watchdog (inotify)
+2025-07-07 15:53:10,442 INFO ================== Initializing Nespreso API ===========================
+2025-07-07 15:53:10,442 INFO Added /var/www/virtualhosts/nespreso.coaps.fsu.edu/nespreso_api to sys.path
+2025-07-07 15:53:10,443 INFO WSGI application loaded successfully.
+2025-07-07 15:53:10,444 INFO !!!!!!!!!! Done initializing WSGI application !!!!!!!!!!!!!!!!!
+2025-07-07 15:53:10,445 WARNING  * Debugger is active!
+2025-07-07 15:53:10,445 INFO  * Debugger PIN: 133-001-605
+2025-07-07 15:53:12,225 INFO  * Detected change in '/unity/g2/jmiranda/nespreso_api/services/accessor/sat.py', reloading
+2025-07-07 15:53:13,134 INFO  * Restarting with watchdog (inotify)
+2025-07-07 15:53:15,553 INFO ================== Initializing Nespreso API ===========================
+2025-07-07 15:53:15,553 INFO Added /var/www/virtualhosts/nespreso.coaps.fsu.edu/nespreso_api to sys.path
+2025-07-07 15:53:15,554 INFO WSGI application loaded successfully.
+2025-07-07 15:53:15,554 INFO !!!!!!!!!! Done initializing WSGI application !!!!!!!!!!!!!!!!!
+2025-07-07 15:53:15,556 WARNING  * Debugger is active!
+2025-07-07 15:53:15,557 INFO  * Debugger PIN: 133-001-605
+2025-07-07 15:53:17,499 INFO  * Detected change in '/unity/g2/jmiranda/nespreso_api/services/accessor/sat.py', reloading
+2025-07-07 15:53:18,260 INFO  * Restarting with watchdog (inotify)
+2025-07-07 15:53:20,656 INFO ================== Initializing Nespreso API ===========================
+2025-07-07 15:53:20,656 INFO Added /var/www/virtualhosts/nespreso.coaps.fsu.edu/nespreso_api to sys.path
+2025-07-07 15:53:20,657 INFO WSGI application loaded successfully.
+2025-07-07 15:53:20,657 INFO !!!!!!!!!! Done initializing WSGI application !!!!!!!!!!!!!!!!!
+2025-07-07 15:53:20,659 WARNING  * Debugger is active!
+2025-07-07 15:53:20,659 INFO  * Debugger PIN: 133-001-605
+2025-07-07 15:53:22,697 INFO  * Detected change in '/unity/g2/jmiranda/nespreso_api/services/accessor/sat.py', reloading
+2025-07-07 15:53:23,571 INFO  * Restarting with watchdog (inotify)
+2025-07-07 15:53:25,958 INFO ================== Initializing Nespreso API ===========================
+2025-07-07 15:53:25,958 INFO Added /var/www/virtualhosts/nespreso.coaps.fsu.edu/nespreso_api to sys.path
+2025-07-07 15:53:25,960 INFO WSGI application loaded successfully.
+2025-07-07 15:53:25,960 INFO !!!!!!!!!! Done initializing WSGI application !!!!!!!!!!!!!!!!!
+2025-07-07 15:53:25,962 WARNING  * Debugger is active!
+2025-07-07 15:53:25,962 INFO  * Debugger PIN: 133-001-605
+2025-07-07 15:53:28,012 INFO  * Detected change in '/unity/g2/jmiranda/nespreso_api/services/accessor/sat.py', reloading
+2025-07-07 15:53:28,714 INFO  * Restarting with watchdog (inotify)

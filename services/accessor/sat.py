@@ -1,3 +1,6 @@
+# TODO: on load_satellite_data,instead of always downloading the data, simply check if the data is already available, and return only the data that is available
+# downloading the data should be done separately
+
 import torch
 import numpy as np
 import xarray as xr
@@ -52,10 +55,54 @@ def _atomic_move(src, dst):
         import shutil                 # cross-device fallback
         shutil.move(src, dst)
         
+## Data availability check functions
+
+def check_data_availability(
+    dates: list, sss_root: str, sst_root: str, aviso_root: str
+) -> list:
+    """
+    Check which dates have all required satellite data available.
+
+    Args:
+        dates (list): List of date strings in 'YYYY-MM-DD' format.
+        sss_folder (str): Path to SSS data folder.
+        sst_folder (str): Path to SST data folder.
+        aviso_folder (str): Path to AVISO data folder.
+
+    Returns:
+        list: List of dates (as in input) for which all data is available.
+    """
+
+    def sss_file_exists(date_) -> bool:
+        year_dir = os.path.join(sss_root, f"{date_.year:04d}")
+        doy      = date_.timetuple().tm_yday
+        fname    = f"RSS_smap_SSS_L3_8day_running_{date_.year}_{doy:03d}_FNL_v06.0.nc"
+        final    = os.path.join(year_dir, fname)
+        return os.path.isfile(final)
+
+    def sst_file_exists(date_) -> bool:
+        year_dir  = os.path.join(sst_root, f"{date_.year:04d}")
+        fname     = f"{date_.strftime('%Y%m%d')}090000-" \
+                    "JPL-L4_GHRSST-SSTfnd-MUR-GLOB-v02.0-fv04.1_subset.nc"
+        final     = os.path.join(year_dir, fname)
+        return os.path.isfile(final)
+
+    def aviso_file_exists(date_) -> bool:
+        month_tag = f"{date_.year}-{date_.month:02d}"
+        final = Path(aviso_root) / f"{month_tag}.nc"
+        return os.path.isfile(final)
+
+    available_dates = [
+        d for d in dates
+        if sss_file_exists(d) and sst_file_exists(d) and aviso_file_exists(d)
+    ]
+    return available_dates
+
+## Data download functions
 # ------------------------------------------------------------------
 #  1.  GHRSST / MUR  (daily) ---------------------------------------
 # ------------------------------------------------------------------
-def ensure_sst_available(sst_root, date_):
+def download_sst(sst_root, date_):
     year_dir  = os.path.join(sst_root, f"{date_.year:04d}")
     fname     = f"{date_.strftime('%Y%m%d')}090000-" \
                 "JPL-L4_GHRSST-SSTfnd-MUR-GLOB-v02.0-fv04.1_subset.nc"
@@ -89,7 +136,7 @@ def ensure_sst_available(sst_root, date_):
 # ------------------------------------------------------------------
 #  2.  SMAP SSS  (8-day running mean) ------------------------------
 # ------------------------------------------------------------------
-def ensure_sss_available(sss_root, date_):
+def download_sss(sss_root, date_):
     year_dir = os.path.join(sss_root, f"{date_.year:04d}")
     doy      = date_.timetuple().tm_yday
     fname    = f"RSS_smap_SSS_L3_8day_running_{date_.year}_{doy:03d}_FNL_v06.0.nc"
@@ -123,7 +170,7 @@ def ensure_sss_available(sss_root, date_):
 # ------------------------------------------------------------------
 #  3.  AVISO / DUACS  (monthly) ------------------------------------
 # ------------------------------------------------------------------
-def ensure_aviso_available(aviso_root: str, date_: datetime) -> Path:
+def download_aviso(aviso_root: str, date_: datetime) -> Path:
     """
     For the month containing *date_*:
     • Fetch every daily DUACS file (0.125° NRT, P1D) via Copernicus Marine.
@@ -215,13 +262,17 @@ def load_satellite_data(times, lat, lon):
     ex_lon, ex_lat = -88.0, 23.0
     bbox = (min_lat, max_lat, min_lon, max_lon)
     unique_dates = sorted(list(set(times)))
+
+    unique_dates = check_data_availability(unique_dates, sss_folder, sst_folder, aviso_folder)
+    print(unique_dates, len(unique_dates))
+    # if empty, return empty
+    if len(unique_dates) == 0:
+        return unique_dates, unique_dates, unique_dates
+    
     sss_data = np.nan * np.ones(len(times))
     sst_data = np.nan * np.ones(len(times))
     aviso_data = np.nan * np.ones(len(times))
     for c_date in unique_dates:
-        ensure_sst_available(sst_folder, c_date)
-        ensure_sss_available(sss_folder, c_date)
-        ensure_aviso_available(aviso_folder, c_date)
         date_idx = np.array([date_obj == c_date for date_obj in times])
         coordinates = np.array([lat[date_idx], lon[date_idx]]).T
         try:
@@ -303,49 +354,49 @@ def validate_accessor_output(tensor, expected_shape=None):
     return True 
 
 if __name__ == "__main__":
-    ## Simple test
-    # #test load_satellite_data for 2024-10-25
-    # times = np.array([datetime(2024, 10, 25)])
-    # lat = np.array([25.0])
-    # lon = np.array([-83.0])
-    # sss, sst, ssh = load_satellite_data(times, lat, lon)
-    # print(sss)
-    # print(sst)
+    # Simple test
+    #test load_satellite_data for 2024-10-25
+    times = np.array([datetime(2026, 10, 25)])
+    lat = np.array([25.0])
+    lon = np.array([-83.0])
+    sss, sst, ssh = load_satellite_data(times, lat, lon)
+    print(sss)
+    print(sst)
     # print(ssh)
 
-    # Download all DUACS files for 2024-2025
-    aviso_folder = "/unity/f1/ozavala/DATA/GOFFISH/AVISO/GoM/"
-    # gets all first day of each month
-    dates = [datetime(year, month, 1) for year in range(2024, 2026) for month in range(1, 13)]
-    for c_date in dates:
-        print(f"date: {c_date}")
-        ensure_aviso_available(aviso_folder, c_date)
-    print("Done!")
+    # # Download all DUACS files for 2024-2025
+    # aviso_folder = "/unity/f1/ozavala/DATA/GOFFISH/AVISO/GoM/"
+    # # gets all first day of each month
+    # dates = [datetime(year, month, 1) for year in range(2024, 2026) for month in range(1, 13)]
+    # for c_date in dates:
+    #     print(f"date: {c_date}")
+    #     download_aviso(aviso_folder, c_date)
+    # print("Done!")
 
-    ## Download all SMAP SSS files for 2025
-    sss_folder = "/Net/work/ozavala/DATA/GOFFISH/SSS/SMAP_Global/"
-    # # gets all days from 2025
-    dates = [
-        datetime(year, month, day)
-        for year in range(2025, 2026)
-        for month in range(1, 13)
-        for day in range(1, calendar.monthrange(year, month)[1] + 1)
-    ]
-    for c_date in dates:
-        print(f"date: {c_date}")
-        ensure_sss_available(sss_folder, c_date)
-    print("Done!")
+    # ## Download all SMAP SSS files for 2025
+    # sss_folder = "/Net/work/ozavala/DATA/GOFFISH/SSS/SMAP_Global/"
+    # # # gets all days from 2025
+    # dates = [
+    #     datetime(year, month, day)
+    #     for year in range(2025, 2026)
+    #     for month in range(1, 13)
+    #     for day in range(1, calendar.monthrange(year, month)[1] + 1)
+    # ]
+    # for c_date in dates:
+    #     print(f"date: {c_date}")
+    #     download_sss(sss_folder, c_date)
+    # print("Done!")
     
-    ## Download all SST files for 2025
-    sst_folder = "/unity/f1/ozavala/DATA/GOFFISH/SST/OISST"
-    # # gets all days from 2025
-    dates = [
-        datetime(year, month, day)
-        for year in range(2025, 2026)
-        for month in range(1, 13)
-        for day in range(1, calendar.monthrange(year, month)[1] + 1)
-    ]
-    for c_date in dates:
-        print(f"date: {c_date}")
-        ensure_sst_available(sst_folder, c_date)
-    print("Done!")
+    # ## Download all SST files for 2025
+    # sst_folder = "/unity/f1/ozavala/DATA/GOFFISH/SST/OISST"
+    # # # gets all days from 2025
+    # dates = [
+    #     datetime(year, month, day)
+    #     for year in range(2025, 2026)
+    #     for month in range(1, 13)
+    #     for day in range(1, calendar.monthrange(year, month)[1] + 1)
+    # ]
+    # for c_date in dates:
+    #     print(f"date: {c_date}")
+    #     download_sst(sst_folder, c_date)
+    # print("Done!")

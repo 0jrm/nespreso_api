@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# PYTHONPATH=nespreso_api:nespreso_api/eoas-pyutils gunicorn -w 2 -b 0.0.0.0:5000 'nespreso_api.wsgi:app'
 import sys
 import os
 import logging

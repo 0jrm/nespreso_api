@@ -5,7 +5,9 @@ __pycache__/
 log/
 tiff/
 vscode/
-
+.hypothesis/
+nespreso/
+tests/ 
 
 # Ignore compiled Python files
 *.py[cod]

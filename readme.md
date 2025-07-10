@@ -15,29 +15,32 @@ This repository provides:
 
 ### 1. Install Dependencies
 
-**Recommended:** Use the provided conda environment for full reproducibility:
+Use the provided requirement.txt file for the necessary modules. If using conda:
 
 ```bash
-conda env create -n nespreso -f requirements.yml
+conda create -n nespreso_api -c conda-forge --file requirements.txt python=3.10
 conda activate nespreso
 ```
 
-If you only have `requirements.txt`:
+If using `uv`:
+
 ```bash
-conda create -n nespreso python=3.10
-conda activate nespreso
-pip install -r requirements.txt
+uv venv nespreso --python 3.10
+source nespreso/bin/activate
+uv pip install -r requirements.txt
 ```
 
 ### 2. Run the API Server (Development)
 
-```bash
-PYTHONPATH=nespreso_api:nespreso_api/eoas-pyutils conda run -n nespreso python nespreso_api/wsgi.py
+```bash 
+PYTHONPATH=nespreso_api:nespreso_api/eoas-pyutils gunicorn -w 2 -b 0.0.0.0:5000 'nespreso_api.wsgi:app'
 ```
-- The API will be available at `http://localhost:5000/v1/profile`
-- Prometheus metrics: `http://localhost:5000/metrics`
+- The API will be listening for requests at `http://localhost:5000/v1/profile`
+- Prometheus metrics (work in progress): `http://localhost:5000/metrics`
 
 ### 3. Make a Prediction (Python Example)
+
+The front-end part of the API is yet to be fully implemented. In the current form, it accept requests such as: 
 
 ```python
 import requests
@@ -51,14 +54,14 @@ with open("output.nc", "wb") as f:
     f.write(r.content)
 ```
 
-### 4. Use the Python Client
+You can also use `get_predictions` from `nespreso_client.py` for convenience. For example:
 
 ```python
 from nespreso_client import get_predictions
 result = get_predictions([25.0, 26.0], [-90.0, -91.0], ["2022-01-01", "2022-01-02"], filename="output.nc")
 print("NetCDF file saved as:", result)
 ```
-- The client supports lists, numpy arrays, pandas Series, and xarray DataArrays as input.
+- The get_predictions supports lists, numpy arrays, pandas Series, and xarray DataArrays as input.
 
 ---
 
@@ -100,7 +103,7 @@ curl -X POST http://localhost:5000/v1/profile \
 - `wsgi.py` — Entrypoint for running the modular Flask app
 - `nespreso_client.py` — Python client for the API
 - `docs/api.yaml` — OpenAPI documentation for all endpoints
-- `requirements.txt` / `requirements.yml` — All dependencies
+- `requirements.txt` — All dependencies
 - `.github/workflows/ci.yml` — CI pipeline with artefact upload and smoke test
 
 ---

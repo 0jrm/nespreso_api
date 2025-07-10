@@ -147,6 +147,14 @@ def create_app(config: dict = None) -> Flask:
             logger.error(f"Internal error: {e}")
             return jsonify({"error": str(e)}), 500
 
+    # ------------------------------------------------------------------
+    # Legacy endpoint – keeps old clients functional without changes.
+    # ------------------------------------------------------------------
+    @app.route("/predict", methods=["POST"])
+    def predict_legacy():  # noqa: D401 – simple pass-through
+        """Backward-compat shim that forwards to /v1/profile."""
+        return profile()
+
     app.register_blueprint(bp)
     app.register_blueprint(metrics_bp)
     app.before_request(metrics_before)

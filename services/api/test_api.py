@@ -1,14 +1,13 @@
-import requests
-import numpy as np
+from flask.testing import FlaskClient
 
-def test_profile_endpoint():
-    url = "http://localhost:5000/v1/profile"
+
+def test_profile_endpoint(client: FlaskClient):  # type: ignore[override]
     payload = {
         "lat": [25.0, 26.0],
         "lon": [-90.0, -91.0],
-        "date": ["2022-01-01", "2022-01-02"]
+        "date": ["2022-01-01", "2022-01-02"],
     }
-    r = requests.post(url, json=payload)
-    assert r.status_code == 200, r.text
-    assert r.headers["Content-Type"].startswith("application/x-netcdf")
-    assert r.content[:3] == b'CDF', "Not a NetCDF file (missing magic bytes)" 
+    resp = client.post("/v1/profile", json=payload)
+    assert resp.status_code == 200, resp.json
+    assert resp.headers["Content-Type"].startswith("application/x-netcdf")
+    assert resp.data[:3] == b"CDF", "Not a NetCDF file (missing magic bytes)" 

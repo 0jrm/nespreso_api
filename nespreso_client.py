@@ -3,6 +3,7 @@ import asyncio
 from services.utils import preprocess_inputs
 import datetime
 import warnings
+import xarray as xr
 
 async def fetch_predictions(lat, lon, date, filename="output.nc", api_url=None):
     """
@@ -73,7 +74,15 @@ def get_predictions(lat, lon, date, filename="output.nc", api_url=None):
 if __name__ == "__main__":
     latitudes = [25.0, 26.0, 27.0]
     longitudes = [-83.0, -84.0, -85.0]
-    dates = ["2024-10-25", "2024-10-25","2024-10-25"]
+    dates = ["2022-10-25", "2026-10-25", "2022-10-25"]
     output_file = "my_output.nc"
     result = get_predictions(latitudes, longitudes, dates, filename=output_file)
     print("Result:", result)
+    # read file and print a sample of the Temperature and Salinity fields
+    with xr.open_dataset(output_file) as ds:
+        #temperature shape
+        print(f'Temperature shape: {ds.Temperature.shape}')
+        print(ds.Temperature.values)
+        #salinity shape
+        print(f'Salinity shape: {ds.Salinity.shape}')
+        print(ds.Salinity.values)

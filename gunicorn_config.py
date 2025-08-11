@@ -14,8 +14,9 @@ import os
 # Bind interface/port – keep in sync with Docker/Helm charts if present.
 bind = os.getenv("GUNICORN_BIND", "0.0.0.0:5000")
 
-# Bang for buck: 2×CPU + 1 is the usual rule-of-thumb.
-workers = int(os.getenv("GUNICORN_WORKERS", (multiprocessing.cpu_count() * 2) + 1))
+# Workers:2×CPU + 1 is the usual rule-of-thumb, but it's crashing ozavala
+# workers = int(os.getenv("GUNICORN_WORKERS", (multiprocessing.cpu_count() * 2) + 1))
+workers = 4
 
 # >>>>>  CRITICAL  <<<<<
 # The default Gunicorn timeout is 30 s.  The first request to the /v1/profile

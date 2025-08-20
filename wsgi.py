@@ -30,4 +30,5 @@ except Exception as e:
 logging.info("!!!!!!!!!! Done initializing WSGI application !!!!!!!!!!!!!!!!!")
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    # app.run(host="0.0.0.0", port=5000, debug=True) #gunicorn
+    app.run(...) #apache

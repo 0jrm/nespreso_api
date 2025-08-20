@@ -1,10 +1,10 @@
-# TODO: on load_satellite_data,instead of always downloading the data, simply check if the data is already available, and return only the data that is available
+# TODO: on load_satellite_data, instead of always downloading the data, simply check if the data is already available, and return only the data that is available
 # downloading the data should be done separately
 
 import torch
 import numpy as np
 import xarray as xr
-from datetime import datetime, timedelta
+from datetime import date, datetime, timedelta
 import calendar
 from scipy.interpolate import RegularGridInterpolator
 from functools import lru_cache
@@ -15,8 +15,131 @@ import copernicusmarine
 import sys
 from pathlib import Path
 import tempfile, shutil, time, gc
-sys.path.append("/unity/g2/jmiranda/nespreso_api/eoas-pyutils")
-from io_utils.coaps_io_data import get_aviso_by_date, get_sst_ghrsst_by_date, get_sss_by_date
+from os.path import join
+
+def get_day_of_year_from_month_and_day(month, day_of_month, year=datetime.now().year):
+    """
+    Gets a list of integers with the days of the month, starting from 0 and from the day of the year
+    :param month:
+    :param year:
+    :return:
+    """
+    first_jan = date(year, 1, 1)
+    day_of_year = date(year, month, day_of_month).toordinal() - first_jan.toordinal() + 1
+    return day_of_year
+
+# %% AVISO by date
+def get_aviso_by_date(aviso_folder, c_date, bbox=None):
+    '''
+    Reads AVISO data for a specified date, and optionally crops to a specified bounding box.
+    If the standard file naming convention fails, an alternative file naming convention is used.
+
+    Parameters:
+        aviso_folder (str): Directory containing AVISO files.
+        c_date (datetime.date): Date for which to retrieve data.
+        bbox (tuple of float, optional): Bounding box as (min_lat, max_lat, min_lon, max_lon).
+
+    Returns:
+        Tuple containing the AVISO dataset, latitudes, and longitudes.
+    '''
+    # Standard file naming format
+    alternative_folder = '/home/jmiranda/Data/SSH/SEALEVEL_GLO_PHY_L4_NRT_008_046/'
+    standard_format = join(aviso_folder, f"{c_date.year}-{c_date.month:02d}.nc")
+    alternative_format = f"nrt_global_allsat_phy_l4_{c_date.strftime('%Y%m%d')}"
+    
+    # Attempt to load dataset using standard naming format
+    try:
+        aviso_data = xr.open_dataset(standard_format)
+    except FileNotFoundError:
+        # Alternative file naming format when standard file is not found
+        files = os.listdir(alternative_folder)
+        matching_files = [file for file in files if alternative_format in file]
+        
+        if not matching_files:
+            raise FileNotFoundError(f"No files found for date {c_date} in {alternative_format}")
+        
+        try:
+            aviso_data = xr.open_dataset(join(alternative_folder, matching_files[0]))
+        except:
+            raise RuntimeError(f"Could not load AVISO data for {c_date}, {matching_files[0]}")
+
+    # Crop to bounding box if specified
+    if bbox is not None:
+        target_time = np.datetime64(c_date)
+        # Calculate the absolute time differences
+        time_diff = np.abs(aviso_data["time"] - target_time)
+        # Get the index of the closest time
+        closest_index = np.argmin(time_diff.values)
+        
+        # Select data for the closest time and within the specified bounding box
+        aviso_data = aviso_data.sel(time=aviso_data["time"][closest_index],
+                                    latitude=slice(bbox[0], bbox[1]),
+                                    longitude=slice(bbox[2], bbox[3]))
+
+    lats = aviso_data.latitude
+    lons = aviso_data.longitude
+
+    return aviso_data, lats, lons
+
+# ========================= SST ======================================
+# %% SST GHRSST by date
+def get_sst_ghrsst_by_date(sst_folder, c_date, bbox=None):
+    '''
+    Reads SST single day for a given date. You can also specify a bounding box and the data will be cropped to that region.
+    '''
+    c_date_str = c_date.strftime("%Y%m%d")
+    sst_file_name = join(sst_folder, str(c_date.year), f"{c_date_str}090000-JPL-L4_GHRSST-SSTfnd-MUR-GLOB-v02.0-fv04.1_subset.nc")
+    sst_data = xr.open_dataset(sst_file_name)
+    if bbox is not None:
+        sst_data = sst_data.sel( lat=slice(bbox[0],bbox[1]),
+                                lon=slice(bbox[2],bbox[3]))
+
+    lats = sst_data.lat
+    lons = sst_data.lon
+
+    return sst_data, lats, lons
+
+# %% SST OSTIA by year
+def get_sst_ostia_by_year(sst_folder, year, bbox=None):
+    sst_file_name = join(sst_folder, f"OSTIA_SST_{year}.nc")
+    sst_data = xr.open_dataset(sst_file_name)
+    if bbox is not None:
+        sst_data = sst_data.sel(lat=slice(bbox[0], bbox[1]), lon=slice(bbox[2], bbox[3]))
+
+    lats = sst_data.latitude
+    lons = sst_data.longitude
+
+    return sst_data, lats, lons
+
+
+# %% SSS by date
+def get_sss_by_date(sss_folder, c_date, bbox=None):
+    '''
+    Reads salinity single day for a given date. You can also specify a bounding box and the data will be cropped to that region.
+    '''
+    c_date_str = c_date.strftime("%Y%m%d")
+
+    day_of_year = get_day_of_year_from_month_and_day(c_date.month, c_date.day, year=datetime.now().year)
+
+    sss_file_name = join(sss_folder, str(c_date.year), f"RSS_smap_SSS_L3_8day_running_{c_date.year}_{day_of_year:03d}_FNL_v05.0.nc") #old version 5.0
+    try:
+        sss_data = xr.open_dataset(sss_file_name)
+    except Exception:
+        sss_file_name = join(sss_folder, str(c_date.year), f"RSS_smap_SSS_L3_8day_running_{c_date.year}_{day_of_year:03d}_FNL_v06.0.nc") # new version 6.0
+        try:
+            sss_data = xr.open_dataset(sss_file_name)
+        except Exception:
+            raise Exception(f"Failed to load SSS data for date {c_date} with both v05.0 and v06.0 versions")
+        
+    if bbox is not None:
+        sss_data = sss_data.sel( lat=slice(bbox[0],bbox[1]),
+                                lon=slice((bbox[2] + 360)%360,(bbox[3] + 360)%360))
+
+    lats = sss_data.lat
+    lons = np.where(sss_data.lon > 180, sss_data.lon - 360, sss_data.lon)
+
+    return sss_data, lats, lons
+
 # Helper: MATLAB datenum to np.datetime64
 # MATLAB datenum 1.0 is 0000-01-01, Python datetime starts at 0001-01-01
 # We'll use np.datetime64 for all time handling
@@ -264,7 +387,7 @@ def load_satellite_data(times, lat, lon):
     unique_dates = sorted(list(set(times)))
 
     unique_dates = check_data_availability(unique_dates, sss_folder, sst_folder, aviso_folder)
-    print(unique_dates, len(unique_dates))
+    # print(unique_dates, len(unique_dates))
     # if empty, return empty
     if len(unique_dates) == 0:
         return unique_dates, unique_dates, unique_dates
@@ -356,7 +479,7 @@ def validate_accessor_output(tensor, expected_shape=None):
 if __name__ == "__main__":
     # Simple test
     #test load_satellite_data for 2024-10-25
-    times = np.array([datetime(2026, 10, 25)])
+    times = np.array([datetime(2020, 10, 25)])
     lat = np.array([25.0])
     lon = np.array([-83.0])
     sss, sst, ssh = load_satellite_data(times, lat, lon)

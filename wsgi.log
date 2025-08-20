@@ -144,3 +144,11 @@
 2025-07-07 15:53:25,962 INFO  * Debugger PIN: 133-001-605
 2025-07-07 15:53:28,012 INFO  * Detected change in '/unity/g2/jmiranda/nespreso_api/services/accessor/sat.py', reloading
 2025-07-07 15:53:28,714 INFO  * Restarting with watchdog (inotify)
+2025-08-12 14:47:34,121 INFO ================== Initializing Nespreso API ===========================
+2025-08-12 14:47:34,121 INFO Added /var/www/virtualhosts/nespreso.coaps.fsu.edu/nespreso_api to sys.path
+2025-08-12 14:47:34,125 INFO WSGI application loaded successfully.
+2025-08-12 14:47:34,125 INFO !!!!!!!!!! Done initializing WSGI application !!!!!!!!!!!!!!!!!
+2025-08-12 14:47:34,127 INFO ================== Initializing Nespreso API ===========================
+2025-08-12 14:47:34,128 INFO Added /var/www/virtualhosts/nespreso.coaps.fsu.edu/nespreso_api to sys.path
+2025-08-12 14:47:34,135 INFO WSGI application loaded successfully.
+2025-08-12 14:47:34,136 INFO !!!!!!!!!! Done initializing WSGI application !!!!!!!!!!!!!!!!!

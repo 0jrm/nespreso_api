@@ -8,6 +8,15 @@ vscode/
 .hypothesis/
 nespreso/
 tests/ 
+.pytest_cache/
+.cursor/
+.github/
+.vscode/
+nespreso-ui/
+tests/
+ui/
+uses/
+nespreso/
 
 # Ignore compiled Python files
 *.py[cod]

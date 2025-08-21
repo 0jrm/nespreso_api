@@ -1,4 +1,0 @@
-# file: /unity/g2/jmiranda/nespreso_api/services/api/metrics.py
-# hypothesis_version: 6.135.14
-
-['/metrics', 'Flask Request Count', 'endpoint', 'flask_request_count', 'http_status', 'method', 'metrics']

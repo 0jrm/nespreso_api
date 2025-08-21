@@ -1,4 +1,0 @@
-# file: /unity/g2/jmiranda/nespreso_api/services/api/app.py
-# hypothesis_version: 6.135.14
-
-[366, 400, 413, 500, 503, 1801, '%Y-%m-%d', '/v1/profile', 'AVISO', 'Content-Disposition', 'Content-Type', 'MODEL_SHA', 'POST', 'SAT_SNAPSHOT', 'SSS', 'SST', 'STATS_SHA', 'Salinity', 'Temperature', 'application/x-netcdf', 'date', 'depth', 'error', 'lat', 'latcos', 'latsin', 'lon', 'loncos', 'lonsin', 'netcdf4', 'ocean', 'profile', 'profile_number', 'sat', 'scipy', 'ssh', 'sss', 'sst', 'time', 'timecos', 'timesin', 'unknown', 'w']

@@ -89,7 +89,7 @@ def get_sst_ghrsst_by_date(sst_folder, c_date, bbox=None):
     '''
     c_date_str = c_date.strftime("%Y%m%d")
     sst_file_name = join(sst_folder, str(c_date.year), f"{c_date_str}090000-JPL-L4_GHRSST-SSTfnd-MUR-GLOB-v02.0-fv04.1_subset.nc")
-    sst_data = xr.open_dataset(sst_file_name)
+    sst_data = xr.open_dataset(sst_file_name, decode_timedelta=False)
     if bbox is not None:
         sst_data = sst_data.sel( lat=slice(bbox[0],bbox[1]),
                                 lon=slice(bbox[2],bbox[3]))
@@ -161,6 +161,16 @@ def cached_get_aviso_by_date(aviso_folder, c_date, bbox):
 
 @lru_cache(maxsize=128)
 def cached_get_sst_ghrsst_by_date(sst_folder, c_date, bbox):
+    return get_sst_ghrsst_by_date(sst_folder, c_date, bbox)
+
+# Direct access functions for large batches (no caching to save memory)
+def direct_get_sss_by_date(sss_folder, c_date, bbox):
+    return get_sss_by_date(sss_folder, c_date, bbox)
+
+def direct_get_aviso_by_date(aviso_folder, c_date, bbox):
+    return get_aviso_by_date(aviso_folder, c_date, bbox)
+
+def direct_get_sst_ghrsst_by_date(sst_folder, c_date, bbox):
     return get_sst_ghrsst_by_date(sst_folder, c_date, bbox)
 
 # ------------------------------------------------------------------
@@ -371,43 +381,74 @@ def download_aviso(aviso_root: str, date_: datetime) -> Path:
 # @retry(stop=stop_after_attempt(3), wait=wait_fixed(1))
 def load_satellite_data(times, lat, lon):
     """
-    Load SSS, SST, and AVISO data for the given times, latitudes, and longitudes.
+    Load satellite data for the given times and locations.
     Args:
-        times: list/array of np.datetime64 or datetime
-        lat, lon: arrays of coordinates
+        times (list): List of datetime objects
+        lat (array): Latitude array
+        lon (array): Longitude array
     Returns:
-        sss_data, sst_data, aviso_data: arrays of satellite data
+        tuple: (sss_data, sst_data, aviso_data)
     """
-    aviso_folder = "/unity/f1/ozavala/DATA/GOFFISH/AVISO/GoM/"
-    sst_folder = "/unity/f1/ozavala/DATA/GOFFISH/SST/OISST"
-    sss_folder = "/Net/work/ozavala/DATA/GOFFISH/SSS/SMAP_Global/"
-    min_lat, max_lat, min_lon, max_lon = 18.0, 31.0, -98.0, -81.0
-    ex_lon, ex_lat = -88.0, 23.0
-    bbox = (min_lat, max_lat, min_lon, max_lon)
-    unique_dates = sorted(list(set(times)))
-
-    unique_dates = check_data_availability(unique_dates, sss_folder, sst_folder, aviso_folder)
-    # print(unique_dates, len(unique_dates))
-    # if empty, return empty
-    if len(unique_dates) == 0:
-        return unique_dates, unique_dates, unique_dates
+    import logging
+    logger = logging.getLogger(__name__)
     
-    sss_data = np.nan * np.ones(len(times))
-    sst_data = np.nan * np.ones(len(times))
-    aviso_data = np.nan * np.ones(len(times))
-    for c_date in unique_dates:
-        date_idx = np.array([date_obj == c_date for date_obj in times])
-        coordinates = np.array([lat[date_idx], lon[date_idx]]).T
+    # Get the data folders
+    sss_folder = "/Net/work/ozavala/DATA/GOFFISH/SSS/SMAP_Global/"
+    # sst_folder = "/Net/work/ozavala/DATA/GOFFISH/SST/GHRSST/"
+    sst_folder = "/Net/work/ozavala/DATA/GOFFISH/SST/OISST/"
+    aviso_folder = "/unity/f1/ozavala/DATA/GOFFISH/AVISO/GoM/"
+    
+    logger.info(f"Loading satellite data for {len(times)} time points")
+    logger.info(f"Sample times: {times[:3]}")
+    logger.info(f"Latitude range: {lat.min():.4f} to {lat.max():.4f}")
+    logger.info(f"Longitude range: {lon.min():.4f} to {lon.max():.4f}")
+    
+    # Initialize arrays
+    num_times = len(times)
+    num_locations = len(lat)
+    sss_data = np.full((num_times, num_locations), np.nan)
+    sst_data = np.full((num_times, num_locations), np.nan)
+    aviso_data = np.full((num_times, num_locations), np.nan)
+    
+    # Create bounding box for data extraction
+    min_lat, max_lat = lat.min() - 0.5, lat.max() + 0.5
+    min_lon, max_lon = lon.min() - 0.5, lon.max() + 0.5
+    bbox = (min_lat, max_lat, min_lon, max_lon)
+    
+    # Exclusion zone for land
+    ex_lat, ex_lon = 30.5, -79.5
+    
+    coordinates = np.column_stack((lat, lon))
+    
+    for date_idx, c_date in enumerate(times):
+        logger.info(f"Processing date {date_idx + 1}/{num_times}: {c_date}")
+        
+        # Load SSS data
         try:
-            sss_datapoint, lats, lons = cached_get_sss_by_date(sss_folder, c_date, bbox)
-            interpolator = RegularGridInterpolator((lats, lons), sss_datapoint.sss_smap_40km.values, bounds_error=False, fill_value=None)
-            sss_data[date_idx] = interpolator(coordinates)
-            if (sss_data[date_idx] < 0).any() or (sss_data[date_idx] > 45).any():
-                sss_data[date_idx] = np.nan
-        except Exception:
+            logger.info(f"Attempting to load SSS data for {c_date}")
+            sss_date, sss_lats, sss_lons = direct_get_sss_by_date(sss_folder, c_date, bbox)
+            logger.info(f"SSS data loaded successfully. Shape: {sss_date.shape if hasattr(sss_date, 'shape') else 'No shape'}")
+            logger.info(f"SSS data type: {type(sss_date)}")
+            if hasattr(sss_date, 'sss_smap'):
+                logger.info(f"SSS variable shape: {sss_date.sss_smap.shape}")
+                logger.info(f"SSS data range: {sss_date.sss_smap.values.min():.4f} to {sss_date.sss_smap.values.max():.4f}")
+            interpolator_sss = RegularGridInterpolator((sss_lats, sss_lons), sss_date.sss_smap.values, bounds_error=False, fill_value=None)
+            sss_data[date_idx] = interpolator_sss(coordinates)
+            logger.info(f"SSS interpolation successful. Result shape: {sss_data[date_idx].shape}")
+            logger.info(f"SSS interpolated values: {sss_data[date_idx]}")
+            # Clean up memory
+            del sss_date, sss_lats, sss_lons, interpolator_sss
+            gc.collect()
+        except Exception as e:
+            logger.error(f"Failed to load SSS data for {c_date}: {e}")
+            logger.error(f"SSS data will remain NaN for this date")
             pass
+        
+        # Load AVISO data
         try:
-            aviso_adt, aviso_lats, aviso_lons = cached_get_aviso_by_date(aviso_folder, c_date, bbox)
+            logger.info(f"Attempting to load AVISO data for {c_date}")
+            aviso_adt, aviso_lats, aviso_lons = direct_get_aviso_by_date(aviso_folder, c_date, bbox)
+            logger.info(f"AVISO data loaded successfully")
             lons_grid, lats_grid = np.meshgrid(aviso_lons, aviso_lats)
             inclusion_mask = (lats_grid >= min_lat) & (lats_grid <= max_lat) & (lons_grid >= min_lon) & (lons_grid <= max_lon)
             exclusion_mask = (lats_grid < ex_lat) & (lons_grid > ex_lon)
@@ -415,16 +456,41 @@ def load_satellite_data(times, lat, lon):
             daily_avg = np.nanmean(aviso_adt.adt.values[combined_mask])
             interpolator_ssh = RegularGridInterpolator((aviso_lats, aviso_lons), aviso_adt.adt.values, bounds_error=False, fill_value=None)
             aviso_data[date_idx] = interpolator_ssh(coordinates) - daily_avg
-        except Exception:
+            logger.info(f"AVISO interpolation successful")
+            # Clean up memory
+            del aviso_adt, aviso_lats, aviso_lons, lons_grid, lats_grid, inclusion_mask, exclusion_mask, combined_mask, daily_avg, interpolator_ssh
+            gc.collect()
+        except Exception as e:
+            logger.error(f"Failed to load AVISO data for {c_date}: {e}")
             pass
+        
+        # Load SST data
         try:
-            sst_date, sst_lats, sst_lons = cached_get_sst_ghrsst_by_date(sst_folder, c_date, bbox)
+            logger.info(f"Attempting to load SST data for {c_date}")
+            sst_date, sst_lats, sst_lons = direct_get_sst_ghrsst_by_date(sst_folder, c_date, bbox)
+            logger.info(f"SST data loaded successfully")
             interpolator_sst = RegularGridInterpolator((sst_lats, sst_lons), sst_date.analysed_sst.values[0], bounds_error=False, fill_value=None)
             sst_data[date_idx] = interpolator_sst(coordinates)
             if (sst_data[date_idx] < 0).any() or (sst_data[date_idx] > 350).any():
                 sst_data[date_idx] = np.nan
-        except Exception:
+            logger.info(f"SST interpolation successful")
+            # Clean up memory
+            del sst_date, sst_lats, sst_lons, interpolator_sst
+            gc.collect()
+        except Exception as e:
+            logger.error(f"Failed to load SST data for {c_date}: {e}")
             pass
+        
+        # Progress update for large batches
+        if num_times > 100 and (date_idx + 1) % 50 == 0:
+            logger.info(f"Progress: {date_idx + 1}/{num_times} dates processed ({((date_idx + 1)/num_times)*100:.1f}%)")
+            gc.collect()  # Force garbage collection periodically
+    
+    logger.info(f"Final data summary:")
+    logger.info(f"SSS data shape: {sss_data.shape}, contains NaN: {np.isnan(sss_data).any()}")
+    logger.info(f"SST data shape: {sst_data.shape}, contains NaN: {np.isnan(sst_data).any()}")
+    logger.info(f"AVISO data shape: {aviso_data.shape}, contains NaN: {np.isnan(aviso_data).any()}")
+    
     return sss_data, sst_data, aviso_data
 
 def prepare_inputs(time, lat, lon, sss, sst, ssh, input_params):
@@ -441,32 +507,113 @@ def prepare_inputs(time, lat, lon, sss, sst, ssh, input_params):
     Returns:
         torch.Tensor: Tensor of transformed input data.
     """
-    num_samples = len(time)
-    inputs = []
-    for i in range(num_samples):
-        sample_inputs = []
-        if input_params.get("timecos", False):
-            sample_inputs.append(np.cos(2 * np.pi * (time[i] % 365) / 365))
-        if input_params.get("timesin", False):
-            sample_inputs.append(np.sin(2 * np.pi * (time[i] % 365) / 365))
-        if input_params.get("latcos", False):
-            sample_inputs.append(np.cos(2 * np.pi * (lat[i] / 180)))
-        if input_params.get("latsin", False):
-            sample_inputs.append(np.sin(2 * np.pi * (lat[i] / 180)))
-        if input_params.get("loncos", False):
-            sample_inputs.append(np.cos(2 * np.pi * (lon[i] / 360)))
-        if input_params.get("lonsin", False):
-            sample_inputs.append(np.sin(2 * np.pi * (lon[i] / 360)))
-        if input_params.get("sat", False):
-            if input_params.get("sss", False):
-                sample_inputs.append(sss[i])
-            if input_params.get("sst", False):
-                sample_inputs.append(sst[i] - 273.15)
-            if input_params.get("ssh", False):
-                sample_inputs.append(ssh[i])
-        inputs.append(torch.tensor(sample_inputs, dtype=torch.float32))
-    inputs_tensor = torch.stack(inputs)
-    return inputs_tensor
+    import logging
+    logger = logging.getLogger(__name__)
+    
+    try:
+        # Handle the case where we have multiple locations
+        # If lat/lon are arrays, we need to create inputs for each location at each time
+        if hasattr(lat, '__len__') and len(lat) > 1:
+            # Multiple locations case
+            num_times = len(time)
+            num_locations = len(lat)
+            logger.info(f"Processing {num_times} times and {num_locations} locations")
+            inputs = []
+            
+            for t_idx in range(num_times):
+                for loc_idx in range(num_locations):
+                    try:
+                        sample_inputs = []
+                        if input_params.get("timecos", False):
+                            sample_inputs.append(np.cos(2 * np.pi * (time[t_idx] % 365) / 365))
+                        if input_params.get("timesin", False):
+                            sample_inputs.append(np.sin(2 * np.pi * (time[t_idx] % 365) / 365))
+                        if input_params.get("latcos", False):
+                            sample_inputs.append(np.cos(2 * np.pi * (lat[loc_idx] / 180)))
+                        if input_params.get("latsin", False):
+                            sample_inputs.append(np.sin(2 * np.pi * (lat[loc_idx] / 180)))
+                        if input_params.get("loncos", False):
+                            sample_inputs.append(np.cos(2 * np.pi * (lon[loc_idx] / 360)))
+                        if input_params.get("lonsin", False):
+                            sample_inputs.append(np.sin(2 * np.pi * (lon[loc_idx] / 360)))
+                        if input_params.get("sat", False):
+                            if input_params.get("sss", False):
+                                sss_val = sss[t_idx, loc_idx]
+                                # Handle NaN and array values
+                                if np.isnan(sss_val) or sss_val is None:
+                                    sss_val = 0.0  # Default value for missing data
+                                elif hasattr(sss_val, '__len__') and len(sss_val) > 1:
+                                    sss_val = float(sss_val[0]) if len(sss_val) > 0 else 0.0
+                                else:
+                                    sss_val = float(sss_val)
+                                sample_inputs.append(sss_val)
+                            if input_params.get("sst", False):
+                                sst_val = sst[t_idx, loc_idx]
+                                # Handle NaN and array values
+                                if np.isnan(sst_val) or sst_val is None:
+                                    sst_val = 0.0  # Default value for missing data
+                                elif hasattr(sst_val, '__len__') and len(sst_val) > 1:
+                                    sst_val = float(sst_val[0]) if len(sst_val) > 0 else 0.0
+                                else:
+                                    sst_val = float(sst_val)
+                                sample_inputs.append(sst_val - 273.15)
+                            if input_params.get("ssh", False):
+                                ssh_val = ssh[t_idx, loc_idx]
+                                # Handle NaN and array values
+                                if np.isnan(ssh_val) or ssh_val is None:
+                                    ssh_val = 0.0  # Default value for missing data
+                                elif hasattr(ssh_val, '__len__') and len(ssh_val) > 1:
+                                    ssh_val = float(ssh_val[0]) if len(ssh_val) > 0 else 0.0
+                                else:
+                                    ssh_val = float(ssh_val)
+                                sample_inputs.append(ssh_val)
+                        
+                        # Convert to tensor
+                        sample_tensor = torch.tensor(sample_inputs, dtype=torch.float32)
+                        inputs.append(sample_tensor)
+                        
+                    except Exception as e:
+                        logger.error(f"Error processing time {t_idx}, location {loc_idx}: {e}")
+                        logger.error(f"SSS value: {sss[t_idx, loc_idx]}, type: {type(sss[t_idx, loc_idx])}")
+                        logger.error(f"SST value: {sst[t_idx, loc_idx]}, type: {type(sst[t_idx, loc_idx])}")
+                        logger.error(f"SSH value: {ssh[t_idx, loc_idx]}, type: {type(ssh[t_idx, loc_idx])}")
+                        raise
+        else:
+            # Single location case (original logic)
+            num_samples = len(time)
+            inputs = []
+            for i in range(num_samples):
+                sample_inputs = []
+                if input_params.get("timecos", False):
+                    sample_inputs.append(np.cos(2 * np.pi * (time[i] % 365) / 365))
+                if input_params.get("timesin", False):
+                    sample_inputs.append(np.sin(2 * np.pi * (time[i] % 365) / 365))
+                if input_params.get("latcos", False):
+                    sample_inputs.append(np.cos(2 * np.pi * (lat[i] / 180)))
+                if input_params.get("latsin", False):
+                    sample_inputs.append(np.sin(2 * np.pi * (lat[i] / 180)))
+                if input_params.get("loncos", False):
+                    sample_inputs.append(np.cos(2 * np.pi * (lon[i] / 360)))
+                if input_params.get("lonsin", False):
+                    sample_inputs.append(np.sin(2 * np.pi * (lon[i] / 360)))
+                if input_params.get("sat", False):
+                    if input_params.get("sss", False):
+                        sample_inputs.append(sss[i])
+                    if input_params.get("sst", False):
+                        sample_inputs.append(sst[i] - 273.15)
+                    if input_params.get("ssh", False):
+                        sample_inputs.append(ssh[i])
+                inputs.append(torch.tensor(sample_inputs, dtype=torch.float32))
+        
+        inputs_tensor = torch.stack(inputs)
+        logger.info(f"Successfully created input tensor with shape: {inputs_tensor.shape}")
+        return inputs_tensor
+        
+    except Exception as e:
+        logger.error(f"Error in prepare_inputs: {e}")
+        logger.error(f"Input shapes - time: {np.array(time).shape}, lat: {np.array(lat).shape}, lon: {np.array(lon).shape}")
+        logger.error(f"Data shapes - sss: {sss.shape}, sst: {sst.shape}, ssh: {ssh.shape}")
+        raise
 
 # Output validation utility
 def validate_accessor_output(tensor, expected_shape=None):

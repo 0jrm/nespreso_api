@@ -27,7 +27,12 @@ workers = 4
 # Raising the timeout gives the worker a fighting chance to finish.
 # ---------------------------------------------------------------------------
 
-timeout = int(os.getenv("GUNICORN_TIMEOUT", 300))  # seconds
+timeout = int(os.getenv("GUNICORN_TIMEOUT", 1800))  # 30 minutes for unlimited batch processing
+
+# Memory and performance settings for large batch processing
+max_requests = int(os.getenv("GUNICORN_MAX_REQUESTS", 1000))
+max_requests_jitter = int(os.getenv("GUNICORN_MAX_REQUESTS_JITTER", 100))
+preload_app = os.getenv("GUNICORN_PRELOAD_APP", "true").lower() == "true"
 
 # Log-level defaults to *info* but is configurable for debug sessions.
 loglevel = os.getenv("GUNICORN_LOG_LEVEL", "info")

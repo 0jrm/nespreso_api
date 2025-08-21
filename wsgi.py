@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # PYTHONPATH=nespreso_api:nespreso_api/eoas-pyutils gunicorn -w 2 -b 0.0.0.0:5000 'nespreso_api.wsgi:app'
+# new: gunicorn -c gunicorn_config.py -w 2 -b 0.0.0.0:5000 'wsgi:app'
 import sys
 import os
 import logging
@@ -30,5 +31,5 @@ except Exception as e:
 logging.info("!!!!!!!!!! Done initializing WSGI application !!!!!!!!!!!!!!!!!")
 
 if __name__ == "__main__":
-    # app.run(host="0.0.0.0", port=5000, debug=True) #gunicorn
-    app.run(...) #apache
+    app.run(host="0.0.0.0", port=5000, debug=True) #gunicorn
+    # app.run(...) #apache

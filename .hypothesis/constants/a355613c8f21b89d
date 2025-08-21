@@ -1,4 +1,0 @@
-# file: /unity/g2/jmiranda/nespreso_api/services/accessor/sat.py
-# hypothesis_version: 6.135.14
-
-[-98.0, -88.0, -81.0, 18.0, 23.0, 31.0, 273.15, 128, 180, 350, 360, 365, 366, '0001-01-01', 'D', 'Output contains NaNs', 'latcos', 'latsin', 'loncos', 'lonsin', 'sat', 'ssh', 'sss', 'sst', 'timecos', 'timesin']

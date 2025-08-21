@@ -1,8 +1,0 @@
----
-description: 
-globs: 
-alwaysApply: true
----
-- Follow **PEP 8** and **PEP 561**; black + ruff will enforce.
-- Every function *must* carry type hints (`mypy --strict` passes) and a Google-style docstring.
-- Use list comprehensions or vectorised numpy/pytorch ops instead of explicit loops where complexity ≤ O(n²).

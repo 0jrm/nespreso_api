@@ -1,4 +1,0 @@
-# file: /unity/g2/jmiranda/nespreso_api/eoas-pyutils/io_utils/coaps_io_data.py
-# hypothesis_version: 6.135.14
-
-[17.5, 32.5, 180, 360, 1993, 2012, 2013, 2014, 2018, 2019, '%Y%m%d', '%Y-%m-%d', '1D', 'CICESE NCHL', 'CICESE SSH', 'CICESE Salinity', 'CICESE Temperature', 'Closest time index:', 'Done testing!', 'Latitude', 'Longitude', 'MT', 'Salinity', 'Surface elevation', 'Velocity', 'Water temperature', '_', '__main__', 'dchl', 'eoas_pyutils', 'grid_T_MLD_SSH', 'grid_T_SAL_TEMP', 'lat', 'latitude', 'lon', 'longitude', 'lower', 'mld', 'nchl', 'ptrc_T', 'salinity', 'ssh', 'surf_el', 'temperature', 'time', 'u', 'v', 'w', 'w_velocity', 'water_temp', 'water_u', 'water_v']

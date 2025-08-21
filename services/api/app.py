@@ -85,16 +85,8 @@ def create_app(config: dict = None) -> Flask:
         app.config.update(config)
     bp = Blueprint("profile", __name__, url_prefix="/v1/profile")
 
-    MAX_BATCH = 32
-    @app.before_request
-    def enforce_max_batch():
-        if request.path.startswith("/v1/profile") and request.method == "POST":
-            data = request.get_json(silent=True)
-            if data:
-                n = max(len(data.get("lat", [])), len(data.get("lon", [])), len(data.get("date", [])))
-                if n > MAX_BATCH:
-                    return jsonify({"error": f"Batch size exceeds max {MAX_BATCH}"}), 413
-
+    # No batch size limits - removed MAX_BATCH and enforce_max_batch
+    
     @bp.route("", methods=["POST"])
     def profile():
         try:
@@ -112,27 +104,63 @@ def create_app(config: dict = None) -> Flask:
             lon = np.array(lon)
             # --- Satellite accessor ---
             try:
+                logger.info(f"Loading satellite data for {len(times)} dates and {len(lat)} locations...")
                 sss, sst, aviso = load_satellite_data(times, lat, lon)
+                logger.info("Satellite data loading completed successfully")
             except RetryError:
                 logger.error("Satellite accessor circuit-breaker tripped")
                 return jsonify({"error": "Satellite data unavailable, please try again later."}), 503
             # --- Prepare model input ---
             dtime = [(t - datetime(1, 1, 1)).days + 366 for t in times]  # MATLAB datenum
+            logger.info(f"Converted dates to MATLAB datenum: {dtime[:5]}... (showing first 5)")
+            logger.info(f"Latitude range: {lat.min():.4f} to {lat.max():.4f}")
+            logger.info(f"Longitude range: {lon.min():.4f} to {lon.max():.4f}")
+            
             input_params = {
                 "timecos": True, "timesin": True, "latcos": True, "latsin": True,
                 "loncos": True, "lonsin": True, "sat": True, "sst": True, "sss": True, "ssh": True
             }
+            logger.info("Preparing model inputs...")
             input_data = prepare_inputs(dtime, lat, lon, sss, sst, aviso, input_params)
+            logger.info(f"Input data shape: {input_data.shape}")
+            logger.info(f"Input data sample (first 3 rows): {input_data[:3]}")
+            logger.info(f"Input data contains NaN: {np.isnan(input_data).any()}")
+            
             # --- Model inference ---
+            logger.info("Running model inference...")
             pcs_predictions = infer(input_data)
             pcs_predictions = pcs_predictions.cpu().numpy()
+            logger.info(f"Model predictions shape: {pcs_predictions.shape}")
+            logger.info(f"Model predictions sample (first 3 rows): {pcs_predictions[:3]}")
+            logger.info(f"Model predictions contain NaN: {np.isnan(pcs_predictions).any()}")
+            
+            # Clean up input data to free memory
+            del input_data
+            import gc
+            gc.collect()
+            
             # --- PCA inverse transform ---
+            logger.info("Applying PCA inverse transform...")
             pca_temp, pca_sal, _ = get_pca_objects()
             pred_T = pca_temp.inverse_transform(pcs_predictions[:, :15]).T
             pred_S = pca_sal.inverse_transform(pcs_predictions[:, 15:]).T
+            logger.info(f"Temperature predictions shape: {pred_T.shape}")
+            logger.info(f"Salinity predictions shape: {pred_S.shape}")
+            logger.info(f"Temperature contains NaN: {np.isnan(pred_T).any()}")
+            logger.info(f"Salinity contains NaN: {np.isnan(pred_S).any()}")
+            
+            # Clean up PCA predictions to free memory
+            del pcs_predictions
+            gc.collect()
+            
             depth = np.arange(0, 1801)
             # --- NetCDF in-memory ---
+            logger.info("Creating NetCDF output...")
             netcdf_bytes = write_netcdf_to_bytes(pred_T, pred_S, depth, sss, sst, aviso, times, lat, lon)
+            
+            # Clean up final arrays to free memory
+            del pred_T, pred_S, sss, sst, aviso
+            gc.collect()
             # --- Response ---
             response = make_response(netcdf_bytes)
             response.headers["Content-Type"] = "application/x-netcdf"

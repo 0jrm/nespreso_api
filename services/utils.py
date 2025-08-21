@@ -18,10 +18,20 @@ def convert_to_list_of_floats(data):
     """
     Ensure that the data is a list of floats.
     If data is already a list of floats, return it as is.
+    Handles nested lists/arrays that contain single values.
     """
     if isinstance(data, list) and all(isinstance(x, float) for x in data):
         return data
-    return data.astype(float).tolist()
+    
+    # Convert to numpy array first
+    data_array = convert_to_numpy_array(data)
+    
+    # If the array contains nested arrays/lists, flatten them
+    if data_array.ndim > 1:
+        data_array = data_array.flatten()
+    
+    # Convert to list of floats
+    return data_array.astype(float).tolist()
 
 def convert_date_to_iso_strings(date):
     """
@@ -33,12 +43,40 @@ def convert_date_to_iso_strings(date):
     elif isinstance(date, list):
         date = np.array(date)
     
-    if np.issubdtype(date.dtype, np.datetime64) or isinstance(date[0], datetime):
-        return [d.strftime('%Y-%m-%d') if isinstance(d, datetime) else str(d.astype('M8[D]')) for d in date]
-    elif isinstance(date[0], (int, float)):  # Assuming MATLAB datenum
-        matlab_origin = datetime(1, 1, 1) + timedelta(days=-366)
-        return [(matlab_origin + timedelta(days=d)).strftime('%Y-%m-%d') for d in date]
-    return date.tolist()  # Already in the correct format
+    # Handle MATLAB datenum (floating point numbers)
+    if np.issubdtype(date.dtype, np.floating) or (len(date) > 0 and isinstance(date[0], (int, float))):
+        # MATLAB datenum: days since 0000-01-01 (with leap year corrections)
+        # Use a safer approach by starting from year 1
+        iso_dates = []
+        for d in date:
+            try:
+                # MATLAB datenum starts from year 0, but Python datetime doesn't support year 0
+                # So we need to adjust by adding 366 days to account for the difference
+                days_since_year1 = float(d) - 366
+                # Start from year 1, month 1, day 1
+                base_date = datetime(1, 1, 1)
+                target_date = base_date + timedelta(days=days_since_year1)
+                iso_dates.append(target_date.strftime('%Y-%m-%d'))
+            except Exception as e:
+                # Fallback: try to convert to string
+                iso_dates.append(str(d))
+        return iso_dates
+    
+    # Handle numpy datetime64
+    elif np.issubdtype(date.dtype, np.datetime64):
+        return [str(d.astype('M8[D]')) for d in date]
+    
+    # Handle Python datetime objects
+    elif len(date) > 0 and isinstance(date[0], datetime):
+        return [d.strftime('%Y-%m-%d') for d in date]
+    
+    # If already strings, return as is
+    elif len(date) > 0 and isinstance(date[0], str):
+        return date.tolist()
+    
+    # Fallback: try to convert to string
+    else:
+        return [str(d) for d in date]
 
 def preprocess_inputs(lat, lon, date):
     """

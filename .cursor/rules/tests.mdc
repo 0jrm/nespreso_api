@@ -1,8 +1,0 @@
----
-description: 
-globs: tests/**.py
-alwaysApply: false
----
-- Use **pytest**; unit tests must cover edge cases (land pixels, leap day).
-- Property tests with **hypothesis** for tensor shape invariants.
-- Every bug fix requires a regression test reproducing the failure  :contentReference[oaicite:3]{index=3}.

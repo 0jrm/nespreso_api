@@ -17,6 +17,7 @@ tests/
 ui/
 uses/
 nespreso/
+models/
 
 # Ignore compiled Python files
 *.py[cod]

@@ -1,61 +1,123 @@
-import torch
-import os
-import copy
-import pickle
-import logging
+# services/kernel/handler.py
+from __future__ import annotations
 
-_MODEL_PATH = os.path.join(os.path.dirname(__file__), '../../models/ocean_tensorscript.pt')
-_pca_stats_path = os.path.join(os.path.dirname(__file__), '../../models/pca_stats.pkl')
+import os, pickle, logging, threading
+import torch
+from services.config import CFG
+import warnings
+import pickle
+from sklearn.base import InconsistentVersionWarning
+
+# Suppress the specific scikit-learn version warning
+warnings.filterwarnings("ignore", category=InconsistentVersionWarning)
+
+logger = logging.getLogger(__name__)
+
+_model_lock = threading.Lock()
+_pca_lock = threading.Lock()
 _model = None
 _pca_temp = None
 _pca_sal = None
 _input_params = None
 
-logger = logging.getLogger(__name__)
-
 def _get_model():
     global _model
     if _model is None:
-        _model = torch.jit.load(_MODEL_PATH, map_location='cpu')
-        _model.eval()
+        with _model_lock:
+            if _model is None:
+                path = os.path.abspath(CFG.MODEL_PATH)
+                if not os.path.isfile(path):
+                    raise FileNotFoundError(f"Model file not found: {path}")
+                m = torch.jit.load(path, map_location='cpu')
+                m.eval()
+                _model = m
     return _model
 
 def infer(batch: torch.Tensor) -> torch.Tensor:
     """
     Run inference on the given batch tensor using the TorchScript model.
-    Args:
-        batch (torch.Tensor): Input tensor of shape (N, 9)
-    Returns:
-        torch.Tensor: Output tensor of shape (N, 30)
+    batch: (N, 9) float32
     """
     model = _get_model()
     with torch.no_grad():
         return model(batch)
 
+def safe_pickle_load(file_path):
+    """
+    Safely load pickle files with scikit-learn version compatibility handling.
+    """
+    try:
+        # First try normal loading
+        with open(file_path, 'rb') as f:
+            return pickle.load(f)
+    except Exception as e:
+        if "InconsistentVersionWarning" in str(e) or "version" in str(e).lower():
+            print(f"WARNING: Scikit-learn version mismatch detected when loading {file_path}")
+            print("Attempting to load with compatibility mode...")
+            
+            try:
+                # Try with a more permissive pickle protocol
+                import pickle5 as pickle_compat
+                with open(file_path, 'rb') as f:
+                    return pickle_compat.load(f)
+            except ImportError:
+                print("pickle5 not available, trying alternative approach...")
+                
+                # Try to suppress the warning and load anyway
+                with warnings.catch_warnings():
+                    warnings.simplefilter("ignore")
+                    try:
+                        with open(file_path, 'rb') as f:
+                            return pickle.load(f)
+                    except Exception as e2:
+                        print(f"Failed to load even with warning suppression: {e2}")
+                        raise e
+        else:
+            raise e
+
 def get_pca_objects():
+    """
+    Load PCA objects with pickle compatibility handling.
+    Suppresses version warnings and provides fallback options.
+    """
     global _pca_temp, _pca_sal, _input_params
     if _pca_temp is None or _pca_sal is None or _input_params is None:
-        try:
-            with open(_pca_stats_path, 'rb') as f:
-                stats = pickle.load(f)
-            _pca_temp = stats['pca_temp']
-            _pca_sal = stats['pca_sal']
-            _input_params = stats['input_params']
-            logger.info("Successfully loaded PCA objects from pickle file")
-        except Exception as e:
-            logger.error(f"Failed to load PCA objects from pickle: {e}")
-            # Try to create dummy PCA objects as fallback
-            try:
-                from sklearn.decomposition import PCA
-                # Create dummy PCA objects with appropriate dimensions
-                _pca_temp = PCA(n_components=15)
-                _pca_sal = PCA(n_components=15)
-                _input_params = {
-                    "timecos": True, "timesin": True, "latcos": True, "latsin": True,
-                    "loncos": True, "lonsin": True, "sat": True, "sst": True, "sss": True, "ssh": True
-                }
-                logger.warning("Created dummy PCA objects as fallback - predictions may not be accurate")
-            except ImportError as import_error:
-                logger.error(f"Could not import sklearn: {import_error}")
-                raise RuntimeError("PCA objects could not be loaded and sklearn is not available")
-    return _pca_temp, _pca_sal, _input_params 
+        with _pca_lock:
+            if _pca_temp is None or _pca_sal is None or _input_params is None:
+                path = os.path.abspath(CFG.PCA_PATH)
+                try:
+                    # Suppress scikit-learn version warnings during loading
+                    with warnings.catch_warnings():
+                        warnings.simplefilter("ignore", InconsistentVersionWarning)
+                        
+                        # Use safer pickle loading
+                        stats = safe_pickle_load(path)
+                        _pca_temp = stats['pca_temp']
+                        _pca_sal = stats['pca_sal']
+                        _input_params = stats.get('input_params') or {
+                            "timecos": True, "timesin": True, "latcos": True, "latsin": True,
+                            "loncos": True, "lonsin": True, "sat": True, "sst": True, "sss": True, "ssh": True
+                        }
+                        
+                        print(f"DEBUG: PCA objects loaded successfully from {path}")
+                        print(f"DEBUG: PCA temp type: {type(_pca_temp)}, PCA sal type: {type(_pca_sal)}")
+                        
+                except Exception as e:
+                    logger.error("Failed to load PCA from %s: %s", path, e)
+                    print(f"WARNING: Using dummy PCA fallback due to loading error: {e}")
+                    print("This may be due to scikit-learn version incompatibility")
+                    
+                    # Import sklearn here to avoid circular imports
+                    try:
+                        from sklearn.decomposition import PCA
+                        _pca_temp = PCA(n_components=15)
+                        _pca_sal = PCA(n_components=15)
+                        _input_params = {
+                            "timecos": True, "timesin": True, "latcos": True, "latsin": True,
+                            "loncos": True, "lonsin": True, "sat": True, "sst": True, "sss": True, "ssh": True
+                        }
+                        logger.warning("Using dummy PCA fallback; predictions are not meaningful.")
+                    except ImportError as import_e:
+                        logger.error("Failed to import sklearn: %s", import_e)
+                        raise e
+    return _pca_temp, _pca_sal, _input_params

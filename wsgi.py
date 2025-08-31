@@ -12,4 +12,4 @@ app.config['TIMEOUT'] = 1800  # 30 minutes timeout
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max request size
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=False)
+    app.run(host="localhost", port=5000, debug=False)

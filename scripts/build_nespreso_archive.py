@@ -153,38 +153,88 @@ class ArchiveBuilder:
             self.config.aviso_root
         )
         
-        # Find complete dates using the scanner's logic
-        complete_dates = find_complete_dates(available_dates)
-        
-        # Convert the scanner's date format to YYYYMMDD for the archive builder
-        # The scanner returns dates in different formats that need conversion
-        converted_dates = []
-        
-        for year, dates in complete_dates.items():
-            if dates:
-                # Convert each date to YYYYMMDD format
-                # This is approximate since SSS uses day-of-year and AVISO is monthly
-                for date_str in dates:
-                    try:
-                        if len(date_str) == 8:  # Already YYYYMMDD
-                            converted_dates.append(date_str)
-                        elif len(date_str) == 7:  # YYYYDOY format from SSS
-                            year_int = int(date_str[:4])
-                            doy = int(date_str[4:])
-                            # Convert DOY to approximate month/day
-                            date_obj = datetime(year_int, 1, 1) + timedelta(days=doy-1)
-                            converted_dates.append(date_obj.strftime("%Y%m%d"))
-                        else:
-                            logger.warning(f"Unknown date format: {date_str}")
-                    except (ValueError, IndexError) as e:
-                        logger.warning(f"Failed to convert date {date_str}: {e}")
-                        continue
-        
+        # Determine the earliest year where all three sources have data
+        try:
+            sst_years = sorted([int(y) for y in available_dates.get('sst', {}).keys()])
+            sss_years = sorted([int(y) for y in available_dates.get('sss', {}).keys()])
+            aviso_years = sorted([int(y) for y in available_dates.get('aviso', {}).keys()])
+        except Exception:
+            sst_years, sss_years, aviso_years = [], [], []
+
+        min_sst_year = sst_years[0] if sst_years else None
+        min_sss_year = sss_years[0] if sss_years else None
+        min_aviso_year = aviso_years[0] if aviso_years else None
+
+        candidate_years = [y for y in [min_sst_year, min_sss_year, min_aviso_year] if y is not None]
+        start_year = max(candidate_years) if candidate_years else None
+
+        if start_year is None:
+            logger.error("Could not determine a common start year across SST/SSS/AVISO.")
+            return []
+
+        logger.info(
+            f"Computed common start year across sources: SST={min_sst_year}, "
+            f"SSS={min_sss_year}, AVISO={min_aviso_year} -> start_year={start_year}"
+        )
+
+        # Also compute strict daily intersections across sources
+        # Build per-year intersections of SST dates with SSS DOY-converted dates and AVISO months
+        intersected_dates: List[str] = []
+
+        # Union of all candidate years from any source
+        candidate_years_all_sources = set()
+        candidate_years_all_sources.update(available_dates.get('sst', {}).keys())
+        candidate_years_all_sources.update(available_dates.get('sss', {}).keys())
+        candidate_years_all_sources.update(available_dates.get('aviso', {}).keys())
+
+        for year in sorted(candidate_years_all_sources):
+            try:
+                year_int = int(year)
+            except ValueError:
+                logger.warning(f"Unexpected year key format in available_dates: {year}")
+                continue
+
+            if year_int < start_year:
+                continue
+
+            sst_dates: Set[str] = available_dates.get('sst', {}).get(year, set())
+            sss_doys: Set[str] = available_dates.get('sss', {}).get(year, set())
+            aviso_dates: Set[str] = available_dates.get('aviso', {}).get(year, set())
+
+            if not sst_dates or not sss_doys or not aviso_dates:
+                continue
+
+            # Convert SSS YYYYDOY entries to YYYYMMDD
+            sss_dates_converted: Set[str] = set()
+            for doy_str in sss_doys:
+                try:
+                    if len(doy_str) == 7 and doy_str[:4].isdigit() and doy_str[4:].isdigit():
+                        year_i = int(doy_str[:4])
+                        doy = int(doy_str[4:])
+                        date_obj = datetime(year_i, 1, 1) + timedelta(days=doy - 1)
+                        sss_dates_converted.add(date_obj.strftime("%Y%m%d"))
+                except Exception:
+                    continue
+
+            # Extract available AVISO months for the year
+            aviso_months: Set[str] = set()
+            for adate in aviso_dates:
+                if len(adate) == 8 and adate.endswith('01'):
+                    aviso_months.add(adate[4:6])
+
+            # Daily intersection requiring SST day present, SSS day present, and AVISO month present
+            for sst_day in sst_dates:
+                if len(sst_day) != 8 or not sst_day.isdigit():
+                    continue
+                month = sst_day[4:6]
+                if sst_day in sss_dates_converted and month in aviso_months:
+                    intersected_dates.append(sst_day)
+
         # Remove duplicates and sort
-        converted_dates = sorted(list(set(converted_dates)))
-        
-        logger.info(f"Found {len(converted_dates)} dates with complete satellite data")
-        return converted_dates
+        intersected_dates = sorted(list(set(intersected_dates)))
+
+        logger.info(f"Found {len(intersected_dates)} dates with complete satellite data (daily intersection)")
+        return intersected_dates
     
     def _initialize_date_statuses(self, complete_dates: List[str]) -> Dict[str, DateStatus]:
         """Initialize or update date statuses for all complete dates"""

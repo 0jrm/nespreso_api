@@ -33,7 +33,7 @@ pip install -r requirements_clients.txt
 ### 2. Start the API Server
 
 ```bash
-PYTHONPATH=nespreso_api:nespreso_api/eoas-pyutils gunicorn -w 2 -b 0.0.0.0:5000 'nespreso_api.wsgi:app'
+gunicorn -w 2 -c config/gunicorn.conf.py 'wsgi:app'
 ```
 
 The API will be available at:

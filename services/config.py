@@ -39,6 +39,10 @@ class Config:
     MODEL_PATH: str = os.getenv("NESPRESO_MODEL_PATH", os.path.join(os.path.dirname(__file__), "../models/ocean_tensorscript.pt"))
     PCA_PATH: str = os.getenv("NESPRESO_PCA_PATH", os.path.join(os.path.dirname(__file__), "../models/pca_stats.pkl"))
 
+    # Grid/mask artifact
+    GRID_MASK_PATH: str = os.getenv("NESPRESO_GRID_MASK_PATH", 
+                                    "/unity/g2/jmiranda/nespreso_api/data/nespreso_grid_and_mask.pkl")
+
     # Logging
     LOG_PAYLOAD_SAMPLES: int = int(os.getenv("NESPRESO_LOG_PAYLOAD_SAMPLES", "0"))  # keep at 0 by default to avoid PII/volume
 

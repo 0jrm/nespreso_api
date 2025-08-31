@@ -95,7 +95,7 @@ class GridRequest(BaseModel):
 def _load_grid_data(bbox: List[float] | None = None):
     """Load the predefined grid coordinates and mask from pickle file, optionally filtered by BBOX"""
     try:
-        grid_file = os.path.join(os.path.dirname(__file__), "../../nespreso_grid_and_mask.pkl")
+        grid_file = CFG.GRID_MASK_PATH
         with open(grid_file, 'rb') as f:
             grid_data = pickle.load(f)
         
@@ -130,6 +130,12 @@ def _write_netcdf_bytes(ds: xr.Dataset) -> bytes:
     """
     comp = dict(zlib=True, complevel=4)
     encoding = {name: comp for name in ds.data_vars}
+    # Ensure CF-compliant time encoding if present
+    if 'time' in ds.variables:
+        try:
+            ds['time'].encoding.update({'units': 'seconds since 1970-01-01 00:00:00', 'calendar': 'proleptic_gregorian'})
+        except Exception:
+            pass
     try:
         # h5netcdf supports file-like buffers
         buf = io.BytesIO()
@@ -159,7 +165,14 @@ def _build_dataset(pred_T: np.ndarray,
                    lat: np.ndarray,
                    lon: np.ndarray) -> xr.Dataset:
     profile_number = np.arange(pred_T.shape[1], dtype=np.int32)
-    times64 = np.array([np.datetime64(t) for t in times])
+    # Validate alignment
+    n_profiles = int(pred_T.shape[1])
+    if not (len(times) == len(lat) == len(lon) == n_profiles):
+        raise ValueError(f"Mismatch in lengths: times={len(times)}, lat={len(lat)}, lon={len(lon)}, profiles={n_profiles}")
+
+    times64 = np.array([np.datetime64(t) for t in times], dtype='datetime64[ns]')
+    # Human-friendly ISO strings (does not replace CF time)
+    time_iso = np.array([t.strftime('%Y-%m-%d') for t in times], dtype=object)
     ds = xr.Dataset(
         data_vars=dict(
             Temperature=(("depth", "profile_number"), np.asarray(pred_T, dtype=np.float32)),
@@ -167,15 +180,22 @@ def _build_dataset(pred_T: np.ndarray,
             SSS=("profile_number", np.asarray(sss, dtype=np.float32)),
             SST=("profile_number", np.asarray(sst, dtype=np.float32)),
             AVISO=("profile_number", np.asarray(aviso, dtype=np.float32)),
-            time=("profile_number", times64.astype("datetime64[ns]")),
-            lat=("profile_number", np.asarray(lat, dtype=np.float32)),
-            lon=("profile_number", np.asarray(lon, dtype=np.float32)),
+            time_iso=("profile_number", time_iso),
         ),
         coords=dict(
             profile_number=("profile_number", profile_number),
             depth=("depth", np.asarray(depth, dtype=np.float32)),
+            time=("profile_number", times64),
+            lat=("profile_number", np.asarray(lat, dtype=np.float32)),
+            lon=("profile_number", np.asarray(lon, dtype=np.float32)),
         ),
     )
+    # CF/time metadata
+    try:
+        ds['time'].attrs.update({'standard_name': 'time', 'long_name': 'Time', 'axis': 'T'})
+        ds['time_iso'].attrs.update({'description': 'ISO-8601 date string for convenience (duplicate of time coordinate)'})
+    except Exception:
+        pass
     return ds
 
 
@@ -192,7 +212,7 @@ def _build_grid_dataset(pred_T: np.ndarray,
     
     try:
         # Convert to numpy arrays and ensure proper types
-        time64 = np.datetime64(time)
+        time64 = np.datetime64(time, 'ns')
         
         # Create coordinate arrays
         lat_coords = np.asarray(lat, dtype=np.float32)
@@ -244,6 +264,7 @@ def _build_grid_dataset(pred_T: np.ndarray,
                 SSS=(("lat", "lon"), sss_grid),
                 SST=(("lat", "lon"), sst_grid),
                 AVISO=(("lat", "lon"), aviso_grid),
+                time_iso=str(time.date()),
             ),
             coords=dict(
                 depth=("depth", depth_coords),
@@ -257,6 +278,12 @@ def _build_grid_dataset(pred_T: np.ndarray,
                 coordinate_system="geographic"
             )
         )
+        # Ensure CF-compliant time encoding
+        try:
+            ds['time'].encoding.update({'units': 'seconds since 1970-01-01 00:00:00', 'calendar': 'proleptic_gregorian'})
+            ds['time'].attrs.update({'standard_name': 'time', 'long_name': 'Time', 'axis': 'T'})
+        except Exception:
+            pass
         
         return ds
         

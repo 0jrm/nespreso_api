@@ -2,9 +2,8 @@
 __pycache__/
 
 # Ignore logs, tiff & vscode
-log/
+logs/
 tiff/
-vscode/
 .hypothesis/
 nespreso/
 tests/ 
@@ -14,10 +13,9 @@ tests/
 .vscode/
 nespreso-ui/
 tests/
-ui/
+nespreso-ui/
 uses/
 nespreso/
-models/
 
 # Ignore compiled Python files
 *.py[cod]

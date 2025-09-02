@@ -64,6 +64,7 @@ class ProfileRequest(BaseModel):
 class GridRequest(BaseModel):
     date: str
     bbox: List[float] | None = None  # [lon_min, lat_min, lon_max, lat_max]
+    resolution: float | None = None  # Optional grid spacing in degrees
 
     @field_validator('date')
     @classmethod
@@ -91,9 +92,163 @@ class GridRequest(BaseModel):
                 raise ValueError('lat_min must be less than lat_max')
         return v
 
+    @field_validator('resolution')
+    @classmethod
+    def resolution_valid(cls, v):
+        if v is not None:
+            if not np.isfinite(v) or v <= 0:
+                raise ValueError('resolution must be a positive finite number (degrees)')
+            # Ultra-fine grids can explode compute; rely on MAX_PROFILES but gently warn/log here
+        return v
 
-def _load_grid_data(bbox: List[float] | None = None):
-    """Load the predefined grid coordinates and mask from pickle file, optionally filtered by BBOX"""
+
+def _estimate_base_resolution(coords: np.ndarray) -> float:
+    """Estimate uniform grid spacing from a 1D coordinate vector."""
+    diffs = np.diff(np.asarray(coords, dtype=np.float64))
+    diffs = diffs[np.isfinite(diffs) & (diffs != 0)]
+    if diffs.size == 0:
+        return 0.25
+    # Use median to reduce outlier influence
+    return float(np.abs(np.median(diffs)))
+
+
+def _resample_mask_to_resolution(lon_grid: np.ndarray,
+                                 lat_grid: np.ndarray,
+                                 inside_mask: np.ndarray,
+                                 resolution: float,
+                                 bbox: List[float] | None = None) -> tuple[np.ndarray, np.ndarray]:
+    """
+    Generate lon/lat points on a new regular grid with the given resolution, and
+    keep only points where the original mask is True (nearest-neighbor sampling).
+
+    The new grid spans the original grid's bounding box (optionally intersected
+    with the input BBOX), ensuring we do not create points outside the hard mask.
+    """
+    # Normalize inputs
+    lon_grid = np.asarray(lon_grid)
+    lat_grid = np.asarray(lat_grid)
+    mask_arr = np.asarray(inside_mask).astype(bool)
+
+    # Reconstruct rectilinear grid if inputs are flattened 1D arrays
+    if mask_arr.ndim == 1:
+        # Build unique coordinate axes
+        unique_lats = np.unique(lat_grid)
+        unique_lons = np.unique(lon_grid)
+        unique_lats = np.sort(unique_lats)
+        unique_lons = np.sort(unique_lons)
+
+        # Estimate base spacing
+        dlat = _estimate_base_resolution(unique_lats)
+        dlon = _estimate_base_resolution(unique_lons)
+        lat_increasing = bool(unique_lats[-1] > unique_lats[0])
+        lon_increasing = bool(unique_lons[-1] > unique_lons[0])
+
+        # Map each point to 2D indices on rectilinear grid
+        def map_to_index(vals, vec, d, increasing):
+            if increasing:
+                idx = np.rint((vals - vec[0]) / d)
+            else:
+                idx = np.rint((vec[0] - vals) / d)
+            return np.clip(idx.astype(int), 0, vec.size - 1)
+
+        lat_idx_1d = map_to_index(lat_grid, unique_lats, dlat, lat_increasing)
+        lon_idx_1d = map_to_index(lon_grid, unique_lons, dlon, lon_increasing)
+
+        # Initialize full 2D mask
+        mask_2d = np.zeros((unique_lats.size, unique_lons.size), dtype=bool)
+        mask_2d[lat_idx_1d[mask_arr], lon_idx_1d[mask_arr]] = True
+
+        # Produce 2D grids for lon/lat
+        mesh_lon, mesh_lat = np.meshgrid(unique_lons, unique_lats)
+        lat_vec = unique_lats
+        lon_vec = unique_lons
+        inside_mask_2d = mask_2d
+    else:
+        # Already rectilinear
+        if lat_grid.ndim == 2 and lon_grid.ndim == 2 and lat_grid.shape == lon_grid.shape == mask_arr.shape:
+            lat_vec = lat_grid[:, 0]
+            lon_vec = lon_grid[0, :]
+            inside_mask_2d = mask_arr
+            mesh_lon, mesh_lat = lon_grid, lat_grid
+        else:
+            # Fallback: treat as scattered points
+            unique_lats = np.unique(lat_grid)
+            unique_lons = np.unique(lon_grid)
+            unique_lats = np.sort(unique_lats)
+            unique_lons = np.sort(unique_lons)
+            mesh_lon, mesh_lat = np.meshgrid(unique_lons, unique_lats)
+            lat_vec = unique_lats
+            lon_vec = unique_lons
+            inside_mask_2d = np.zeros_like(mesh_lon, dtype=bool)
+            # mark known inside points
+            dlat = _estimate_base_resolution(unique_lats)
+            dlon = _estimate_base_resolution(unique_lons)
+            def map_to_index(vals, vec, d):
+                idx = np.rint((vals - vec[0]) / d)
+                return np.clip(idx.astype(int), 0, vec.size - 1)
+            lat_idx_1d = map_to_index(lat_grid.flatten(), unique_lats, dlat)
+            lon_idx_1d = map_to_index(lon_grid.flatten(), unique_lons, dlon)
+            inside_mask_2d[lat_idx_1d[mask_arr.flatten()], lon_idx_1d[mask_arr.flatten()]] = True
+
+    lat_min, lat_max = float(np.min(lat_vec)), float(np.max(lat_vec))
+    lon_min, lon_max = float(np.min(lon_vec)), float(np.max(lon_vec))
+
+    # If BBOX provided, intersect with domain bounds to reduce work
+    if bbox is not None:
+        b_lon_min, b_lat_min, b_lon_max, b_lat_max = bbox
+        lon_min = max(lon_min, b_lon_min)
+        lon_max = min(lon_max, b_lon_max)
+        lat_min = max(lat_min, b_lat_min)
+        lat_max = min(lat_max, b_lat_max)
+        if lon_min >= lon_max or lat_min >= lat_max:
+            return np.array([], dtype=np.float64), np.array([], dtype=np.float64)
+
+    # Build new grid coordinate vectors
+    # Start exactly at min and step by resolution to include end (with epsilon)
+    eps = resolution * 1e-6
+    new_lons = np.arange(lon_min, lon_max + eps, resolution, dtype=np.float64)
+    new_lats = np.arange(lat_min, lat_max + eps, resolution, dtype=np.float64)
+
+    if new_lons.size == 0 or new_lats.size == 0:
+        return np.array([], dtype=np.float64), np.array([], dtype=np.float64)
+
+    # Determine original grid orientation and spacing
+    dlat = _estimate_base_resolution(lat_vec)
+    dlon = _estimate_base_resolution(lon_vec)
+    lat_increasing = bool(lat_vec[-1] > lat_vec[0])
+    lon_increasing = bool(lon_vec[-1] > lon_vec[0])
+
+    def lat_to_index(lat_values: np.ndarray) -> np.ndarray:
+        if lat_increasing:
+            idx = np.rint((lat_values - lat_vec[0]) / dlat)
+        else:
+            idx = np.rint((lat_vec[0] - lat_values) / dlat)
+        return np.clip(idx.astype(int), 0, lat_vec.size - 1)
+
+    def lon_to_index(lon_values: np.ndarray) -> np.ndarray:
+        if lon_increasing:
+            idx = np.rint((lon_values - lon_vec[0]) / dlon)
+        else:
+            idx = np.rint((lon_vec[0] - lon_values) / dlon)
+        return np.clip(idx.astype(int), 0, lon_vec.size - 1)
+
+    # Create mesh and map to nearest indices
+    mesh_lon, mesh_lat = np.meshgrid(new_lons, new_lats)
+    lat_idx = lat_to_index(mesh_lat)
+    lon_idx = lon_to_index(mesh_lon)
+
+    sampled_mask = inside_mask_2d[lat_idx, lon_idx]
+    valid = sampled_mask.astype(bool)
+
+    # Collect valid coordinates
+    lon_out = mesh_lon[valid].astype(np.float64)
+    lat_out = mesh_lat[valid].astype(np.float64)
+
+    return lon_out, lat_out
+
+
+def _load_grid_data(bbox: List[float] | None = None, resolution: float | None = None):
+    """Load the predefined grid coordinates and mask from pickle file, with optional BBOX and resolution resampling."""
     try:
         grid_file = CFG.GRID_MASK_PATH
         with open(grid_file, 'rb') as f:
@@ -103,19 +258,24 @@ def _load_grid_data(bbox: List[float] | None = None):
         lat_grid = grid_data['lat_grid']
         inside_mask = grid_data['inside_mask']
         
-        # Extract only the points inside the mask
-        lon_in = lon_grid[inside_mask]
-        lat_in = lat_grid[inside_mask]
+        # If a custom resolution is requested, generate a new regular grid and sample the mask
+        if resolution is not None:
+            logger.info(f"Resampling mask to resolution {resolution}° with BBOX={bbox}")
+            lon_in, lat_in = _resample_mask_to_resolution(lon_grid, lat_grid, inside_mask, float(resolution), bbox)
+            logger.info(f"Resampled grid has {len(lon_in)} points inside mask")
+        else:
+            # Extract native grid points inside mask
+            lon_in = lon_grid[inside_mask]
+            lat_in = lat_grid[inside_mask]
+            # Apply BBOX filter if provided
+            if bbox is not None:
+                lon_min, lat_min, lon_max, lat_max = bbox
+                bbox_mask = (lon_in >= lon_min) & (lon_in <= lon_max) & (lat_in >= lat_min) & (lat_in <= lat_max)
+                lon_in = lon_in[bbox_mask]
+                lat_in = lat_in[bbox_mask]
+                logger.info(f"BBOX filter applied: {np.sum(bbox_mask)}/{len(bbox_mask)} points remain")
         
-        # Apply BBOX filter if provided
-        if bbox is not None:
-            lon_min, lat_min, lon_max, lat_max = bbox
-            bbox_mask = (lon_in >= lon_min) & (lon_in <= lon_max) & (lat_in >= lat_min) & (lat_in <= lat_max)
-            lon_in = lon_in[bbox_mask]
-            lat_in = lat_in[bbox_mask]
-            logger.info(f"BBOX filter applied: {np.sum(bbox_mask)}/{len(bbox_mask)} points remain")
-        
-        logger.info(f"Loaded grid with {len(lon_in)} points inside mask" + (f" and BBOX {bbox}" if bbox else ""))
+        logger.info(f"Loaded grid with {len(lon_in)} points inside mask" + (f" and BBOX {bbox}" if bbox else "") + (f" at {resolution}°" if resolution is not None else ""))
         return lon_in, lat_in
         
     except Exception as e:
@@ -526,11 +686,12 @@ def create_app(config: dict | None = None) -> Flask:
 
             date_str = req.date
             bbox = req.bbox
-            logger.info(f"Grid query request for date: {date_str}, BBOX: {bbox}")
+            resolution = req.resolution
+            logger.info(f"Grid query request for date: {date_str}, BBOX: {bbox}, resolution: {resolution}")
 
             # Load predefined grid coordinates
             try:
-                lon_in, lat_in = _load_grid_data(bbox)
+                lon_in, lat_in = _load_grid_data(bbox, resolution)
             except ValueError as e:
                 return jsonify({"error": str(e)}), 503
 
@@ -830,12 +991,13 @@ def create_app(config: dict | None = None) -> Flask:
                 logger.error(f"Dataset creation failed: {e}")
                 return jsonify({"error": f"Failed to create dataset: {str(e)}"}), 500
 
-            # Generate filename with BBOX info if provided
+            # Generate filename with BBOX/resolution info if provided
+            parts = [f"NeSPReSO_grid_{date_str}"]
             if bbox:
-                bbox_str = f"_bbox_{bbox[0]:.2f}_{bbox[1]:.2f}_{bbox[2]:.2f}_{bbox[3]:.2f}"
-                filename = f"NeSPReSO_grid_{date_str}{bbox_str}.nc"
-            else:
-                filename = f"NeSPReSO_grid_{date_str}.nc"
+                parts.append(f"_bbox_{bbox[0]:.2f}_{bbox[1]:.2f}_{bbox[2]:.2f}_{bbox[3]:.2f}")
+            if resolution is not None:
+                parts.append(f"_res_{resolution:.3f}")
+            filename = "".join(parts) + ".nc"
 
             # Return response
             resp = make_response(netcdf_bytes)

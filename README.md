@@ -7,7 +7,7 @@ NeSPReSO is a scientific service for generating **synthetic temperature and sali
 This repository provides:
 - A **modular Flask-based API** with two main endpoints:
   - `/v1/profile` - For individual point predictions
-  - `/v1/profile/grid` - For complete grid coverage with optional filtering
+  - `/v1/profile/grid` - For complete grid coverage with optional filtering and configurable resolution
 - **Python clients** for easy integration
 - **Comprehensive examples** and documentation
 - OpenAPI documentation, CI/CD, and Prometheus observability
@@ -99,17 +99,19 @@ result = query_grid("2016-12-31", bbox=gulf_bbox)
 ```json
 {
   "date": "2016-12-31",
-  "bbox": [-95.0, 18.0, -80.0, 31.0]  // Optional: [lon_min, lat_min, lon_max, lat_max]
+  "bbox": [-95.0, 18.0, -80.0, 31.0],  // Optional: [lon_min, lat_min, lon_max, lat_max]
+  "resolution": 0.10                    // Optional: grid spacing in degrees
 }
 ```
 
 **Response**: NetCDF file with gridded data (depth × lat × lon dimensions)
 
 **Features**:
-- Complete Gulf of Mexico coverage (41×59 grid, ~1,018 points)
+- Complete Gulf of Mexico coverage (native 0.25° mask)
 - Optional BBOX filtering for regional analysis
+- Optional resolution override: resample the mask to a new regular grid (e.g., 0.10°)
+- Resampling respects the hard mask via nearest-neighbor sampling; no points are added outside the original mask
 - Proper NetCDF structure for visualization
-- 0.25° resolution
 
 ---
 
@@ -206,7 +208,7 @@ else:
 ### Grid Queries
 
 ```python
-from grid_client import query_grid, get_common_bbox_regions
+from grid_client import query_grid, query_multiple_dates, get_common_bbox_regions
 
 # Get common BBOX regions
 bbox_regions = get_common_bbox_regions()
@@ -217,6 +219,12 @@ result = query_grid("2016-12-31")
 # Regional query
 gulf_bbox = bbox_regions["western_gulf"]
 result = query_grid("2016-12-31", bbox=gulf_bbox)
+
+# Full grid at finer resolution (0.10°)
+result = query_grid("2016-12-31", resolution=0.10)
+
+# BBOX at finer resolution (0.10°)
+result = query_grid("2016-12-31", bbox=gulf_bbox, resolution=0.10)
 
 # Check results
 if result["success"]:
@@ -238,6 +246,9 @@ dates = generate_date_range("2016-12-01", "2016-12-31")
 gulf_bbox = [-95.0, 18.0, -80.0, 31.0]
 summary = query_multiple_dates(dates, bbox=gulf_bbox)
 
+# Process all dates at 0.10° resolution
+summary = query_multiple_dates(dates, resolution=0.10)
+
 print(f"Processed {summary['total']} dates")
 print(f"Successful: {summary['successful']}")
 print(f"Failed: {summary['failed']}")
@@ -256,6 +267,7 @@ print(f"Failed: {summary['failed']}")
 - **Format**: NetCDF with `depth`, `lat`, `lon` dimensions
 - **Variables**: Temperature(depth, lat, lon), Salinity(depth, lat, lon), SSS(lat, lon), SST(lat, lon), AVISO(lat, lon)
 - **Structure**: Regular 3D grid with proper coordinates
+- **Filenames**: Include suffixes when filters are applied, e.g. `NeSPReSO_grid_2016-12-31_bbox_-95.00_18.00_-80.00_31.00_res_0.100.nc`
 - **Benefits**: Easy visualization, GIS integration, statistical analysis
 
 ---

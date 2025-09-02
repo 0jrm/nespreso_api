@@ -16,6 +16,7 @@ tests/
 nespreso-ui/
 uses/
 nespreso/
+scripts/sat_db/
 
 # Ignore compiled Python files
 *.py[cod]

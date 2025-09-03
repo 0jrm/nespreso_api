@@ -4,6 +4,7 @@ import numpy as np
 import pandas as pd
 import xarray as xr
 from datetime import datetime, timedelta
+from typing import Mapping
 
 def convert_to_numpy_array(data):
     if isinstance(data, (pd.Series, xr.DataArray)):
@@ -49,3 +50,39 @@ def preprocess_inputs(lat, lon, date):
     lon = convert_to_list_of_floats(convert_to_numpy_array(lon))
     date = convert_date_to_iso_strings(date)
     return lat, lon, date
+
+
+def apply_netcdf_global_attributes(ds: xr.Dataset, extra_attrs: Mapping[str, str] | None = None) -> xr.Dataset:
+    """
+    Ensure NeSPReSO global attributes are present on an xarray Dataset.
+
+    Does not remove existing attributes, only updates/sets the keys below:
+      - coordinate_system: geographic
+      - institution: COAPS, FSU
+      - author: Jose Roberto Miranda
+      - contact: jrm22n@fsu.edu
+      - DOI: https://doi.org/10.1016/j.ocemod.2025.102550
+
+    Any extra attributes provided will also be applied (overriding defaults).
+
+    Returns the same Dataset instance for chaining.
+    """
+    defaults = {
+        "coordinate_system": "geographic",
+        "institution": "COAPS, FSU",
+        "author": "Jose Roberto Miranda",
+        "contact": "jrm22n@fsu.edu",
+        "DOI": "https://doi.org/10.1016/j.ocemod.2025.102550",
+    }
+    if extra_attrs:
+        defaults.update({str(k): str(v) for k, v in dict(extra_attrs).items()})
+    try:
+        ds.attrs.update(defaults)
+    except Exception:
+        # Fallback: set individually to avoid failure if attrs is read-only-like
+        for k, v in defaults.items():
+            try:
+                ds.attrs[k] = v
+            except Exception:
+                pass
+    return ds

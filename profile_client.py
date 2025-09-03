@@ -29,7 +29,7 @@ import warnings
 import httpx
 import os
 import numpy as np
-from services.utils import preprocess_inputs
+from services.utils import preprocess_inputs, apply_netcdf_global_attributes
 
 # Default API endpoint
 DEFAULT_API = "http://0.0.0.0:5000/v1/profile"
@@ -258,6 +258,8 @@ def merge_netcdf_files(file_list, output_filename):
         
         # Write merged dataset
         print(f"  Writing merged dataset to {output_filename}")
+        # Ensure global attributes on merged output
+        merged_ds = apply_netcdf_global_attributes(merged_ds)
         merged_ds.to_netcdf(output_filename)
         
         print(f"Successfully merged {len(file_list)} files into {output_filename}")

@@ -15,6 +15,7 @@ from services.kernel.handler import infer, get_pca_objects
 from services.accessor.sat import load_satellite_data, prepare_inputs
 from services.api.metrics import metrics_bp, before_request as metrics_before, after_request as metrics_after
 from services.config import CFG
+from services.utils import apply_netcdf_global_attributes
 
 logger = logging.getLogger("ocean")
 if not logger.handlers:
@@ -288,6 +289,9 @@ def _write_netcdf_bytes(ds: xr.Dataset) -> bytes:
     Robust in-memory NetCDF writer. Prefers h5-based engine for compression.
     Falls back to a secure temporary file to avoid engine limitations.
     """
+    # Ensure standard global attributes
+    ds = apply_netcdf_global_attributes(ds)
+
     comp = dict(zlib=True, complevel=4)
     encoding = {name: comp for name in ds.data_vars}
     # Ensure CF-compliant time encoding if present

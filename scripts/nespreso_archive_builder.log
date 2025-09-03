@@ -29185,3 +29185,2090 @@
 2025-08-30 21:46:35,920 - INFO - Summary report saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/archive_summary.json
 2025-08-30 21:46:35,920 - INFO - Archive Summary: 3020/3021 dates processed successfully (100.0%)
 2025-08-30 21:46:35,936 - INFO - Archive building process completed successfully!
+2025-09-02 17:48:02,141 - INFO - Loaded checkpoint with 3021 dates
+2025-09-02 17:48:02,141 - INFO - Archive Builder initialized with config: {'sst_root': '/Net/work/ozavala/DATA/GOFFISH/SST/OISST/', 'sss_root': '/Net/work/ozavala/DATA/GOFFISH/SSS/SMAP_Global/', 'aviso_root': '/Net/work/ozavala/DATA/GOFFISH/AVISO/GoM/', 'api_url': 'http://localhost:5000/v1/profile/grid', 'output_dir': '/Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO', 'checkpoint_file': '/Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/archive_checkpoint.json', 'max_workers': 4, 'retry_attempts': 3, 'retry_delay': 5}
+2025-09-02 17:48:02,166 - INFO - Checkpoint file found. Do you want to resume? (y/n): 
+2025-09-02 17:48:04,784 - INFO - Resuming archive building...
+2025-09-02 17:48:04,784 - INFO - Resuming archive building from checkpoint...
+2025-09-02 17:48:04,813 - INFO - Converting checkpoint data to date statuses...
+2025-09-02 17:48:04,835 - INFO - Converted 3021 date statuses from checkpoint
+2025-09-02 17:48:04,838 - INFO - Found 1 unprocessed dates to continue with...
+2025-09-02 17:48:04,852 - INFO - Starting batch processing of dates...
+2025-09-02 17:48:04,867 - INFO - Found 1 dates to process
+2025-09-02 17:48:04,881 - INFO - Submitting 1 tasks to thread pool...
+2025-09-02 17:48:04,889 - INFO - Processing date 20190708 (attempt 2)
+2025-09-02 17:48:04,889 - INFO - All tasks submitted. Processing results...
+2025-09-02 17:48:04,903 - INFO - Querying NeSPReSO API for date: 2019-07-08
+2025-09-02 17:48:05,980 - ERROR - Date 2019-07-08: API request failed with status 503: {"error":"Satellite data unavailable: No locations remaining after satellite data filtering. Please try again later."}
+
+2025-09-02 17:48:05,980 - WARNING - Date 20190708 failed, will retry (attempt 2/3)
+2025-09-02 17:48:06,066 - INFO - Checkpoint saved successfully
+2025-09-02 17:48:06,066 - INFO - Progress: 0/1 dates completed, 1 failed
+2025-09-02 17:48:06,170 - INFO - Checkpoint saved successfully
+2025-09-02 17:48:06,170 - INFO - Batch processing completed. 0/1 dates processed successfully, 1 failed
+2025-09-02 17:48:06,176 - INFO - Generating summary report...
+2025-09-02 17:48:06,260 - INFO - Summary report saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/archive_summary.json
+2025-09-02 17:48:06,260 - INFO - Archive Summary: 3020/3021 dates processed successfully (100.0%)
+2025-09-02 17:48:15,294 - INFO - Loaded checkpoint with 3021 dates
+2025-09-02 17:48:15,294 - INFO - Archive Builder initialized with config: {'sst_root': '/Net/work/ozavala/DATA/GOFFISH/SST/OISST/', 'sss_root': '/Net/work/ozavala/DATA/GOFFISH/SSS/SMAP_Global/', 'aviso_root': '/Net/work/ozavala/DATA/GOFFISH/AVISO/GoM/', 'api_url': 'http://localhost:5000/v1/profile/grid', 'output_dir': '/Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO', 'checkpoint_file': '/Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/archive_checkpoint.json', 'max_workers': 4, 'retry_attempts': 3, 'retry_delay': 5}
+2025-09-02 17:48:15,444 - INFO - Checkpoint file found. Do you want to resume? (y/n): 
+2025-09-02 17:48:18,558 - INFO - Starting fresh archive building...
+2025-09-02 17:48:18,558 - INFO - Starting NeSPReSO archive building process...
+2025-09-02 17:48:18,575 - INFO - Getting complete dates using scanner...
+2025-09-02 17:48:21,001 - INFO - Computed common start year across sources: SST=2002, SSS=2015, AVISO=1993 -> start_year=2015
+2025-09-02 17:48:21,027 - INFO - Found 3506 dates with complete satellite data (daily intersection)
+2025-09-02 17:48:21,028 - INFO - Initializing date statuses...
+2025-09-02 17:48:21,141 - INFO - Checkpoint saved successfully
+2025-09-02 17:48:21,141 - INFO - Starting batch processing of dates...
+2025-09-02 17:48:21,149 - INFO - Found 486 dates to process
+2025-09-02 17:48:21,163 - INFO - Submitting 486 tasks to thread pool...
+2025-09-02 17:48:21,179 - INFO - Processing date 20150328 (attempt 1)
+2025-09-02 17:48:21,180 - INFO - Processing date 20190708 (attempt 3)
+2025-09-02 17:48:21,181 - INFO - Processing date 20220819 (attempt 1)
+2025-09-02 17:48:21,182 - INFO - Processing date 20220820 (attempt 1)
+2025-09-02 17:48:21,189 - INFO - All tasks submitted. Processing results...
+2025-09-02 17:48:21,192 - INFO - Querying NeSPReSO API for date: 2015-03-28
+2025-09-02 17:48:21,200 - INFO - Querying NeSPReSO API for date: 2019-07-08
+2025-09-02 17:48:21,214 - INFO - Querying NeSPReSO API for date: 2022-08-19
+2025-09-02 17:48:21,221 - INFO - Querying NeSPReSO API for date: 2022-08-20
+2025-09-02 17:48:21,551 - ERROR - Date 2019-07-08: API request failed with status 503: {"error":"Satellite data unavailable: No locations remaining after satellite data filtering. Please try again later."}
+
+2025-09-02 17:48:21,551 - ERROR - Date 20190708 failed after 3 attempts
+2025-09-02 17:48:21,566 - INFO - Processing date 20220821 (attempt 1)
+2025-09-02 17:48:21,580 - INFO - Querying NeSPReSO API for date: 2022-08-21
+2025-09-02 17:48:21,665 - INFO - Checkpoint saved successfully
+2025-09-02 17:48:21,665 - INFO - Progress: 0/486 dates completed, 1 failed
+2025-09-02 17:48:22,370 - INFO - Successfully processed date 2015-03-28, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2015-03-28.nc
+2025-09-02 17:48:22,372 - INFO - Date 20150328 processed successfully
+2025-09-02 17:48:22,386 - INFO - Processing date 20220822 (attempt 1)
+2025-09-02 17:48:22,393 - INFO - Querying NeSPReSO API for date: 2022-08-22
+2025-09-02 17:48:23,561 - INFO - Successfully processed date 2022-08-20, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2022-08-20.nc
+2025-09-02 17:48:23,562 - INFO - Date 20220820 processed successfully
+2025-09-02 17:48:23,574 - INFO - Processing date 20220823 (attempt 1)
+2025-09-02 17:48:23,589 - INFO - Querying NeSPReSO API for date: 2022-08-23
+2025-09-02 17:48:23,729 - INFO - Successfully processed date 2022-08-19, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2022-08-19.nc
+2025-09-02 17:48:23,729 - INFO - Date 20220819 processed successfully
+2025-09-02 17:48:23,745 - INFO - Processing date 20220824 (attempt 1)
+2025-09-02 17:48:23,751 - INFO - Querying NeSPReSO API for date: 2022-08-24
+2025-09-02 17:48:24,670 - INFO - Successfully processed date 2022-08-21, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2022-08-21.nc
+2025-09-02 17:48:24,671 - INFO - Date 20220821 processed successfully
+2025-09-02 17:48:24,691 - INFO - Processing date 20220825 (attempt 1)
+2025-09-02 17:48:24,703 - INFO - Querying NeSPReSO API for date: 2022-08-25
+2025-09-02 17:48:25,219 - INFO - Successfully processed date 2022-08-22, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2022-08-22.nc
+2025-09-02 17:48:25,219 - INFO - Date 20220822 processed successfully
+2025-09-02 17:48:25,236 - INFO - Processing date 20220826 (attempt 1)
+2025-09-02 17:48:25,244 - INFO - Querying NeSPReSO API for date: 2022-08-26
+2025-09-02 17:48:25,673 - INFO - Successfully processed date 2022-08-23, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2022-08-23.nc
+2025-09-02 17:48:25,674 - INFO - Date 20220823 processed successfully
+2025-09-02 17:48:25,685 - INFO - Processing date 20220827 (attempt 1)
+2025-09-02 17:48:25,691 - INFO - Querying NeSPReSO API for date: 2022-08-27
+2025-09-02 17:48:26,728 - INFO - Successfully processed date 2022-08-24, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2022-08-24.nc
+2025-09-02 17:48:26,729 - INFO - Date 20220824 processed successfully
+2025-09-02 17:48:26,744 - INFO - Processing date 20220828 (attempt 1)
+2025-09-02 17:48:26,762 - INFO - Querying NeSPReSO API for date: 2022-08-28
+2025-09-02 17:48:26,892 - INFO - Successfully processed date 2022-08-25, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2022-08-25.nc
+2025-09-02 17:48:26,894 - INFO - Date 20220825 processed successfully
+2025-09-02 17:48:26,911 - INFO - Processing date 20220829 (attempt 1)
+2025-09-02 17:48:26,926 - INFO - Querying NeSPReSO API for date: 2022-08-29
+2025-09-02 17:48:27,768 - INFO - Successfully processed date 2022-08-26, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2022-08-26.nc
+2025-09-02 17:48:27,768 - INFO - Date 20220826 processed successfully
+2025-09-02 17:48:27,803 - INFO - Processing date 20220830 (attempt 1)
+2025-09-02 17:48:27,865 - INFO - Querying NeSPReSO API for date: 2022-08-30
+2025-09-02 17:48:28,155 - INFO - Successfully processed date 2022-08-27, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2022-08-27.nc
+2025-09-02 17:48:28,155 - INFO - Date 20220827 processed successfully
+2025-09-02 17:48:28,175 - INFO - Processing date 20220831 (attempt 1)
+2025-09-02 17:48:28,190 - INFO - Querying NeSPReSO API for date: 2022-08-31
+2025-09-02 17:48:28,351 - INFO - Checkpoint saved successfully
+2025-09-02 17:48:28,351 - INFO - Progress: 10/486 dates completed, 1 failed
+2025-09-02 17:48:29,137 - INFO - Successfully processed date 2022-08-28, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2022-08-28.nc
+2025-09-02 17:48:29,137 - INFO - Date 20220828 processed successfully
+2025-09-02 17:48:29,152 - INFO - Processing date 20220901 (attempt 1)
+2025-09-02 17:48:29,159 - INFO - Querying NeSPReSO API for date: 2022-09-01
+2025-09-02 17:48:29,316 - INFO - Successfully processed date 2022-08-29, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2022-08-29.nc
+2025-09-02 17:48:29,316 - INFO - Date 20220829 processed successfully
+2025-09-02 17:48:29,323 - INFO - Processing date 20220902 (attempt 1)
+2025-09-02 17:48:29,330 - INFO - Querying NeSPReSO API for date: 2022-09-02
+2025-09-02 17:48:30,372 - INFO - Successfully processed date 2022-08-30, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2022-08-30.nc
+2025-09-02 17:48:30,372 - INFO - Date 20220830 processed successfully
+2025-09-02 17:48:30,386 - INFO - Processing date 20220903 (attempt 1)
+2025-09-02 17:48:30,402 - INFO - Querying NeSPReSO API for date: 2022-09-03
+2025-09-02 17:48:30,560 - INFO - Successfully processed date 2022-08-31, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2022-08-31.nc
+2025-09-02 17:48:30,561 - INFO - Date 20220831 processed successfully
+2025-09-02 17:48:30,990 - INFO - Processing date 20220904 (attempt 1)
+2025-09-02 17:48:30,999 - INFO - Querying NeSPReSO API for date: 2022-09-04
+2025-09-02 17:48:31,560 - INFO - Successfully processed date 2022-09-02, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2022-09-02.nc
+2025-09-02 17:48:31,561 - INFO - Date 20220902 processed successfully
+2025-09-02 17:48:31,574 - INFO - Processing date 20220905 (attempt 1)
+2025-09-02 17:48:31,589 - INFO - Querying NeSPReSO API for date: 2022-09-05
+2025-09-02 17:48:31,662 - INFO - Successfully processed date 2022-09-01, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2022-09-01.nc
+2025-09-02 17:48:31,663 - INFO - Date 20220901 processed successfully
+2025-09-02 17:48:31,679 - INFO - Processing date 20220906 (attempt 1)
+2025-09-02 17:48:31,689 - INFO - Querying NeSPReSO API for date: 2022-09-06
+2025-09-02 17:48:32,579 - INFO - Successfully processed date 2022-09-03, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2022-09-03.nc
+2025-09-02 17:48:32,579 - INFO - Date 20220903 processed successfully
+2025-09-02 17:48:32,587 - INFO - Processing date 20220907 (attempt 1)
+2025-09-02 17:48:32,593 - INFO - Querying NeSPReSO API for date: 2022-09-07
+2025-09-02 17:48:33,144 - INFO - Successfully processed date 2022-09-04, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2022-09-04.nc
+2025-09-02 17:48:33,145 - INFO - Date 20220904 processed successfully
+2025-09-02 17:48:33,145 - INFO - Processing date 20220908 (attempt 1)
+2025-09-02 17:48:33,146 - INFO - Querying NeSPReSO API for date: 2022-09-08
+2025-09-02 17:48:33,793 - INFO - Successfully processed date 2022-09-05, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2022-09-05.nc
+2025-09-02 17:48:33,793 - INFO - Date 20220905 processed successfully
+2025-09-02 17:48:33,800 - INFO - Processing date 20220909 (attempt 1)
+2025-09-02 17:48:33,830 - INFO - Querying NeSPReSO API for date: 2022-09-09
+2025-09-02 17:48:34,766 - INFO - Successfully processed date 2022-09-06, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2022-09-06.nc
+2025-09-02 17:48:34,766 - INFO - Date 20220906 processed successfully
+2025-09-02 17:48:34,774 - INFO - Processing date 20220910 (attempt 1)
+2025-09-02 17:48:34,780 - INFO - Querying NeSPReSO API for date: 2022-09-10
+2025-09-02 17:48:34,924 - INFO - Checkpoint saved successfully
+2025-09-02 17:48:34,925 - INFO - Progress: 20/486 dates completed, 1 failed
+2025-09-02 17:48:35,082 - INFO - Successfully processed date 2022-09-07, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2022-09-07.nc
+2025-09-02 17:48:35,082 - INFO - Date 20220907 processed successfully
+2025-09-02 17:48:35,082 - INFO - Processing date 20220911 (attempt 1)
+2025-09-02 17:48:35,089 - INFO - Querying NeSPReSO API for date: 2022-09-11
+2025-09-02 17:48:36,124 - INFO - Successfully processed date 2022-09-09, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2022-09-09.nc
+2025-09-02 17:48:36,124 - INFO - Date 20220909 processed successfully
+2025-09-02 17:48:36,132 - INFO - Processing date 20220912 (attempt 1)
+2025-09-02 17:48:36,139 - INFO - Querying NeSPReSO API for date: 2022-09-12
+2025-09-02 17:48:36,232 - INFO - Successfully processed date 2022-09-08, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2022-09-08.nc
+2025-09-02 17:48:36,233 - INFO - Date 20220908 processed successfully
+2025-09-02 17:48:36,248 - INFO - Processing date 20220913 (attempt 1)
+2025-09-02 17:48:36,248 - INFO - Querying NeSPReSO API for date: 2022-09-13
+2025-09-02 17:48:37,324 - INFO - Successfully processed date 2022-09-10, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2022-09-10.nc
+2025-09-02 17:48:37,325 - INFO - Date 20220910 processed successfully
+2025-09-02 17:48:37,332 - INFO - Processing date 20220914 (attempt 1)
+2025-09-02 17:48:37,352 - INFO - Querying NeSPReSO API for date: 2022-09-14
+2025-09-02 17:48:37,542 - INFO - Successfully processed date 2022-09-11, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2022-09-11.nc
+2025-09-02 17:48:37,542 - INFO - Date 20220911 processed successfully
+2025-09-02 17:48:37,542 - INFO - Processing date 20220915 (attempt 1)
+2025-09-02 17:48:37,542 - INFO - Querying NeSPReSO API for date: 2022-09-15
+2025-09-02 17:48:38,199 - INFO - Successfully processed date 2022-09-12, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2022-09-12.nc
+2025-09-02 17:48:38,199 - INFO - Date 20220912 processed successfully
+2025-09-02 17:48:38,206 - INFO - Processing date 20220916 (attempt 1)
+2025-09-02 17:48:38,211 - INFO - Querying NeSPReSO API for date: 2022-09-16
+2025-09-02 17:48:39,170 - INFO - Successfully processed date 2022-09-13, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2022-09-13.nc
+2025-09-02 17:48:39,171 - INFO - Date 20220913 processed successfully
+2025-09-02 17:48:39,194 - INFO - Processing date 20220917 (attempt 1)
+2025-09-02 17:48:39,204 - INFO - Querying NeSPReSO API for date: 2022-09-17
+2025-09-02 17:48:39,436 - INFO - Successfully processed date 2022-09-14, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2022-09-14.nc
+2025-09-02 17:48:39,436 - INFO - Date 20220914 processed successfully
+2025-09-02 17:48:39,755 - INFO - Processing date 20220918 (attempt 1)
+2025-09-02 17:48:39,785 - INFO - Querying NeSPReSO API for date: 2022-09-18
+2025-09-02 17:48:40,418 - INFO - Successfully processed date 2022-09-15, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2022-09-15.nc
+2025-09-02 17:48:40,419 - INFO - Date 20220915 processed successfully
+2025-09-02 17:48:40,433 - INFO - Processing date 20220919 (attempt 1)
+2025-09-02 17:48:40,448 - INFO - Querying NeSPReSO API for date: 2022-09-19
+2025-09-02 17:48:40,521 - INFO - Successfully processed date 2022-09-16, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2022-09-16.nc
+2025-09-02 17:48:40,522 - INFO - Date 20220916 processed successfully
+2025-09-02 17:48:40,529 - INFO - Processing date 20220920 (attempt 1)
+2025-09-02 17:48:40,543 - INFO - Querying NeSPReSO API for date: 2022-09-20
+2025-09-02 17:48:40,644 - INFO - Checkpoint saved successfully
+2025-09-02 17:48:40,644 - INFO - Progress: 30/486 dates completed, 1 failed
+2025-09-02 17:48:41,780 - INFO - Successfully processed date 2022-09-17, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2022-09-17.nc
+2025-09-02 17:48:41,781 - INFO - Date 20220917 processed successfully
+2025-09-02 17:48:41,821 - INFO - Processing date 20220921 (attempt 1)
+2025-09-02 17:48:41,837 - INFO - Querying NeSPReSO API for date: 2022-09-21
+2025-09-02 17:48:41,884 - INFO - Successfully processed date 2022-09-18, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2022-09-18.nc
+2025-09-02 17:48:41,884 - INFO - Date 20220918 processed successfully
+2025-09-02 17:48:41,898 - INFO - Processing date 20220922 (attempt 1)
+2025-09-02 17:48:41,913 - INFO - Querying NeSPReSO API for date: 2022-09-22
+2025-09-02 17:48:43,098 - INFO - Successfully processed date 2022-09-20, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2022-09-20.nc
+2025-09-02 17:48:43,098 - INFO - Date 20220920 processed successfully
+2025-09-02 17:48:43,116 - INFO - Processing date 20220923 (attempt 1)
+2025-09-02 17:48:43,129 - INFO - Querying NeSPReSO API for date: 2022-09-23
+2025-09-02 17:48:43,357 - INFO - Successfully processed date 2022-09-19, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2022-09-19.nc
+2025-09-02 17:48:43,357 - INFO - Date 20220919 processed successfully
+2025-09-02 17:48:43,627 - INFO - Processing date 20220924 (attempt 1)
+2025-09-02 17:48:43,658 - INFO - Querying NeSPReSO API for date: 2022-09-24
+2025-09-02 17:48:44,495 - INFO - Successfully processed date 2022-09-21, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2022-09-21.nc
+2025-09-02 17:48:44,496 - INFO - Date 20220921 processed successfully
+2025-09-02 17:48:44,511 - INFO - Processing date 20220925 (attempt 1)
+2025-09-02 17:48:44,518 - INFO - Querying NeSPReSO API for date: 2022-09-25
+2025-09-02 17:48:44,949 - INFO - Successfully processed date 2022-09-22, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2022-09-22.nc
+2025-09-02 17:48:44,949 - INFO - Date 20220922 processed successfully
+2025-09-02 17:48:44,964 - INFO - Processing date 20220926 (attempt 1)
+2025-09-02 17:48:44,971 - INFO - Querying NeSPReSO API for date: 2022-09-26
+2025-09-02 17:48:45,810 - INFO - Successfully processed date 2022-09-23, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2022-09-23.nc
+2025-09-02 17:48:45,810 - INFO - Date 20220923 processed successfully
+2025-09-02 17:48:45,825 - INFO - Processing date 20220927 (attempt 1)
+2025-09-02 17:48:45,831 - INFO - Querying NeSPReSO API for date: 2022-09-27
+2025-09-02 17:48:46,046 - INFO - Successfully processed date 2022-09-24, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2022-09-24.nc
+2025-09-02 17:48:46,047 - INFO - Date 20220924 processed successfully
+2025-09-02 17:48:46,062 - INFO - Processing date 20220928 (attempt 1)
+2025-09-02 17:48:46,077 - INFO - Querying NeSPReSO API for date: 2022-09-28
+2025-09-02 17:48:47,346 - INFO - Successfully processed date 2022-09-25, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2022-09-25.nc
+2025-09-02 17:48:47,347 - INFO - Date 20220925 processed successfully
+2025-09-02 17:48:47,356 - INFO - Processing date 20220929 (attempt 1)
+2025-09-02 17:48:47,362 - INFO - Querying NeSPReSO API for date: 2022-09-29
+2025-09-02 17:48:47,599 - INFO - Successfully processed date 2022-09-26, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2022-09-26.nc
+2025-09-02 17:48:47,599 - INFO - Date 20220926 processed successfully
+2025-09-02 17:48:47,613 - INFO - Processing date 20220930 (attempt 1)
+2025-09-02 17:48:47,619 - INFO - Querying NeSPReSO API for date: 2022-09-30
+2025-09-02 17:48:47,705 - INFO - Checkpoint saved successfully
+2025-09-02 17:48:47,705 - INFO - Progress: 40/486 dates completed, 1 failed
+2025-09-02 17:48:48,640 - INFO - Successfully processed date 2022-09-27, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2022-09-27.nc
+2025-09-02 17:48:48,641 - INFO - Date 20220927 processed successfully
+2025-09-02 17:48:48,655 - INFO - Processing date 20221001 (attempt 1)
+2025-09-02 17:48:48,670 - INFO - Querying NeSPReSO API for date: 2022-10-01
+2025-09-02 17:48:49,392 - INFO - Successfully processed date 2022-09-28, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2022-09-28.nc
+2025-09-02 17:48:49,393 - INFO - Date 20220928 processed successfully
+2025-09-02 17:48:49,409 - INFO - Processing date 20221002 (attempt 1)
+2025-09-02 17:48:49,424 - INFO - Querying NeSPReSO API for date: 2022-10-02
+2025-09-02 17:48:50,430 - INFO - Successfully processed date 2022-09-29, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2022-09-29.nc
+2025-09-02 17:48:50,431 - INFO - Date 20220929 processed successfully
+2025-09-02 17:48:50,446 - INFO - Processing date 20221003 (attempt 1)
+2025-09-02 17:48:50,461 - INFO - Querying NeSPReSO API for date: 2022-10-03
+2025-09-02 17:48:50,916 - INFO - Successfully processed date 2022-09-30, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2022-09-30.nc
+2025-09-02 17:48:50,917 - INFO - Date 20220930 processed successfully
+2025-09-02 17:48:50,933 - INFO - Processing date 20221004 (attempt 1)
+2025-09-02 17:48:50,948 - INFO - Querying NeSPReSO API for date: 2022-10-04
+2025-09-02 17:48:51,692 - INFO - Successfully processed date 2022-10-01, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2022-10-01.nc
+2025-09-02 17:48:51,692 - INFO - Date 20221001 processed successfully
+2025-09-02 17:48:51,726 - INFO - Processing date 20221005 (attempt 1)
+2025-09-02 17:48:51,741 - INFO - Querying NeSPReSO API for date: 2022-10-05
+2025-09-02 17:48:52,341 - INFO - Successfully processed date 2022-10-02, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2022-10-02.nc
+2025-09-02 17:48:52,341 - INFO - Date 20221002 processed successfully
+2025-09-02 17:48:52,342 - INFO - Processing date 20221006 (attempt 1)
+2025-09-02 17:48:52,342 - INFO - Querying NeSPReSO API for date: 2022-10-06
+2025-09-02 17:48:52,804 - INFO - Successfully processed date 2022-10-03, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2022-10-03.nc
+2025-09-02 17:48:52,804 - INFO - Date 20221003 processed successfully
+2025-09-02 17:48:52,819 - INFO - Processing date 20221007 (attempt 1)
+2025-09-02 17:48:52,837 - INFO - Querying NeSPReSO API for date: 2022-10-07
+2025-09-02 17:48:53,435 - INFO - Successfully processed date 2022-10-04, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2022-10-04.nc
+2025-09-02 17:48:53,435 - INFO - Date 20221004 processed successfully
+2025-09-02 17:48:53,442 - INFO - Processing date 20221008 (attempt 1)
+2025-09-02 17:48:53,454 - INFO - Querying NeSPReSO API for date: 2022-10-08
+2025-09-02 17:48:53,970 - INFO - Successfully processed date 2022-10-05, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2022-10-05.nc
+2025-09-02 17:48:53,970 - INFO - Date 20221005 processed successfully
+2025-09-02 17:48:53,978 - INFO - Processing date 20221009 (attempt 1)
+2025-09-02 17:48:53,992 - INFO - Querying NeSPReSO API for date: 2022-10-09
+2025-09-02 17:48:54,619 - INFO - Successfully processed date 2022-10-06, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2022-10-06.nc
+2025-09-02 17:48:54,619 - INFO - Date 20221006 processed successfully
+2025-09-02 17:48:54,629 - INFO - Processing date 20221010 (attempt 1)
+2025-09-02 17:48:54,643 - INFO - Querying NeSPReSO API for date: 2022-10-10
+2025-09-02 17:48:54,746 - INFO - Checkpoint saved successfully
+2025-09-02 17:48:54,747 - INFO - Progress: 50/486 dates completed, 1 failed
+2025-09-02 17:48:55,573 - INFO - Successfully processed date 2022-10-07, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2022-10-07.nc
+2025-09-02 17:48:55,573 - INFO - Date 20221007 processed successfully
+2025-09-02 17:48:55,588 - INFO - Processing date 20221011 (attempt 1)
+2025-09-02 17:48:55,596 - INFO - Querying NeSPReSO API for date: 2022-10-11
+2025-09-02 17:48:56,279 - INFO - Successfully processed date 2022-10-08, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2022-10-08.nc
+2025-09-02 17:48:56,280 - INFO - Date 20221008 processed successfully
+2025-09-02 17:48:56,280 - INFO - Processing date 20221012 (attempt 1)
+2025-09-02 17:48:56,287 - INFO - Querying NeSPReSO API for date: 2022-10-12
+2025-09-02 17:48:56,730 - INFO - Successfully processed date 2022-10-09, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2022-10-09.nc
+2025-09-02 17:48:56,730 - INFO - Date 20221009 processed successfully
+2025-09-02 17:48:56,746 - INFO - Processing date 20221013 (attempt 1)
+2025-09-02 17:48:56,754 - INFO - Querying NeSPReSO API for date: 2022-10-13
+2025-09-02 17:48:57,653 - INFO - Successfully processed date 2022-10-10, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2022-10-10.nc
+2025-09-02 17:48:57,653 - INFO - Date 20221010 processed successfully
+2025-09-02 17:48:57,660 - INFO - Processing date 20221014 (attempt 1)
+2025-09-02 17:48:57,669 - INFO - Querying NeSPReSO API for date: 2022-10-14
+2025-09-02 17:48:58,374 - INFO - Successfully processed date 2022-10-11, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2022-10-11.nc
+2025-09-02 17:48:58,375 - INFO - Date 20221011 processed successfully
+2025-09-02 17:48:58,381 - INFO - Processing date 20221015 (attempt 1)
+2025-09-02 17:48:58,381 - INFO - Querying NeSPReSO API for date: 2022-10-15
+2025-09-02 17:48:59,406 - INFO - Successfully processed date 2022-10-12, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2022-10-12.nc
+2025-09-02 17:48:59,406 - INFO - Date 20221012 processed successfully
+2025-09-02 17:48:59,421 - INFO - Processing date 20221016 (attempt 1)
+2025-09-02 17:48:59,436 - INFO - Querying NeSPReSO API for date: 2022-10-16
+2025-09-02 17:49:00,266 - INFO - Successfully processed date 2022-10-13, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2022-10-13.nc
+2025-09-02 17:49:00,266 - INFO - Date 20221013 processed successfully
+2025-09-02 17:49:00,281 - INFO - Processing date 20221017 (attempt 1)
+2025-09-02 17:49:00,297 - INFO - Querying NeSPReSO API for date: 2022-10-17
+2025-09-02 17:49:01,006 - INFO - Successfully processed date 2022-10-14, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2022-10-14.nc
+2025-09-02 17:49:01,007 - INFO - Date 20221014 processed successfully
+2025-09-02 17:49:01,195 - INFO - Processing date 20221018 (attempt 1)
+2025-09-02 17:49:01,464 - INFO - Querying NeSPReSO API for date: 2022-10-18
+2025-09-02 17:49:01,820 - INFO - Successfully processed date 2022-10-15, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2022-10-15.nc
+2025-09-02 17:49:01,821 - INFO - Date 20221015 processed successfully
+2025-09-02 17:49:01,828 - INFO - Processing date 20221019 (attempt 1)
+2025-09-02 17:49:01,829 - INFO - Querying NeSPReSO API for date: 2022-10-19
+2025-09-02 17:49:02,399 - INFO - Successfully processed date 2022-10-16, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2022-10-16.nc
+2025-09-02 17:49:02,399 - INFO - Date 20221016 processed successfully
+2025-09-02 17:49:02,414 - INFO - Processing date 20221020 (attempt 1)
+2025-09-02 17:49:02,430 - INFO - Querying NeSPReSO API for date: 2022-10-20
+2025-09-02 17:49:02,534 - INFO - Checkpoint saved successfully
+2025-09-02 17:49:02,534 - INFO - Progress: 60/486 dates completed, 1 failed
+2025-09-02 17:49:03,643 - INFO - Successfully processed date 2022-10-17, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2022-10-17.nc
+2025-09-02 17:49:03,644 - INFO - Date 20221017 processed successfully
+2025-09-02 17:49:03,657 - INFO - Processing date 20221021 (attempt 1)
+2025-09-02 17:49:03,672 - INFO - Querying NeSPReSO API for date: 2022-10-21
+2025-09-02 17:49:03,714 - INFO - Successfully processed date 2022-10-18, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2022-10-18.nc
+2025-09-02 17:49:03,715 - INFO - Date 20221018 processed successfully
+2025-09-02 17:49:03,739 - INFO - Processing date 20221022 (attempt 1)
+2025-09-02 17:49:03,754 - INFO - Querying NeSPReSO API for date: 2022-10-22
+2025-09-02 17:49:05,176 - INFO - Successfully processed date 2022-10-19, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2022-10-19.nc
+2025-09-02 17:49:05,177 - INFO - Date 20221019 processed successfully
+2025-09-02 17:49:05,177 - INFO - Processing date 20221023 (attempt 1)
+2025-09-02 17:49:05,177 - INFO - Querying NeSPReSO API for date: 2022-10-23
+2025-09-02 17:49:05,664 - INFO - Successfully processed date 2022-10-20, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2022-10-20.nc
+2025-09-02 17:49:05,664 - INFO - Date 20221020 processed successfully
+2025-09-02 17:49:05,672 - INFO - Processing date 20221024 (attempt 1)
+2025-09-02 17:49:05,688 - INFO - Querying NeSPReSO API for date: 2022-10-24
+2025-09-02 17:49:06,500 - INFO - Successfully processed date 2022-10-21, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2022-10-21.nc
+2025-09-02 17:49:06,501 - INFO - Date 20221021 processed successfully
+2025-09-02 17:49:06,519 - INFO - Processing date 20221026 (attempt 1)
+2025-09-02 17:49:06,530 - INFO - Querying NeSPReSO API for date: 2022-10-26
+2025-09-02 17:49:07,049 - INFO - Successfully processed date 2022-10-22, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2022-10-22.nc
+2025-09-02 17:49:07,049 - INFO - Date 20221022 processed successfully
+2025-09-02 17:49:07,064 - INFO - Processing date 20221027 (attempt 1)
+2025-09-02 17:49:07,079 - INFO - Querying NeSPReSO API for date: 2022-10-27
+2025-09-02 17:49:08,110 - INFO - Successfully processed date 2022-10-23, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2022-10-23.nc
+2025-09-02 17:49:08,110 - INFO - Date 20221023 processed successfully
+2025-09-02 17:49:08,124 - INFO - Processing date 20221028 (attempt 1)
+2025-09-02 17:49:08,147 - INFO - Querying NeSPReSO API for date: 2022-10-28
+2025-09-02 17:49:08,443 - INFO - Successfully processed date 2022-10-24, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2022-10-24.nc
+2025-09-02 17:49:08,443 - INFO - Date 20221024 processed successfully
+2025-09-02 17:49:08,443 - INFO - Processing date 20221029 (attempt 1)
+2025-09-02 17:49:08,458 - INFO - Querying NeSPReSO API for date: 2022-10-29
+2025-09-02 17:49:09,881 - INFO - Successfully processed date 2022-10-26, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2022-10-26.nc
+2025-09-02 17:49:09,881 - INFO - Date 20221026 processed successfully
+2025-09-02 17:49:09,904 - INFO - Processing date 20221030 (attempt 1)
+2025-09-02 17:49:09,919 - INFO - Querying NeSPReSO API for date: 2022-10-30
+2025-09-02 17:49:10,505 - INFO - Successfully processed date 2022-10-27, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2022-10-27.nc
+2025-09-02 17:49:10,505 - INFO - Date 20221027 processed successfully
+2025-09-02 17:49:10,505 - INFO - Processing date 20221031 (attempt 1)
+2025-09-02 17:49:10,512 - INFO - Querying NeSPReSO API for date: 2022-10-31
+2025-09-02 17:49:10,612 - INFO - Checkpoint saved successfully
+2025-09-02 17:49:10,613 - INFO - Progress: 70/486 dates completed, 1 failed
+2025-09-02 17:49:11,361 - INFO - Successfully processed date 2022-10-28, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2022-10-28.nc
+2025-09-02 17:49:11,362 - INFO - Date 20221028 processed successfully
+2025-09-02 17:49:11,369 - INFO - Processing date 20221101 (attempt 1)
+2025-09-02 17:49:11,383 - INFO - Querying NeSPReSO API for date: 2022-11-01
+2025-09-02 17:49:12,037 - INFO - Successfully processed date 2022-10-29, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2022-10-29.nc
+2025-09-02 17:49:12,037 - INFO - Date 20221029 processed successfully
+2025-09-02 17:49:12,038 - INFO - Processing date 20221102 (attempt 1)
+2025-09-02 17:49:12,055 - INFO - Querying NeSPReSO API for date: 2022-11-02
+2025-09-02 17:49:12,541 - INFO - Successfully processed date 2022-10-30, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2022-10-30.nc
+2025-09-02 17:49:12,542 - INFO - Date 20221030 processed successfully
+2025-09-02 17:49:12,557 - INFO - Processing date 20221103 (attempt 1)
+2025-09-02 17:49:12,571 - INFO - Querying NeSPReSO API for date: 2022-11-03
+2025-09-02 17:49:14,464 - INFO - Successfully processed date 2022-10-31, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2022-10-31.nc
+2025-09-02 17:49:14,464 - INFO - Date 20221031 processed successfully
+2025-09-02 17:49:14,471 - INFO - Processing date 20221104 (attempt 1)
+2025-09-02 17:49:14,479 - INFO - Querying NeSPReSO API for date: 2022-11-04
+2025-09-02 17:49:14,520 - INFO - Successfully processed date 2022-11-01, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2022-11-01.nc
+2025-09-02 17:49:14,521 - INFO - Date 20221101 processed successfully
+2025-09-02 17:49:14,528 - INFO - Processing date 20221105 (attempt 1)
+2025-09-02 17:49:14,542 - INFO - Querying NeSPReSO API for date: 2022-11-05
+2025-09-02 17:49:15,625 - INFO - Successfully processed date 2022-11-02, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2022-11-02.nc
+2025-09-02 17:49:15,625 - INFO - Date 20221102 processed successfully
+2025-09-02 17:49:15,625 - INFO - Processing date 20221106 (attempt 1)
+2025-09-02 17:49:15,635 - INFO - Querying NeSPReSO API for date: 2022-11-06
+2025-09-02 17:49:16,103 - INFO - Successfully processed date 2022-11-03, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2022-11-03.nc
+2025-09-02 17:49:16,104 - INFO - Date 20221103 processed successfully
+2025-09-02 17:49:16,119 - INFO - Processing date 20221107 (attempt 1)
+2025-09-02 17:49:16,119 - INFO - Querying NeSPReSO API for date: 2022-11-07
+2025-09-02 17:49:16,851 - INFO - Successfully processed date 2022-11-04, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2022-11-04.nc
+2025-09-02 17:49:16,851 - INFO - Date 20221104 processed successfully
+2025-09-02 17:49:16,867 - INFO - Processing date 20221108 (attempt 1)
+2025-09-02 17:49:16,875 - INFO - Querying NeSPReSO API for date: 2022-11-08
+2025-09-02 17:49:17,691 - INFO - Successfully processed date 2022-11-05, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2022-11-05.nc
+2025-09-02 17:49:17,691 - INFO - Date 20221105 processed successfully
+2025-09-02 17:49:17,744 - INFO - Processing date 20221109 (attempt 1)
+2025-09-02 17:49:17,762 - INFO - Querying NeSPReSO API for date: 2022-11-09
+2025-09-02 17:49:18,358 - INFO - Successfully processed date 2022-11-06, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2022-11-06.nc
+2025-09-02 17:49:18,358 - INFO - Date 20221106 processed successfully
+2025-09-02 17:49:18,365 - INFO - Processing date 20221110 (attempt 1)
+2025-09-02 17:49:18,380 - INFO - Querying NeSPReSO API for date: 2022-11-10
+2025-09-02 17:49:18,446 - INFO - Checkpoint saved successfully
+2025-09-02 17:49:18,446 - INFO - Progress: 80/486 dates completed, 1 failed
+2025-09-02 17:49:19,214 - INFO - Successfully processed date 2022-11-07, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2022-11-07.nc
+2025-09-02 17:49:19,214 - INFO - Date 20221107 processed successfully
+2025-09-02 17:49:19,235 - INFO - Processing date 20221111 (attempt 1)
+2025-09-02 17:49:19,236 - INFO - Querying NeSPReSO API for date: 2022-11-11
+2025-09-02 17:49:19,712 - INFO - Successfully processed date 2022-11-08, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2022-11-08.nc
+2025-09-02 17:49:19,713 - INFO - Date 20221108 processed successfully
+2025-09-02 17:49:19,727 - INFO - Processing date 20221112 (attempt 1)
+2025-09-02 17:49:19,746 - INFO - Querying NeSPReSO API for date: 2022-11-12
+2025-09-02 17:49:20,596 - INFO - Successfully processed date 2022-11-09, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2022-11-09.nc
+2025-09-02 17:49:20,596 - INFO - Date 20221109 processed successfully
+2025-09-02 17:49:20,612 - INFO - Processing date 20221113 (attempt 1)
+2025-09-02 17:49:20,626 - INFO - Querying NeSPReSO API for date: 2022-11-13
+2025-09-02 17:49:21,528 - INFO - Successfully processed date 2022-11-10, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2022-11-10.nc
+2025-09-02 17:49:21,528 - INFO - Date 20221110 processed successfully
+2025-09-02 17:49:21,538 - INFO - Processing date 20221114 (attempt 1)
+2025-09-02 17:49:21,544 - INFO - Querying NeSPReSO API for date: 2022-11-14
+2025-09-02 17:49:22,136 - INFO - Successfully processed date 2022-11-11, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2022-11-11.nc
+2025-09-02 17:49:22,136 - INFO - Date 20221111 processed successfully
+2025-09-02 17:49:22,151 - INFO - Processing date 20221115 (attempt 1)
+2025-09-02 17:49:22,165 - INFO - Querying NeSPReSO API for date: 2022-11-15
+2025-09-02 17:49:23,572 - INFO - Successfully processed date 2022-11-12, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2022-11-12.nc
+2025-09-02 17:49:23,572 - INFO - Date 20221112 processed successfully
+2025-09-02 17:49:23,579 - INFO - Processing date 20221116 (attempt 1)
+2025-09-02 17:49:23,586 - INFO - Querying NeSPReSO API for date: 2022-11-16
+2025-09-02 17:49:23,931 - INFO - Successfully processed date 2022-11-13, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2022-11-13.nc
+2025-09-02 17:49:23,931 - INFO - Date 20221113 processed successfully
+2025-09-02 17:49:23,946 - INFO - Processing date 20221117 (attempt 1)
+2025-09-02 17:49:23,965 - INFO - Querying NeSPReSO API for date: 2022-11-17
+2025-09-02 17:49:24,868 - INFO - Successfully processed date 2022-11-14, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2022-11-14.nc
+2025-09-02 17:49:24,868 - INFO - Date 20221114 processed successfully
+2025-09-02 17:49:24,884 - INFO - Processing date 20221118 (attempt 1)
+2025-09-02 17:49:24,899 - INFO - Querying NeSPReSO API for date: 2022-11-18
+2025-09-02 17:49:25,458 - INFO - Successfully processed date 2022-11-15, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2022-11-15.nc
+2025-09-02 17:49:25,459 - INFO - Date 20221115 processed successfully
+2025-09-02 17:49:25,465 - INFO - Processing date 20221119 (attempt 1)
+2025-09-02 17:49:25,472 - INFO - Querying NeSPReSO API for date: 2022-11-19
+2025-09-02 17:49:26,446 - INFO - Successfully processed date 2022-11-16, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2022-11-16.nc
+2025-09-02 17:49:26,447 - INFO - Date 20221116 processed successfully
+2025-09-02 17:49:26,455 - INFO - Processing date 20221120 (attempt 1)
+2025-09-02 17:49:26,480 - INFO - Querying NeSPReSO API for date: 2022-11-20
+2025-09-02 17:49:26,537 - INFO - Checkpoint saved successfully
+2025-09-02 17:49:26,537 - INFO - Progress: 90/486 dates completed, 1 failed
+2025-09-02 17:49:27,066 - INFO - Successfully processed date 2022-11-17, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2022-11-17.nc
+2025-09-02 17:49:27,066 - INFO - Date 20221117 processed successfully
+2025-09-02 17:49:27,083 - INFO - Processing date 20221121 (attempt 1)
+2025-09-02 17:49:27,090 - INFO - Querying NeSPReSO API for date: 2022-11-21
+2025-09-02 17:49:27,807 - INFO - Successfully processed date 2022-11-18, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2022-11-18.nc
+2025-09-02 17:49:27,808 - INFO - Date 20221118 processed successfully
+2025-09-02 17:49:27,808 - INFO - Processing date 20221122 (attempt 1)
+2025-09-02 17:49:27,849 - INFO - Querying NeSPReSO API for date: 2022-11-22
+2025-09-02 17:49:28,331 - INFO - Successfully processed date 2022-11-19, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2022-11-19.nc
+2025-09-02 17:49:28,331 - INFO - Date 20221119 processed successfully
+2025-09-02 17:49:28,346 - INFO - Processing date 20221123 (attempt 1)
+2025-09-02 17:49:28,360 - INFO - Querying NeSPReSO API for date: 2022-11-23
+2025-09-02 17:49:29,473 - INFO - Successfully processed date 2022-11-20, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2022-11-20.nc
+2025-09-02 17:49:29,474 - INFO - Date 20221120 processed successfully
+2025-09-02 17:49:29,572 - INFO - Processing date 20221124 (attempt 1)
+2025-09-02 17:49:29,584 - INFO - Querying NeSPReSO API for date: 2022-11-24
+2025-09-02 17:49:29,818 - INFO - Successfully processed date 2022-11-21, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2022-11-21.nc
+2025-09-02 17:49:29,819 - INFO - Date 20221121 processed successfully
+2025-09-02 17:49:29,836 - INFO - Processing date 20221125 (attempt 1)
+2025-09-02 17:49:29,944 - INFO - Querying NeSPReSO API for date: 2022-11-25
+2025-09-02 17:49:30,852 - INFO - Successfully processed date 2022-11-22, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2022-11-22.nc
+2025-09-02 17:49:30,852 - INFO - Date 20221122 processed successfully
+2025-09-02 17:49:31,034 - INFO - Successfully processed date 2022-11-23, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2022-11-23.nc
+2025-09-02 17:49:31,067 - INFO - Processing date 20221126 (attempt 1)
+2025-09-02 17:49:31,138 - INFO - Date 20221123 processed successfully
+2025-09-02 17:49:31,207 - INFO - Querying NeSPReSO API for date: 2022-11-26
+2025-09-02 17:49:31,217 - INFO - Processing date 20221127 (attempt 1)
+2025-09-02 17:49:31,462 - INFO - Querying NeSPReSO API for date: 2022-11-27
+2025-09-02 17:49:32,264 - INFO - Successfully processed date 2022-11-24, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2022-11-24.nc
+2025-09-02 17:49:32,265 - INFO - Date 20221124 processed successfully
+2025-09-02 17:49:32,272 - INFO - Processing date 20221128 (attempt 1)
+2025-09-02 17:49:32,286 - INFO - Querying NeSPReSO API for date: 2022-11-28
+2025-09-02 17:49:32,571 - INFO - Successfully processed date 2022-11-25, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2022-11-25.nc
+2025-09-02 17:49:32,571 - INFO - Date 20221125 processed successfully
+2025-09-02 17:49:32,590 - INFO - Processing date 20221129 (attempt 1)
+2025-09-02 17:49:32,605 - INFO - Querying NeSPReSO API for date: 2022-11-29
+2025-09-02 17:49:33,428 - INFO - Successfully processed date 2022-11-26, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2022-11-26.nc
+2025-09-02 17:49:33,428 - INFO - Date 20221126 processed successfully
+2025-09-02 17:49:33,482 - INFO - Processing date 20221130 (attempt 1)
+2025-09-02 17:49:33,534 - INFO - Querying NeSPReSO API for date: 2022-11-30
+2025-09-02 17:49:33,642 - INFO - Checkpoint saved successfully
+2025-09-02 17:49:33,642 - INFO - Progress: 100/486 dates completed, 1 failed
+2025-09-02 17:49:34,332 - INFO - Successfully processed date 2022-11-27, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2022-11-27.nc
+2025-09-02 17:49:34,333 - INFO - Date 20221127 processed successfully
+2025-09-02 17:49:34,349 - INFO - Processing date 20221201 (attempt 1)
+2025-09-02 17:49:34,367 - INFO - Querying NeSPReSO API for date: 2022-12-01
+2025-09-02 17:49:35,099 - INFO - Successfully processed date 2022-11-28, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2022-11-28.nc
+2025-09-02 17:49:35,099 - INFO - Date 20221128 processed successfully
+2025-09-02 17:49:35,137 - INFO - Processing date 20221202 (attempt 1)
+2025-09-02 17:49:35,145 - INFO - Querying NeSPReSO API for date: 2022-12-02
+2025-09-02 17:49:35,415 - INFO - Successfully processed date 2022-11-29, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2022-11-29.nc
+2025-09-02 17:49:35,416 - INFO - Date 20221129 processed successfully
+2025-09-02 17:49:35,433 - INFO - Processing date 20221203 (attempt 1)
+2025-09-02 17:49:35,448 - INFO - Querying NeSPReSO API for date: 2022-12-03
+2025-09-02 17:49:36,311 - INFO - Successfully processed date 2022-11-30, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2022-11-30.nc
+2025-09-02 17:49:36,311 - INFO - Date 20221130 processed successfully
+2025-09-02 17:49:36,325 - INFO - Processing date 20221204 (attempt 1)
+2025-09-02 17:49:36,358 - INFO - Querying NeSPReSO API for date: 2022-12-04
+2025-09-02 17:49:36,925 - INFO - Successfully processed date 2022-12-01, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2022-12-01.nc
+2025-09-02 17:49:36,925 - INFO - Date 20221201 processed successfully
+2025-09-02 17:49:36,925 - INFO - Processing date 20221205 (attempt 1)
+2025-09-02 17:49:36,925 - INFO - Querying NeSPReSO API for date: 2022-12-05
+2025-09-02 17:49:37,787 - INFO - Successfully processed date 2022-12-02, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2022-12-02.nc
+2025-09-02 17:49:37,788 - INFO - Date 20221202 processed successfully
+2025-09-02 17:49:37,796 - INFO - Processing date 20221206 (attempt 1)
+2025-09-02 17:49:37,802 - INFO - Querying NeSPReSO API for date: 2022-12-06
+2025-09-02 17:49:38,087 - INFO - Successfully processed date 2022-12-03, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2022-12-03.nc
+2025-09-02 17:49:38,088 - INFO - Date 20221203 processed successfully
+2025-09-02 17:49:38,102 - INFO - Processing date 20221207 (attempt 1)
+2025-09-02 17:49:38,117 - INFO - Querying NeSPReSO API for date: 2022-12-07
+2025-09-02 17:49:39,149 - INFO - Successfully processed date 2022-12-04, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2022-12-04.nc
+2025-09-02 17:49:39,149 - INFO - Date 20221204 processed successfully
+2025-09-02 17:49:39,180 - INFO - Processing date 20221208 (attempt 1)
+2025-09-02 17:49:39,195 - INFO - Querying NeSPReSO API for date: 2022-12-08
+2025-09-02 17:49:39,423 - INFO - Successfully processed date 2022-12-05, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2022-12-05.nc
+2025-09-02 17:49:39,423 - INFO - Date 20221205 processed successfully
+2025-09-02 17:49:39,437 - INFO - Processing date 20221209 (attempt 1)
+2025-09-02 17:49:39,451 - INFO - Querying NeSPReSO API for date: 2022-12-09
+2025-09-02 17:49:40,388 - INFO - Successfully processed date 2022-12-06, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2022-12-06.nc
+2025-09-02 17:49:40,388 - INFO - Date 20221206 processed successfully
+2025-09-02 17:49:40,403 - INFO - Processing date 20221210 (attempt 1)
+2025-09-02 17:49:40,410 - INFO - Querying NeSPReSO API for date: 2022-12-10
+2025-09-02 17:49:40,569 - INFO - Checkpoint saved successfully
+2025-09-02 17:49:40,570 - INFO - Progress: 110/486 dates completed, 1 failed
+2025-09-02 17:49:40,911 - INFO - Successfully processed date 2022-12-07, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2022-12-07.nc
+2025-09-02 17:49:40,911 - INFO - Date 20221207 processed successfully
+2025-09-02 17:49:40,926 - INFO - Processing date 20221211 (attempt 1)
+2025-09-02 17:49:40,952 - INFO - Querying NeSPReSO API for date: 2022-12-11
+2025-09-02 17:49:41,695 - INFO - Successfully processed date 2022-12-08, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2022-12-08.nc
+2025-09-02 17:49:41,695 - INFO - Date 20221208 processed successfully
+2025-09-02 17:49:41,709 - INFO - Processing date 20221212 (attempt 1)
+2025-09-02 17:49:41,723 - INFO - Querying NeSPReSO API for date: 2022-12-12
+2025-09-02 17:49:42,458 - INFO - Successfully processed date 2022-12-09, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2022-12-09.nc
+2025-09-02 17:49:42,458 - INFO - Date 20221209 processed successfully
+2025-09-02 17:49:42,472 - INFO - Processing date 20221213 (attempt 1)
+2025-09-02 17:49:42,479 - INFO - Querying NeSPReSO API for date: 2022-12-13
+2025-09-02 17:49:43,205 - INFO - Successfully processed date 2022-12-10, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2022-12-10.nc
+2025-09-02 17:49:43,205 - INFO - Date 20221210 processed successfully
+2025-09-02 17:49:43,224 - INFO - Processing date 20221214 (attempt 1)
+2025-09-02 17:49:43,232 - INFO - Querying NeSPReSO API for date: 2022-12-14
+2025-09-02 17:49:44,017 - INFO - Successfully processed date 2022-12-11, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2022-12-11.nc
+2025-09-02 17:49:44,018 - INFO - Date 20221211 processed successfully
+2025-09-02 17:49:44,025 - INFO - Processing date 20221215 (attempt 1)
+2025-09-02 17:49:44,039 - INFO - Querying NeSPReSO API for date: 2022-12-15
+2025-09-02 17:49:44,600 - INFO - Successfully processed date 2022-12-12, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2022-12-12.nc
+2025-09-02 17:49:44,601 - INFO - Date 20221212 processed successfully
+2025-09-02 17:49:44,616 - INFO - Processing date 20221216 (attempt 1)
+2025-09-02 17:49:44,631 - INFO - Querying NeSPReSO API for date: 2022-12-16
+2025-09-02 17:49:45,434 - INFO - Successfully processed date 2022-12-13, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2022-12-13.nc
+2025-09-02 17:49:45,434 - INFO - Date 20221213 processed successfully
+2025-09-02 17:49:45,449 - INFO - Processing date 20221217 (attempt 1)
+2025-09-02 17:49:45,464 - INFO - Querying NeSPReSO API for date: 2022-12-17
+2025-09-02 17:49:46,247 - INFO - Successfully processed date 2022-12-14, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2022-12-14.nc
+2025-09-02 17:49:46,248 - INFO - Date 20221214 processed successfully
+2025-09-02 17:49:46,260 - INFO - Processing date 20221218 (attempt 1)
+2025-09-02 17:49:46,267 - INFO - Querying NeSPReSO API for date: 2022-12-18
+2025-09-02 17:49:47,004 - INFO - Successfully processed date 2022-12-15, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2022-12-15.nc
+2025-09-02 17:49:47,005 - INFO - Date 20221215 processed successfully
+2025-09-02 17:49:47,019 - INFO - Processing date 20221219 (attempt 1)
+2025-09-02 17:49:47,026 - INFO - Querying NeSPReSO API for date: 2022-12-19
+2025-09-02 17:49:48,001 - INFO - Successfully processed date 2022-12-16, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2022-12-16.nc
+2025-09-02 17:49:48,002 - INFO - Date 20221216 processed successfully
+2025-09-02 17:49:48,016 - INFO - Processing date 20221220 (attempt 1)
+2025-09-02 17:49:48,032 - INFO - Querying NeSPReSO API for date: 2022-12-20
+2025-09-02 17:49:48,207 - INFO - Checkpoint saved successfully
+2025-09-02 17:49:48,208 - INFO - Progress: 120/486 dates completed, 1 failed
+2025-09-02 17:49:48,329 - INFO - Successfully processed date 2022-12-17, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2022-12-17.nc
+2025-09-02 17:49:48,330 - INFO - Date 20221217 processed successfully
+2025-09-02 17:49:48,337 - INFO - Processing date 20221221 (attempt 1)
+2025-09-02 17:49:48,344 - INFO - Querying NeSPReSO API for date: 2022-12-21
+2025-09-02 17:49:49,320 - INFO - Successfully processed date 2022-12-18, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2022-12-18.nc
+2025-09-02 17:49:49,321 - INFO - Date 20221218 processed successfully
+2025-09-02 17:49:49,321 - INFO - Processing date 20221222 (attempt 1)
+2025-09-02 17:49:49,321 - INFO - Querying NeSPReSO API for date: 2022-12-22
+2025-09-02 17:49:49,763 - INFO - Successfully processed date 2022-12-19, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2022-12-19.nc
+2025-09-02 17:49:49,764 - INFO - Date 20221219 processed successfully
+2025-09-02 17:49:49,779 - INFO - Processing date 20221223 (attempt 1)
+2025-09-02 17:49:49,786 - INFO - Querying NeSPReSO API for date: 2022-12-23
+2025-09-02 17:49:50,916 - INFO - Successfully processed date 2022-12-20, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2022-12-20.nc
+2025-09-02 17:49:50,917 - INFO - Date 20221220 processed successfully
+2025-09-02 17:49:50,931 - INFO - Processing date 20221224 (attempt 1)
+2025-09-02 17:49:50,931 - INFO - Querying NeSPReSO API for date: 2022-12-24
+2025-09-02 17:49:51,418 - INFO - Successfully processed date 2022-12-21, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2022-12-21.nc
+2025-09-02 17:49:51,418 - INFO - Date 20221221 processed successfully
+2025-09-02 17:49:51,425 - INFO - Processing date 20221225 (attempt 1)
+2025-09-02 17:49:51,858 - INFO - Querying NeSPReSO API for date: 2022-12-25
+2025-09-02 17:49:52,634 - INFO - Successfully processed date 2022-12-22, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2022-12-22.nc
+2025-09-02 17:49:52,635 - INFO - Date 20221222 processed successfully
+2025-09-02 17:49:52,641 - INFO - Processing date 20221226 (attempt 1)
+2025-09-02 17:49:52,656 - INFO - Querying NeSPReSO API for date: 2022-12-26
+2025-09-02 17:49:53,074 - INFO - Successfully processed date 2022-12-23, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2022-12-23.nc
+2025-09-02 17:49:53,074 - INFO - Date 20221223 processed successfully
+2025-09-02 17:49:53,082 - INFO - Processing date 20221227 (attempt 1)
+2025-09-02 17:49:53,097 - INFO - Querying NeSPReSO API for date: 2022-12-27
+2025-09-02 17:49:54,077 - INFO - Successfully processed date 2022-12-24, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2022-12-24.nc
+2025-09-02 17:49:54,078 - INFO - Date 20221224 processed successfully
+2025-09-02 17:49:54,093 - INFO - Processing date 20221228 (attempt 1)
+2025-09-02 17:49:54,108 - INFO - Querying NeSPReSO API for date: 2022-12-28
+2025-09-02 17:49:54,654 - INFO - Successfully processed date 2022-12-25, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2022-12-25.nc
+2025-09-02 17:49:54,655 - INFO - Date 20221225 processed successfully
+2025-09-02 17:49:54,675 - INFO - Processing date 20221229 (attempt 1)
+2025-09-02 17:49:54,825 - INFO - Querying NeSPReSO API for date: 2022-12-29
+2025-09-02 17:49:55,509 - INFO - Successfully processed date 2022-12-26, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2022-12-26.nc
+2025-09-02 17:49:55,509 - INFO - Date 20221226 processed successfully
+2025-09-02 17:49:55,524 - INFO - Processing date 20221230 (attempt 1)
+2025-09-02 17:49:55,539 - INFO - Querying NeSPReSO API for date: 2022-12-30
+2025-09-02 17:49:55,654 - INFO - Checkpoint saved successfully
+2025-09-02 17:49:55,655 - INFO - Progress: 130/486 dates completed, 1 failed
+2025-09-02 17:49:56,217 - INFO - Successfully processed date 2022-12-27, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2022-12-27.nc
+2025-09-02 17:49:56,217 - INFO - Date 20221227 processed successfully
+2025-09-02 17:49:56,227 - INFO - Processing date 20221231 (attempt 1)
+2025-09-02 17:49:56,232 - INFO - Querying NeSPReSO API for date: 2022-12-31
+2025-09-02 17:49:57,121 - INFO - Successfully processed date 2022-12-28, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2022-12-28.nc
+2025-09-02 17:49:57,122 - INFO - Date 20221228 processed successfully
+2025-09-02 17:49:57,129 - INFO - Processing date 20230101 (attempt 1)
+2025-09-02 17:49:57,144 - INFO - Querying NeSPReSO API for date: 2023-01-01
+2025-09-02 17:49:57,649 - INFO - Successfully processed date 2022-12-29, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2022-12-29.nc
+2025-09-02 17:49:57,649 - INFO - Date 20221229 processed successfully
+2025-09-02 17:49:57,656 - INFO - Processing date 20230102 (attempt 1)
+2025-09-02 17:49:57,672 - INFO - Querying NeSPReSO API for date: 2023-01-02
+2025-09-02 17:49:58,256 - INFO - Successfully processed date 2022-12-30, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2022-12-30.nc
+2025-09-02 17:49:58,257 - INFO - Date 20221230 processed successfully
+2025-09-02 17:49:58,271 - INFO - Processing date 20230103 (attempt 1)
+2025-09-02 17:49:58,279 - INFO - Querying NeSPReSO API for date: 2023-01-03
+2025-09-02 17:49:59,247 - INFO - Successfully processed date 2022-12-31, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2022-12-31.nc
+2025-09-02 17:49:59,247 - INFO - Date 20221231 processed successfully
+2025-09-02 17:49:59,339 - INFO - Processing date 20230104 (attempt 1)
+2025-09-02 17:49:59,377 - INFO - Querying NeSPReSO API for date: 2023-01-04
+2025-09-02 17:49:59,986 - INFO - Successfully processed date 2023-01-01, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-01-01.nc
+2025-09-02 17:49:59,986 - INFO - Date 20230101 processed successfully
+2025-09-02 17:49:59,993 - INFO - Processing date 20230105 (attempt 1)
+2025-09-02 17:50:00,001 - INFO - Querying NeSPReSO API for date: 2023-01-05
+2025-09-02 17:50:00,444 - INFO - Successfully processed date 2023-01-02, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-01-02.nc
+2025-09-02 17:50:00,444 - INFO - Date 20230102 processed successfully
+2025-09-02 17:50:00,550 - INFO - Processing date 20230106 (attempt 1)
+2025-09-02 17:50:00,606 - INFO - Querying NeSPReSO API for date: 2023-01-06
+2025-09-02 17:50:01,664 - INFO - Successfully processed date 2023-01-03, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-01-03.nc
+2025-09-02 17:50:01,665 - INFO - Date 20230103 processed successfully
+2025-09-02 17:50:01,766 - INFO - Processing date 20230107 (attempt 1)
+2025-09-02 17:50:01,804 - INFO - Querying NeSPReSO API for date: 2023-01-07
+2025-09-02 17:50:01,948 - INFO - Successfully processed date 2023-01-04, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-01-04.nc
+2025-09-02 17:50:01,948 - INFO - Date 20230104 processed successfully
+2025-09-02 17:50:01,958 - INFO - Processing date 20230108 (attempt 1)
+2025-09-02 17:50:01,972 - INFO - Querying NeSPReSO API for date: 2023-01-08
+2025-09-02 17:50:03,011 - INFO - Successfully processed date 2023-01-05, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-01-05.nc
+2025-09-02 17:50:03,011 - INFO - Date 20230105 processed successfully
+2025-09-02 17:50:03,029 - INFO - Processing date 20230109 (attempt 1)
+2025-09-02 17:50:03,044 - INFO - Querying NeSPReSO API for date: 2023-01-09
+2025-09-02 17:50:03,155 - INFO - Checkpoint saved successfully
+2025-09-02 17:50:03,155 - INFO - Progress: 140/486 dates completed, 1 failed
+2025-09-02 17:50:03,213 - INFO - Successfully processed date 2023-01-06, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-01-06.nc
+2025-09-02 17:50:03,213 - INFO - Date 20230106 processed successfully
+2025-09-02 17:50:03,252 - INFO - Processing date 20230110 (attempt 1)
+2025-09-02 17:50:03,281 - INFO - Querying NeSPReSO API for date: 2023-01-10
+2025-09-02 17:50:04,499 - INFO - Successfully processed date 2023-01-07, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-01-07.nc
+2025-09-02 17:50:04,499 - INFO - Date 20230107 processed successfully
+2025-09-02 17:50:04,566 - INFO - Processing date 20230111 (attempt 1)
+2025-09-02 17:50:04,574 - INFO - Querying NeSPReSO API for date: 2023-01-11
+2025-09-02 17:50:04,756 - INFO - Successfully processed date 2023-01-08, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-01-08.nc
+2025-09-02 17:50:04,784 - INFO - Date 20230108 processed successfully
+2025-09-02 17:50:04,784 - INFO - Processing date 20230112 (attempt 1)
+2025-09-02 17:50:04,784 - INFO - Querying NeSPReSO API for date: 2023-01-12
+2025-09-02 17:50:05,761 - INFO - Successfully processed date 2023-01-09, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-01-09.nc
+2025-09-02 17:50:05,762 - INFO - Date 20230109 processed successfully
+2025-09-02 17:50:05,770 - INFO - Processing date 20230113 (attempt 1)
+2025-09-02 17:50:05,770 - INFO - Querying NeSPReSO API for date: 2023-01-13
+2025-09-02 17:50:06,241 - INFO - Successfully processed date 2023-01-10, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-01-10.nc
+2025-09-02 17:50:06,241 - INFO - Date 20230110 processed successfully
+2025-09-02 17:50:06,242 - INFO - Processing date 20230114 (attempt 1)
+2025-09-02 17:50:06,256 - INFO - Querying NeSPReSO API for date: 2023-01-14
+2025-09-02 17:50:07,350 - INFO - Successfully processed date 2023-01-11, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-01-11.nc
+2025-09-02 17:50:07,350 - INFO - Date 20230111 processed successfully
+2025-09-02 17:50:07,365 - INFO - Processing date 20230115 (attempt 1)
+2025-09-02 17:50:07,380 - INFO - Querying NeSPReSO API for date: 2023-01-15
+2025-09-02 17:50:07,640 - INFO - Successfully processed date 2023-01-12, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-01-12.nc
+2025-09-02 17:50:07,640 - INFO - Date 20230112 processed successfully
+2025-09-02 17:50:07,655 - INFO - Processing date 20230116 (attempt 1)
+2025-09-02 17:50:07,671 - INFO - Querying NeSPReSO API for date: 2023-01-16
+2025-09-02 17:50:08,678 - INFO - Successfully processed date 2023-01-13, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-01-13.nc
+2025-09-02 17:50:08,679 - INFO - Date 20230113 processed successfully
+2025-09-02 17:50:08,679 - INFO - Processing date 20230117 (attempt 1)
+2025-09-02 17:50:08,679 - INFO - Querying NeSPReSO API for date: 2023-01-17
+2025-09-02 17:50:09,156 - INFO - Successfully processed date 2023-01-14, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-01-14.nc
+2025-09-02 17:50:09,157 - INFO - Date 20230114 processed successfully
+2025-09-02 17:50:09,175 - INFO - Processing date 20230118 (attempt 1)
+2025-09-02 17:50:09,189 - INFO - Querying NeSPReSO API for date: 2023-01-18
+2025-09-02 17:50:10,205 - INFO - Successfully processed date 2023-01-15, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-01-15.nc
+2025-09-02 17:50:10,205 - INFO - Date 20230115 processed successfully
+2025-09-02 17:50:10,206 - INFO - Processing date 20230119 (attempt 1)
+2025-09-02 17:50:10,207 - INFO - Querying NeSPReSO API for date: 2023-01-19
+2025-09-02 17:50:10,300 - INFO - Checkpoint saved successfully
+2025-09-02 17:50:10,300 - INFO - Progress: 150/486 dates completed, 1 failed
+2025-09-02 17:50:10,726 - INFO - Successfully processed date 2023-01-16, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-01-16.nc
+2025-09-02 17:50:10,726 - INFO - Date 20230116 processed successfully
+2025-09-02 17:50:10,741 - INFO - Processing date 20230120 (attempt 1)
+2025-09-02 17:50:10,767 - INFO - Querying NeSPReSO API for date: 2023-01-20
+2025-09-02 17:50:11,455 - INFO - Successfully processed date 2023-01-17, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-01-17.nc
+2025-09-02 17:50:11,455 - INFO - Date 20230117 processed successfully
+2025-09-02 17:50:11,488 - INFO - Processing date 20230121 (attempt 1)
+2025-09-02 17:50:11,497 - INFO - Querying NeSPReSO API for date: 2023-01-21
+2025-09-02 17:50:11,880 - INFO - Successfully processed date 2023-01-18, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-01-18.nc
+2025-09-02 17:50:11,880 - INFO - Date 20230118 processed successfully
+2025-09-02 17:50:11,896 - INFO - Processing date 20230122 (attempt 1)
+2025-09-02 17:50:11,908 - INFO - Querying NeSPReSO API for date: 2023-01-22
+2025-09-02 17:50:12,599 - INFO - Successfully processed date 2023-01-19, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-01-19.nc
+2025-09-02 17:50:12,600 - INFO - Date 20230119 processed successfully
+2025-09-02 17:50:12,607 - INFO - Processing date 20230123 (attempt 1)
+2025-09-02 17:50:12,638 - INFO - Querying NeSPReSO API for date: 2023-01-23
+2025-09-02 17:50:13,800 - INFO - Successfully processed date 2023-01-20, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-01-20.nc
+2025-09-02 17:50:13,801 - INFO - Date 20230120 processed successfully
+2025-09-02 17:50:13,828 - INFO - Processing date 20230124 (attempt 1)
+2025-09-02 17:50:13,848 - INFO - Querying NeSPReSO API for date: 2023-01-24
+2025-09-02 17:50:14,182 - INFO - Successfully processed date 2023-01-21, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-01-21.nc
+2025-09-02 17:50:14,182 - INFO - Date 20230121 processed successfully
+2025-09-02 17:50:14,195 - INFO - Processing date 20230125 (attempt 1)
+2025-09-02 17:50:14,223 - INFO - Querying NeSPReSO API for date: 2023-01-25
+2025-09-02 17:50:15,102 - INFO - Successfully processed date 2023-01-22, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-01-22.nc
+2025-09-02 17:50:15,102 - INFO - Date 20230122 processed successfully
+2025-09-02 17:50:15,117 - INFO - Processing date 20230126 (attempt 1)
+2025-09-02 17:50:15,126 - INFO - Querying NeSPReSO API for date: 2023-01-26
+2025-09-02 17:50:15,295 - INFO - Successfully processed date 2023-01-23, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-01-23.nc
+2025-09-02 17:50:15,296 - INFO - Date 20230123 processed successfully
+2025-09-02 17:50:15,296 - INFO - Processing date 20230127 (attempt 1)
+2025-09-02 17:50:15,296 - INFO - Querying NeSPReSO API for date: 2023-01-27
+2025-09-02 17:50:16,011 - INFO - Successfully processed date 2023-01-24, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-01-24.nc
+2025-09-02 17:50:16,011 - INFO - Date 20230124 processed successfully
+2025-09-02 17:50:16,012 - INFO - Processing date 20230128 (attempt 1)
+2025-09-02 17:50:16,012 - INFO - Querying NeSPReSO API for date: 2023-01-28
+2025-09-02 17:50:16,886 - INFO - Successfully processed date 2023-01-25, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-01-25.nc
+2025-09-02 17:50:16,887 - INFO - Date 20230125 processed successfully
+2025-09-02 17:50:16,913 - INFO - Processing date 20230129 (attempt 1)
+2025-09-02 17:50:16,922 - INFO - Querying NeSPReSO API for date: 2023-01-29
+2025-09-02 17:50:17,006 - INFO - Checkpoint saved successfully
+2025-09-02 17:50:17,006 - INFO - Progress: 160/486 dates completed, 1 failed
+2025-09-02 17:50:17,609 - INFO - Successfully processed date 2023-01-26, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-01-26.nc
+2025-09-02 17:50:17,609 - INFO - Date 20230126 processed successfully
+2025-09-02 17:50:17,629 - INFO - Processing date 20230130 (attempt 1)
+2025-09-02 17:50:17,636 - INFO - Querying NeSPReSO API for date: 2023-01-30
+2025-09-02 17:50:18,011 - INFO - Successfully processed date 2023-01-27, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-01-27.nc
+2025-09-02 17:50:18,011 - INFO - Date 20230127 processed successfully
+2025-09-02 17:50:18,036 - INFO - Processing date 20230131 (attempt 1)
+2025-09-02 17:50:18,060 - INFO - Querying NeSPReSO API for date: 2023-01-31
+2025-09-02 17:50:18,961 - INFO - Successfully processed date 2023-01-28, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-01-28.nc
+2025-09-02 17:50:18,962 - INFO - Date 20230128 processed successfully
+2025-09-02 17:50:18,976 - INFO - Processing date 20230201 (attempt 1)
+2025-09-02 17:50:18,992 - INFO - Querying NeSPReSO API for date: 2023-02-01
+2025-09-02 17:50:19,825 - INFO - Successfully processed date 2023-01-29, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-01-29.nc
+2025-09-02 17:50:19,825 - INFO - Date 20230129 processed successfully
+2025-09-02 17:50:19,852 - INFO - Processing date 20230202 (attempt 1)
+2025-09-02 17:50:19,860 - INFO - Querying NeSPReSO API for date: 2023-02-02
+2025-09-02 17:50:20,432 - INFO - Successfully processed date 2023-01-30, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-01-30.nc
+2025-09-02 17:50:20,433 - INFO - Date 20230130 processed successfully
+2025-09-02 17:50:20,440 - INFO - Processing date 20230203 (attempt 1)
+2025-09-02 17:50:20,449 - INFO - Querying NeSPReSO API for date: 2023-02-03
+2025-09-02 17:50:21,472 - INFO - Successfully processed date 2023-01-31, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-01-31.nc
+2025-09-02 17:50:21,472 - INFO - Date 20230131 processed successfully
+2025-09-02 17:50:21,488 - INFO - Processing date 20230204 (attempt 1)
+2025-09-02 17:50:21,508 - INFO - Querying NeSPReSO API for date: 2023-02-04
+2025-09-02 17:50:22,087 - INFO - Successfully processed date 2023-02-01, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-02-01.nc
+2025-09-02 17:50:22,087 - INFO - Date 20230201 processed successfully
+2025-09-02 17:50:22,094 - INFO - Processing date 20230205 (attempt 1)
+2025-09-02 17:50:22,100 - INFO - Querying NeSPReSO API for date: 2023-02-05
+2025-09-02 17:50:23,141 - INFO - Successfully processed date 2023-02-02, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-02-02.nc
+2025-09-02 17:50:23,141 - INFO - Date 20230202 processed successfully
+2025-09-02 17:50:23,161 - INFO - Processing date 20230206 (attempt 1)
+2025-09-02 17:50:23,176 - INFO - Querying NeSPReSO API for date: 2023-02-06
+2025-09-02 17:50:23,262 - INFO - Successfully processed date 2023-02-03, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-02-03.nc
+2025-09-02 17:50:23,263 - INFO - Date 20230203 processed successfully
+2025-09-02 17:50:23,277 - INFO - Processing date 20230207 (attempt 1)
+2025-09-02 17:50:23,292 - INFO - Querying NeSPReSO API for date: 2023-02-07
+2025-09-02 17:50:24,300 - INFO - Successfully processed date 2023-02-04, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-02-04.nc
+2025-09-02 17:50:24,300 - INFO - Date 20230204 processed successfully
+2025-09-02 17:50:24,316 - INFO - Processing date 20230208 (attempt 1)
+2025-09-02 17:50:24,331 - INFO - Querying NeSPReSO API for date: 2023-02-08
+2025-09-02 17:50:24,444 - INFO - Checkpoint saved successfully
+2025-09-02 17:50:24,444 - INFO - Progress: 170/486 dates completed, 1 failed
+2025-09-02 17:50:25,252 - INFO - Successfully processed date 2023-02-05, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-02-05.nc
+2025-09-02 17:50:25,252 - INFO - Date 20230205 processed successfully
+2025-09-02 17:50:25,253 - INFO - Processing date 20230209 (attempt 1)
+2025-09-02 17:50:25,268 - INFO - Querying NeSPReSO API for date: 2023-02-09
+2025-09-02 17:50:25,738 - INFO - Successfully processed date 2023-02-06, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-02-06.nc
+2025-09-02 17:50:25,738 - INFO - Date 20230206 processed successfully
+2025-09-02 17:50:25,745 - INFO - Processing date 20230210 (attempt 1)
+2025-09-02 17:50:25,759 - INFO - Querying NeSPReSO API for date: 2023-02-10
+2025-09-02 17:50:26,695 - INFO - Successfully processed date 2023-02-07, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-02-07.nc
+2025-09-02 17:50:26,695 - INFO - Date 20230207 processed successfully
+2025-09-02 17:50:26,705 - INFO - Processing date 20230211 (attempt 1)
+2025-09-02 17:50:26,722 - INFO - Querying NeSPReSO API for date: 2023-02-11
+2025-09-02 17:50:27,536 - INFO - Successfully processed date 2023-02-08, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-02-08.nc
+2025-09-02 17:50:27,537 - INFO - Date 20230208 processed successfully
+2025-09-02 17:50:27,553 - INFO - Processing date 20230212 (attempt 1)
+2025-09-02 17:50:27,603 - INFO - Querying NeSPReSO API for date: 2023-02-12
+2025-09-02 17:50:27,855 - INFO - Successfully processed date 2023-02-09, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-02-09.nc
+2025-09-02 17:50:27,855 - INFO - Date 20230209 processed successfully
+2025-09-02 17:50:27,869 - INFO - Processing date 20230213 (attempt 1)
+2025-09-02 17:50:27,884 - INFO - Querying NeSPReSO API for date: 2023-02-13
+2025-09-02 17:50:29,076 - INFO - Successfully processed date 2023-02-10, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-02-10.nc
+2025-09-02 17:50:29,077 - INFO - Date 20230210 processed successfully
+2025-09-02 17:50:29,084 - INFO - Processing date 20230214 (attempt 1)
+2025-09-02 17:50:29,110 - INFO - Querying NeSPReSO API for date: 2023-02-14
+2025-09-02 17:50:29,207 - INFO - Successfully processed date 2023-02-11, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-02-11.nc
+2025-09-02 17:50:29,207 - INFO - Date 20230211 processed successfully
+2025-09-02 17:50:29,222 - INFO - Processing date 20230215 (attempt 1)
+2025-09-02 17:50:29,244 - INFO - Querying NeSPReSO API for date: 2023-02-15
+2025-09-02 17:50:30,223 - INFO - Successfully processed date 2023-02-12, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-02-12.nc
+2025-09-02 17:50:30,223 - INFO - Date 20230212 processed successfully
+2025-09-02 17:50:30,243 - INFO - Processing date 20230216 (attempt 1)
+2025-09-02 17:50:30,250 - INFO - Querying NeSPReSO API for date: 2023-02-16
+2025-09-02 17:50:31,128 - INFO - Successfully processed date 2023-02-13, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-02-13.nc
+2025-09-02 17:50:31,128 - INFO - Date 20230213 processed successfully
+2025-09-02 17:50:31,149 - INFO - Processing date 20230217 (attempt 1)
+2025-09-02 17:50:31,167 - INFO - Querying NeSPReSO API for date: 2023-02-17
+2025-09-02 17:50:31,773 - INFO - Successfully processed date 2023-02-14, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-02-14.nc
+2025-09-02 17:50:31,774 - INFO - Date 20230214 processed successfully
+2025-09-02 17:50:31,787 - INFO - Processing date 20230218 (attempt 1)
+2025-09-02 17:50:31,818 - INFO - Querying NeSPReSO API for date: 2023-02-18
+2025-09-02 17:50:31,897 - INFO - Checkpoint saved successfully
+2025-09-02 17:50:31,897 - INFO - Progress: 180/486 dates completed, 1 failed
+2025-09-02 17:50:32,418 - INFO - Successfully processed date 2023-02-15, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-02-15.nc
+2025-09-02 17:50:32,419 - INFO - Date 20230215 processed successfully
+2025-09-02 17:50:32,438 - INFO - Processing date 20230219 (attempt 1)
+2025-09-02 17:50:32,454 - INFO - Querying NeSPReSO API for date: 2023-02-19
+2025-09-02 17:50:33,429 - INFO - Successfully processed date 2023-02-16, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-02-16.nc
+2025-09-02 17:50:33,429 - INFO - Date 20230216 processed successfully
+2025-09-02 17:50:33,444 - INFO - Processing date 20230220 (attempt 1)
+2025-09-02 17:50:33,459 - INFO - Querying NeSPReSO API for date: 2023-02-20
+2025-09-02 17:50:34,154 - INFO - Successfully processed date 2023-02-17, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-02-17.nc
+2025-09-02 17:50:34,154 - INFO - Date 20230217 processed successfully
+2025-09-02 17:50:34,194 - INFO - Processing date 20230221 (attempt 1)
+2025-09-02 17:50:34,226 - INFO - Querying NeSPReSO API for date: 2023-02-21
+2025-09-02 17:50:34,635 - INFO - Successfully processed date 2023-02-18, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-02-18.nc
+2025-09-02 17:50:34,635 - INFO - Date 20230218 processed successfully
+2025-09-02 17:50:34,648 - INFO - Processing date 20230222 (attempt 1)
+2025-09-02 17:50:34,662 - INFO - Querying NeSPReSO API for date: 2023-02-22
+2025-09-02 17:50:35,352 - INFO - Successfully processed date 2023-02-19, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-02-19.nc
+2025-09-02 17:50:35,353 - INFO - Date 20230219 processed successfully
+2025-09-02 17:50:35,368 - INFO - Processing date 20230223 (attempt 1)
+2025-09-02 17:50:35,383 - INFO - Querying NeSPReSO API for date: 2023-02-23
+2025-09-02 17:50:36,177 - INFO - Successfully processed date 2023-02-20, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-02-20.nc
+2025-09-02 17:50:36,184 - INFO - Date 20230220 processed successfully
+2025-09-02 17:50:36,187 - INFO - Processing date 20230224 (attempt 1)
+2025-09-02 17:50:36,194 - INFO - Querying NeSPReSO API for date: 2023-02-24
+2025-09-02 17:50:36,795 - INFO - Successfully processed date 2023-02-21, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-02-21.nc
+2025-09-02 17:50:36,796 - INFO - Date 20230221 processed successfully
+2025-09-02 17:50:36,815 - INFO - Processing date 20230225 (attempt 1)
+2025-09-02 17:50:36,830 - INFO - Querying NeSPReSO API for date: 2023-02-25
+2025-09-02 17:50:37,761 - INFO - Successfully processed date 2023-02-22, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-02-22.nc
+2025-09-02 17:50:37,762 - INFO - Date 20230222 processed successfully
+2025-09-02 17:50:37,762 - INFO - Processing date 20230226 (attempt 1)
+2025-09-02 17:50:37,762 - INFO - Querying NeSPReSO API for date: 2023-02-26
+2025-09-02 17:50:38,241 - INFO - Successfully processed date 2023-02-23, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-02-23.nc
+2025-09-02 17:50:38,242 - INFO - Date 20230223 processed successfully
+2025-09-02 17:50:38,254 - INFO - Processing date 20230227 (attempt 1)
+2025-09-02 17:50:38,276 - INFO - Querying NeSPReSO API for date: 2023-02-27
+2025-09-02 17:50:39,216 - INFO - Successfully processed date 2023-02-24, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-02-24.nc
+2025-09-02 17:50:39,216 - INFO - Date 20230224 processed successfully
+2025-09-02 17:50:39,216 - INFO - Processing date 20230228 (attempt 1)
+2025-09-02 17:50:39,259 - INFO - Querying NeSPReSO API for date: 2023-02-28
+2025-09-02 17:50:39,307 - INFO - Checkpoint saved successfully
+2025-09-02 17:50:39,308 - INFO - Progress: 190/486 dates completed, 1 failed
+2025-09-02 17:50:39,941 - INFO - Successfully processed date 2023-02-25, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-02-25.nc
+2025-09-02 17:50:39,942 - INFO - Date 20230225 processed successfully
+2025-09-02 17:50:39,957 - INFO - Processing date 20230301 (attempt 1)
+2025-09-02 17:50:39,969 - INFO - Querying NeSPReSO API for date: 2023-03-01
+2025-09-02 17:50:40,861 - INFO - Successfully processed date 2023-02-26, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-02-26.nc
+2025-09-02 17:50:40,862 - INFO - Date 20230226 processed successfully
+2025-09-02 17:50:40,885 - INFO - Processing date 20230302 (attempt 1)
+2025-09-02 17:50:40,901 - INFO - Querying NeSPReSO API for date: 2023-03-02
+2025-09-02 17:50:41,571 - INFO - Successfully processed date 2023-02-27, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-02-27.nc
+2025-09-02 17:50:41,572 - INFO - Date 20230227 processed successfully
+2025-09-02 17:50:41,587 - INFO - Processing date 20230303 (attempt 1)
+2025-09-02 17:50:41,604 - INFO - Querying NeSPReSO API for date: 2023-03-03
+2025-09-02 17:50:42,647 - INFO - Successfully processed date 2023-02-28, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-02-28.nc
+2025-09-02 17:50:42,648 - INFO - Date 20230228 processed successfully
+2025-09-02 17:50:42,662 - INFO - Processing date 20230304 (attempt 1)
+2025-09-02 17:50:42,680 - INFO - Querying NeSPReSO API for date: 2023-03-04
+2025-09-02 17:50:43,285 - INFO - Successfully processed date 2023-03-01, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-03-01.nc
+2025-09-02 17:50:43,285 - INFO - Date 20230301 processed successfully
+2025-09-02 17:50:43,292 - INFO - Processing date 20230305 (attempt 1)
+2025-09-02 17:50:43,304 - INFO - Querying NeSPReSO API for date: 2023-03-05
+2025-09-02 17:50:44,153 - INFO - Successfully processed date 2023-03-02, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-03-02.nc
+2025-09-02 17:50:44,154 - INFO - Date 20230302 processed successfully
+2025-09-02 17:50:44,158 - INFO - Processing date 20230306 (attempt 1)
+2025-09-02 17:50:44,171 - INFO - Querying NeSPReSO API for date: 2023-03-06
+2025-09-02 17:50:44,450 - INFO - Successfully processed date 2023-03-03, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-03-03.nc
+2025-09-02 17:50:44,451 - INFO - Date 20230303 processed successfully
+2025-09-02 17:50:44,458 - INFO - Processing date 20230307 (attempt 1)
+2025-09-02 17:50:44,474 - INFO - Querying NeSPReSO API for date: 2023-03-07
+2025-09-02 17:50:45,495 - INFO - Successfully processed date 2023-03-04, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-03-04.nc
+2025-09-02 17:50:45,495 - INFO - Date 20230304 processed successfully
+2025-09-02 17:50:45,506 - INFO - Processing date 20230308 (attempt 1)
+2025-09-02 17:50:45,530 - INFO - Querying NeSPReSO API for date: 2023-03-08
+2025-09-02 17:50:45,936 - INFO - Successfully processed date 2023-03-05, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-03-05.nc
+2025-09-02 17:50:45,937 - INFO - Date 20230305 processed successfully
+2025-09-02 17:50:45,944 - INFO - Processing date 20230309 (attempt 1)
+2025-09-02 17:50:45,950 - INFO - Querying NeSPReSO API for date: 2023-03-09
+2025-09-02 17:50:46,817 - INFO - Successfully processed date 2023-03-06, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-03-06.nc
+2025-09-02 17:50:46,818 - INFO - Date 20230306 processed successfully
+2025-09-02 17:50:46,832 - INFO - Processing date 20230310 (attempt 1)
+2025-09-02 17:50:46,852 - INFO - Querying NeSPReSO API for date: 2023-03-10
+2025-09-02 17:50:46,920 - INFO - Checkpoint saved successfully
+2025-09-02 17:50:46,921 - INFO - Progress: 200/486 dates completed, 1 failed
+2025-09-02 17:50:47,118 - INFO - Successfully processed date 2023-03-07, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-03-07.nc
+2025-09-02 17:50:47,119 - INFO - Date 20230307 processed successfully
+2025-09-02 17:50:47,130 - INFO - Processing date 20230311 (attempt 1)
+2025-09-02 17:50:47,151 - INFO - Querying NeSPReSO API for date: 2023-03-11
+2025-09-02 17:50:48,164 - INFO - Successfully processed date 2023-03-08, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-03-08.nc
+2025-09-02 17:50:48,164 - INFO - Date 20230308 processed successfully
+2025-09-02 17:50:48,178 - INFO - Processing date 20230312 (attempt 1)
+2025-09-02 17:50:48,199 - INFO - Querying NeSPReSO API for date: 2023-03-12
+2025-09-02 17:50:48,518 - INFO - Successfully processed date 2023-03-09, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-03-09.nc
+2025-09-02 17:50:48,518 - INFO - Date 20230309 processed successfully
+2025-09-02 17:50:48,534 - INFO - Processing date 20230313 (attempt 1)
+2025-09-02 17:50:48,549 - INFO - Querying NeSPReSO API for date: 2023-03-13
+2025-09-02 17:50:49,451 - INFO - Successfully processed date 2023-03-10, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-03-10.nc
+2025-09-02 17:50:49,451 - INFO - Date 20230310 processed successfully
+2025-09-02 17:50:49,458 - INFO - Processing date 20230314 (attempt 1)
+2025-09-02 17:50:49,465 - INFO - Querying NeSPReSO API for date: 2023-03-14
+2025-09-02 17:50:49,729 - INFO - Successfully processed date 2023-03-11, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-03-11.nc
+2025-09-02 17:50:49,729 - INFO - Date 20230311 processed successfully
+2025-09-02 17:50:49,744 - INFO - Processing date 20230315 (attempt 1)
+2025-09-02 17:50:49,761 - INFO - Querying NeSPReSO API for date: 2023-03-15
+2025-09-02 17:50:50,821 - INFO - Successfully processed date 2023-03-12, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-03-12.nc
+2025-09-02 17:50:50,821 - INFO - Date 20230312 processed successfully
+2025-09-02 17:50:50,835 - INFO - Processing date 20230316 (attempt 1)
+2025-09-02 17:50:50,858 - INFO - Querying NeSPReSO API for date: 2023-03-16
+2025-09-02 17:50:51,005 - INFO - Successfully processed date 2023-03-13, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-03-13.nc
+2025-09-02 17:50:51,005 - INFO - Date 20230313 processed successfully
+2025-09-02 17:50:51,013 - INFO - Processing date 20230317 (attempt 1)
+2025-09-02 17:50:51,019 - INFO - Querying NeSPReSO API for date: 2023-03-17
+2025-09-02 17:50:52,177 - INFO - Successfully processed date 2023-03-14, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-03-14.nc
+2025-09-02 17:50:52,178 - INFO - Date 20230314 processed successfully
+2025-09-02 17:50:52,192 - INFO - Processing date 20230318 (attempt 1)
+2025-09-02 17:50:52,198 - INFO - Querying NeSPReSO API for date: 2023-03-18
+2025-09-02 17:50:52,373 - INFO - Successfully processed date 2023-03-15, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-03-15.nc
+2025-09-02 17:50:52,373 - INFO - Date 20230315 processed successfully
+2025-09-02 17:50:52,381 - INFO - Processing date 20230319 (attempt 1)
+2025-09-02 17:50:52,387 - INFO - Querying NeSPReSO API for date: 2023-03-19
+2025-09-02 17:50:53,372 - INFO - Successfully processed date 2023-03-16, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-03-16.nc
+2025-09-02 17:50:53,372 - INFO - Date 20230316 processed successfully
+2025-09-02 17:50:53,386 - INFO - Processing date 20230320 (attempt 1)
+2025-09-02 17:50:53,393 - INFO - Querying NeSPReSO API for date: 2023-03-20
+2025-09-02 17:50:53,472 - INFO - Checkpoint saved successfully
+2025-09-02 17:50:53,472 - INFO - Progress: 210/486 dates completed, 1 failed
+2025-09-02 17:50:53,696 - INFO - Successfully processed date 2023-03-17, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-03-17.nc
+2025-09-02 17:50:53,697 - INFO - Date 20230317 processed successfully
+2025-09-02 17:50:53,712 - INFO - Processing date 20230321 (attempt 1)
+2025-09-02 17:50:53,719 - INFO - Querying NeSPReSO API for date: 2023-03-21
+2025-09-02 17:50:54,662 - INFO - Successfully processed date 2023-03-18, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-03-18.nc
+2025-09-02 17:50:54,662 - INFO - Date 20230318 processed successfully
+2025-09-02 17:50:54,668 - INFO - Processing date 20230322 (attempt 1)
+2025-09-02 17:50:54,682 - INFO - Querying NeSPReSO API for date: 2023-03-22
+2025-09-02 17:50:55,547 - INFO - Successfully processed date 2023-03-19, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-03-19.nc
+2025-09-02 17:50:55,548 - INFO - Date 20230319 processed successfully
+2025-09-02 17:50:55,562 - INFO - Processing date 20230323 (attempt 1)
+2025-09-02 17:50:55,577 - INFO - Querying NeSPReSO API for date: 2023-03-23
+2025-09-02 17:50:56,102 - INFO - Successfully processed date 2023-03-20, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-03-20.nc
+2025-09-02 17:50:56,102 - INFO - Date 20230320 processed successfully
+2025-09-02 17:50:56,109 - INFO - Processing date 20230324 (attempt 1)
+2025-09-02 17:50:56,116 - INFO - Querying NeSPReSO API for date: 2023-03-24
+2025-09-02 17:50:57,182 - INFO - Successfully processed date 2023-03-21, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-03-21.nc
+2025-09-02 17:50:57,182 - INFO - Date 20230321 processed successfully
+2025-09-02 17:50:57,199 - INFO - Processing date 20230325 (attempt 1)
+2025-09-02 17:50:57,217 - INFO - Querying NeSPReSO API for date: 2023-03-25
+2025-09-02 17:50:57,878 - INFO - Successfully processed date 2023-03-22, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-03-22.nc
+2025-09-02 17:50:57,878 - INFO - Date 20230322 processed successfully
+2025-09-02 17:50:57,893 - INFO - Processing date 20230326 (attempt 1)
+2025-09-02 17:50:57,900 - INFO - Querying NeSPReSO API for date: 2023-03-26
+2025-09-02 17:50:58,410 - INFO - Successfully processed date 2023-03-23, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-03-23.nc
+2025-09-02 17:50:58,411 - INFO - Date 20230323 processed successfully
+2025-09-02 17:50:58,425 - INFO - Processing date 20230327 (attempt 1)
+2025-09-02 17:50:58,440 - INFO - Querying NeSPReSO API for date: 2023-03-27
+2025-09-02 17:50:59,130 - INFO - Successfully processed date 2023-03-24, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-03-24.nc
+2025-09-02 17:50:59,130 - INFO - Date 20230324 processed successfully
+2025-09-02 17:50:59,135 - INFO - Processing date 20230328 (attempt 1)
+2025-09-02 17:50:59,142 - INFO - Querying NeSPReSO API for date: 2023-03-28
+2025-09-02 17:51:00,010 - INFO - Successfully processed date 2023-03-25, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-03-25.nc
+2025-09-02 17:51:00,011 - INFO - Date 20230325 processed successfully
+2025-09-02 17:51:00,026 - INFO - Processing date 20230329 (attempt 1)
+2025-09-02 17:51:00,039 - INFO - Querying NeSPReSO API for date: 2023-03-29
+2025-09-02 17:51:00,519 - INFO - Successfully processed date 2023-03-26, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-03-26.nc
+2025-09-02 17:51:00,519 - INFO - Date 20230326 processed successfully
+2025-09-02 17:51:00,529 - INFO - Processing date 20230330 (attempt 1)
+2025-09-02 17:51:00,544 - INFO - Querying NeSPReSO API for date: 2023-03-30
+2025-09-02 17:51:00,644 - INFO - Checkpoint saved successfully
+2025-09-02 17:51:00,644 - INFO - Progress: 220/486 dates completed, 1 failed
+2025-09-02 17:51:01,535 - INFO - Successfully processed date 2023-03-27, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-03-27.nc
+2025-09-02 17:51:01,536 - INFO - Date 20230327 processed successfully
+2025-09-02 17:51:01,550 - INFO - Processing date 20230331 (attempt 1)
+2025-09-02 17:51:01,557 - INFO - Querying NeSPReSO API for date: 2023-03-31
+2025-09-02 17:51:02,097 - INFO - Successfully processed date 2023-03-28, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-03-28.nc
+2025-09-02 17:51:02,097 - INFO - Date 20230328 processed successfully
+2025-09-02 17:51:02,112 - INFO - Processing date 20230401 (attempt 1)
+2025-09-02 17:51:02,137 - INFO - Querying NeSPReSO API for date: 2023-04-01
+2025-09-02 17:51:03,169 - INFO - Successfully processed date 2023-03-29, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-03-29.nc
+2025-09-02 17:51:03,169 - INFO - Date 20230329 processed successfully
+2025-09-02 17:51:03,184 - INFO - Processing date 20230402 (attempt 1)
+2025-09-02 17:51:03,199 - INFO - Querying NeSPReSO API for date: 2023-04-02
+2025-09-02 17:51:03,317 - INFO - Successfully processed date 2023-03-30, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-03-30.nc
+2025-09-02 17:51:03,318 - INFO - Date 20230330 processed successfully
+2025-09-02 17:51:03,325 - INFO - Processing date 20230403 (attempt 1)
+2025-09-02 17:51:03,339 - INFO - Querying NeSPReSO API for date: 2023-04-03
+2025-09-02 17:51:04,383 - INFO - Successfully processed date 2023-03-31, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-03-31.nc
+2025-09-02 17:51:04,383 - INFO - Date 20230331 processed successfully
+2025-09-02 17:51:04,398 - INFO - Processing date 20230404 (attempt 1)
+2025-09-02 17:51:04,412 - INFO - Querying NeSPReSO API for date: 2023-04-04
+2025-09-02 17:51:04,705 - INFO - Successfully processed date 2023-04-01, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-04-01.nc
+2025-09-02 17:51:04,705 - INFO - Date 20230401 processed successfully
+2025-09-02 17:51:04,720 - INFO - Processing date 20230405 (attempt 1)
+2025-09-02 17:51:04,736 - INFO - Querying NeSPReSO API for date: 2023-04-05
+2025-09-02 17:51:05,801 - INFO - Successfully processed date 2023-04-02, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-04-02.nc
+2025-09-02 17:51:05,802 - INFO - Date 20230402 processed successfully
+2025-09-02 17:51:05,818 - INFO - Processing date 20230406 (attempt 1)
+2025-09-02 17:51:05,832 - INFO - Querying NeSPReSO API for date: 2023-04-06
+2025-09-02 17:51:05,999 - INFO - Successfully processed date 2023-04-03, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-04-03.nc
+2025-09-02 17:51:05,999 - INFO - Date 20230403 processed successfully
+2025-09-02 17:51:06,026 - INFO - Processing date 20230407 (attempt 1)
+2025-09-02 17:51:06,041 - INFO - Querying NeSPReSO API for date: 2023-04-07
+2025-09-02 17:51:07,732 - INFO - Successfully processed date 2023-04-04, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-04-04.nc
+2025-09-02 17:51:07,733 - INFO - Date 20230404 processed successfully
+2025-09-02 17:51:07,740 - INFO - Processing date 20230408 (attempt 1)
+2025-09-02 17:51:07,755 - INFO - Querying NeSPReSO API for date: 2023-04-08
+2025-09-02 17:51:07,808 - INFO - Successfully processed date 2023-04-05, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-04-05.nc
+2025-09-02 17:51:07,808 - INFO - Date 20230405 processed successfully
+2025-09-02 17:51:07,823 - INFO - Processing date 20230409 (attempt 1)
+2025-09-02 17:51:07,839 - INFO - Querying NeSPReSO API for date: 2023-04-09
+2025-09-02 17:51:07,961 - INFO - Checkpoint saved successfully
+2025-09-02 17:51:07,961 - INFO - Progress: 230/486 dates completed, 1 failed
+2025-09-02 17:51:09,235 - INFO - Successfully processed date 2023-04-06, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-04-06.nc
+2025-09-02 17:51:09,236 - INFO - Date 20230406 processed successfully
+2025-09-02 17:51:09,288 - INFO - Successfully processed date 2023-04-07, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-04-07.nc
+2025-09-02 17:51:09,500 - INFO - Processing date 20230410 (attempt 1)
+2025-09-02 17:51:09,781 - INFO - Date 20230407 processed successfully
+2025-09-02 17:51:09,814 - INFO - Querying NeSPReSO API for date: 2023-04-10
+2025-09-02 17:51:09,829 - INFO - Processing date 20230411 (attempt 1)
+2025-09-02 17:51:09,867 - INFO - Querying NeSPReSO API for date: 2023-04-11
+2025-09-02 17:51:10,412 - INFO - Successfully processed date 2023-04-09, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-04-09.nc
+2025-09-02 17:51:10,412 - INFO - Date 20230409 processed successfully
+2025-09-02 17:51:10,449 - INFO - Processing date 20230412 (attempt 1)
+2025-09-02 17:51:10,456 - INFO - Querying NeSPReSO API for date: 2023-04-12
+2025-09-02 17:51:10,560 - INFO - Successfully processed date 2023-04-08, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-04-08.nc
+2025-09-02 17:51:10,561 - INFO - Date 20230408 processed successfully
+2025-09-02 17:51:10,580 - INFO - Processing date 20230413 (attempt 1)
+2025-09-02 17:51:10,588 - INFO - Querying NeSPReSO API for date: 2023-04-13
+2025-09-02 17:51:11,681 - INFO - Successfully processed date 2023-04-10, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-04-10.nc
+2025-09-02 17:51:11,681 - INFO - Date 20230410 processed successfully
+2025-09-02 17:51:11,857 - INFO - Processing date 20230414 (attempt 1)
+2025-09-02 17:51:11,913 - INFO - Querying NeSPReSO API for date: 2023-04-14
+2025-09-02 17:51:12,366 - INFO - Successfully processed date 2023-04-11, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-04-11.nc
+2025-09-02 17:51:12,366 - INFO - Date 20230411 processed successfully
+2025-09-02 17:51:12,375 - INFO - Processing date 20230415 (attempt 1)
+2025-09-02 17:51:12,382 - INFO - Querying NeSPReSO API for date: 2023-04-15
+2025-09-02 17:51:13,264 - INFO - Successfully processed date 2023-04-12, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-04-12.nc
+2025-09-02 17:51:13,264 - INFO - Date 20230412 processed successfully
+2025-09-02 17:51:13,279 - INFO - Processing date 20230416 (attempt 1)
+2025-09-02 17:51:13,294 - INFO - Querying NeSPReSO API for date: 2023-04-16
+2025-09-02 17:51:13,700 - INFO - Successfully processed date 2023-04-13, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-04-13.nc
+2025-09-02 17:51:13,700 - INFO - Date 20230413 processed successfully
+2025-09-02 17:51:13,715 - INFO - Processing date 20230417 (attempt 1)
+2025-09-02 17:51:13,723 - INFO - Querying NeSPReSO API for date: 2023-04-17
+2025-09-02 17:51:14,483 - INFO - Successfully processed date 2023-04-14, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-04-14.nc
+2025-09-02 17:51:14,483 - INFO - Date 20230414 processed successfully
+2025-09-02 17:51:14,490 - INFO - Processing date 20230418 (attempt 1)
+2025-09-02 17:51:14,500 - INFO - Querying NeSPReSO API for date: 2023-04-18
+2025-09-02 17:51:15,398 - INFO - Successfully processed date 2023-04-15, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-04-15.nc
+2025-09-02 17:51:15,399 - INFO - Date 20230415 processed successfully
+2025-09-02 17:51:15,424 - INFO - Processing date 20230419 (attempt 1)
+2025-09-02 17:51:15,432 - INFO - Querying NeSPReSO API for date: 2023-04-19
+2025-09-02 17:51:15,506 - INFO - Checkpoint saved successfully
+2025-09-02 17:51:15,506 - INFO - Progress: 240/486 dates completed, 1 failed
+2025-09-02 17:51:16,152 - INFO - Successfully processed date 2023-04-16, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-04-16.nc
+2025-09-02 17:51:16,153 - INFO - Date 20230416 processed successfully
+2025-09-02 17:51:16,169 - INFO - Processing date 20230420 (attempt 1)
+2025-09-02 17:51:16,186 - INFO - Querying NeSPReSO API for date: 2023-04-20
+2025-09-02 17:51:16,997 - INFO - Successfully processed date 2023-04-17, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-04-17.nc
+2025-09-02 17:51:16,998 - INFO - Date 20230417 processed successfully
+2025-09-02 17:51:17,017 - INFO - Processing date 20230421 (attempt 1)
+2025-09-02 17:51:17,024 - INFO - Querying NeSPReSO API for date: 2023-04-21
+2025-09-02 17:51:17,747 - INFO - Successfully processed date 2023-04-18, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-04-18.nc
+2025-09-02 17:51:17,747 - INFO - Date 20230418 processed successfully
+2025-09-02 17:51:17,763 - INFO - Processing date 20230422 (attempt 1)
+2025-09-02 17:51:17,778 - INFO - Querying NeSPReSO API for date: 2023-04-22
+2025-09-02 17:51:18,305 - INFO - Successfully processed date 2023-04-19, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-04-19.nc
+2025-09-02 17:51:18,305 - INFO - Date 20230419 processed successfully
+2025-09-02 17:51:18,320 - INFO - Processing date 20230423 (attempt 1)
+2025-09-02 17:51:18,335 - INFO - Querying NeSPReSO API for date: 2023-04-23
+2025-09-02 17:51:19,192 - INFO - Successfully processed date 2023-04-20, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-04-20.nc
+2025-09-02 17:51:19,192 - INFO - Date 20230420 processed successfully
+2025-09-02 17:51:19,193 - INFO - Processing date 20230424 (attempt 1)
+2025-09-02 17:51:19,209 - INFO - Querying NeSPReSO API for date: 2023-04-24
+2025-09-02 17:51:19,982 - INFO - Successfully processed date 2023-04-21, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-04-21.nc
+2025-09-02 17:51:19,983 - INFO - Date 20230421 processed successfully
+2025-09-02 17:51:19,990 - INFO - Processing date 20230425 (attempt 1)
+2025-09-02 17:51:19,998 - INFO - Querying NeSPReSO API for date: 2023-04-25
+2025-09-02 17:51:20,895 - INFO - Successfully processed date 2023-04-22, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-04-22.nc
+2025-09-02 17:51:20,896 - INFO - Date 20230422 processed successfully
+2025-09-02 17:51:20,903 - INFO - Processing date 20230426 (attempt 1)
+2025-09-02 17:51:20,916 - INFO - Querying NeSPReSO API for date: 2023-04-26
+2025-09-02 17:51:21,640 - INFO - Successfully processed date 2023-04-23, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-04-23.nc
+2025-09-02 17:51:21,641 - INFO - Date 20230423 processed successfully
+2025-09-02 17:51:21,647 - INFO - Processing date 20230427 (attempt 1)
+2025-09-02 17:51:21,661 - INFO - Querying NeSPReSO API for date: 2023-04-27
+2025-09-02 17:51:22,512 - INFO - Successfully processed date 2023-04-24, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-04-24.nc
+2025-09-02 17:51:22,513 - INFO - Date 20230424 processed successfully
+2025-09-02 17:51:22,538 - INFO - Processing date 20230428 (attempt 1)
+2025-09-02 17:51:22,547 - INFO - Querying NeSPReSO API for date: 2023-04-28
+2025-09-02 17:51:23,090 - INFO - Successfully processed date 2023-04-25, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-04-25.nc
+2025-09-02 17:51:23,091 - INFO - Date 20230425 processed successfully
+2025-09-02 17:51:23,104 - INFO - Processing date 20230429 (attempt 1)
+2025-09-02 17:51:23,129 - INFO - Querying NeSPReSO API for date: 2023-04-29
+2025-09-02 17:51:23,182 - INFO - Checkpoint saved successfully
+2025-09-02 17:51:23,182 - INFO - Progress: 250/486 dates completed, 1 failed
+2025-09-02 17:51:24,272 - INFO - Successfully processed date 2023-04-26, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-04-26.nc
+2025-09-02 17:51:24,273 - INFO - Date 20230426 processed successfully
+2025-09-02 17:51:24,292 - INFO - Processing date 20230430 (attempt 1)
+2025-09-02 17:51:24,306 - INFO - Querying NeSPReSO API for date: 2023-04-30
+2025-09-02 17:51:24,401 - INFO - Successfully processed date 2023-04-27, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-04-27.nc
+2025-09-02 17:51:24,402 - INFO - Date 20230427 processed successfully
+2025-09-02 17:51:24,409 - INFO - Processing date 20230501 (attempt 1)
+2025-09-02 17:51:24,417 - INFO - Querying NeSPReSO API for date: 2023-05-01
+2025-09-02 17:51:25,694 - INFO - Successfully processed date 2023-04-29, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-04-29.nc
+2025-09-02 17:51:25,695 - INFO - Date 20230429 processed successfully
+2025-09-02 17:51:25,701 - INFO - Processing date 20230502 (attempt 1)
+2025-09-02 17:51:25,707 - INFO - Querying NeSPReSO API for date: 2023-05-02
+2025-09-02 17:51:26,254 - INFO - Successfully processed date 2023-04-28, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-04-28.nc
+2025-09-02 17:51:26,254 - INFO - Date 20230428 processed successfully
+2025-09-02 17:51:26,261 - INFO - Processing date 20230503 (attempt 1)
+2025-09-02 17:51:26,275 - INFO - Querying NeSPReSO API for date: 2023-05-03
+2025-09-02 17:51:27,246 - INFO - Successfully processed date 2023-04-30, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-04-30.nc
+2025-09-02 17:51:27,246 - INFO - Date 20230430 processed successfully
+2025-09-02 17:51:27,253 - INFO - Processing date 20230504 (attempt 1)
+2025-09-02 17:51:27,260 - INFO - Querying NeSPReSO API for date: 2023-05-04
+2025-09-02 17:51:28,070 - INFO - Successfully processed date 2023-05-01, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-05-01.nc
+2025-09-02 17:51:28,070 - INFO - Date 20230501 processed successfully
+2025-09-02 17:51:28,091 - INFO - Processing date 20230505 (attempt 1)
+2025-09-02 17:51:28,106 - INFO - Querying NeSPReSO API for date: 2023-05-05
+2025-09-02 17:51:28,523 - INFO - Successfully processed date 2023-05-02, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-05-02.nc
+2025-09-02 17:51:28,524 - INFO - Date 20230502 processed successfully
+2025-09-02 17:51:28,532 - INFO - Processing date 20230506 (attempt 1)
+2025-09-02 17:51:28,545 - INFO - Querying NeSPReSO API for date: 2023-05-06
+2025-09-02 17:51:29,522 - INFO - Successfully processed date 2023-05-03, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-05-03.nc
+2025-09-02 17:51:29,522 - INFO - Date 20230503 processed successfully
+2025-09-02 17:51:29,595 - INFO - Processing date 20230507 (attempt 1)
+2025-09-02 17:51:29,613 - INFO - Querying NeSPReSO API for date: 2023-05-07
+2025-09-02 17:51:30,016 - INFO - Successfully processed date 2023-05-04, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-05-04.nc
+2025-09-02 17:51:30,016 - INFO - Date 20230504 processed successfully
+2025-09-02 17:51:30,024 - INFO - Processing date 20230508 (attempt 1)
+2025-09-02 17:51:30,034 - INFO - Querying NeSPReSO API for date: 2023-05-08
+2025-09-02 17:51:30,958 - INFO - Successfully processed date 2023-05-05, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-05-05.nc
+2025-09-02 17:51:30,959 - INFO - Date 20230505 processed successfully
+2025-09-02 17:51:30,970 - INFO - Processing date 20230509 (attempt 1)
+2025-09-02 17:51:30,994 - INFO - Querying NeSPReSO API for date: 2023-05-09
+2025-09-02 17:51:31,082 - INFO - Checkpoint saved successfully
+2025-09-02 17:51:31,082 - INFO - Progress: 260/486 dates completed, 1 failed
+2025-09-02 17:51:31,496 - INFO - Successfully processed date 2023-05-06, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-05-06.nc
+2025-09-02 17:51:31,497 - INFO - Date 20230506 processed successfully
+2025-09-02 17:51:31,512 - INFO - Processing date 20230510 (attempt 1)
+2025-09-02 17:51:31,513 - INFO - Querying NeSPReSO API for date: 2023-05-10
+2025-09-02 17:51:32,659 - INFO - Successfully processed date 2023-05-07, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-05-07.nc
+2025-09-02 17:51:32,659 - INFO - Date 20230507 processed successfully
+2025-09-02 17:51:32,688 - INFO - Processing date 20230511 (attempt 1)
+2025-09-02 17:51:32,714 - INFO - Querying NeSPReSO API for date: 2023-05-11
+2025-09-02 17:51:33,036 - INFO - Successfully processed date 2023-05-08, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-05-08.nc
+2025-09-02 17:51:33,037 - INFO - Date 20230508 processed successfully
+2025-09-02 17:51:33,051 - INFO - Processing date 20230512 (attempt 1)
+2025-09-02 17:51:33,066 - INFO - Querying NeSPReSO API for date: 2023-05-12
+2025-09-02 17:51:34,093 - INFO - Successfully processed date 2023-05-09, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-05-09.nc
+2025-09-02 17:51:34,094 - INFO - Date 20230509 processed successfully
+2025-09-02 17:51:34,176 - INFO - Processing date 20230513 (attempt 1)
+2025-09-02 17:51:34,189 - INFO - Querying NeSPReSO API for date: 2023-05-13
+2025-09-02 17:51:34,560 - INFO - Successfully processed date 2023-05-10, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-05-10.nc
+2025-09-02 17:51:34,560 - INFO - Date 20230510 processed successfully
+2025-09-02 17:51:34,561 - INFO - Processing date 20230514 (attempt 1)
+2025-09-02 17:51:34,567 - INFO - Querying NeSPReSO API for date: 2023-05-14
+2025-09-02 17:51:35,488 - INFO - Successfully processed date 2023-05-11, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-05-11.nc
+2025-09-02 17:51:35,489 - INFO - Date 20230511 processed successfully
+2025-09-02 17:51:35,513 - INFO - Processing date 20230515 (attempt 1)
+2025-09-02 17:51:35,547 - INFO - Querying NeSPReSO API for date: 2023-05-15
+2025-09-02 17:51:36,153 - INFO - Successfully processed date 2023-05-12, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-05-12.nc
+2025-09-02 17:51:36,154 - INFO - Date 20230512 processed successfully
+2025-09-02 17:51:36,162 - INFO - Processing date 20230516 (attempt 1)
+2025-09-02 17:51:36,176 - INFO - Querying NeSPReSO API for date: 2023-05-16
+2025-09-02 17:51:37,208 - INFO - Successfully processed date 2023-05-13, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-05-13.nc
+2025-09-02 17:51:37,208 - INFO - Date 20230513 processed successfully
+2025-09-02 17:51:37,238 - INFO - Processing date 20230517 (attempt 1)
+2025-09-02 17:51:37,247 - INFO - Querying NeSPReSO API for date: 2023-05-17
+2025-09-02 17:51:37,357 - INFO - Successfully processed date 2023-05-14, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-05-14.nc
+2025-09-02 17:51:37,357 - INFO - Date 20230514 processed successfully
+2025-09-02 17:51:37,390 - INFO - Processing date 20230518 (attempt 1)
+2025-09-02 17:51:37,399 - INFO - Querying NeSPReSO API for date: 2023-05-18
+2025-09-02 17:51:38,607 - INFO - Successfully processed date 2023-05-15, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-05-15.nc
+2025-09-02 17:51:38,608 - INFO - Date 20230515 processed successfully
+2025-09-02 17:51:38,698 - INFO - Successfully processed date 2023-05-16, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-05-16.nc
+2025-09-02 17:51:39,075 - INFO - Processing date 20230519 (attempt 1)
+2025-09-02 17:51:39,188 - INFO - Date 20230516 processed successfully
+2025-09-02 17:51:39,213 - INFO - Querying NeSPReSO API for date: 2023-05-19
+2025-09-02 17:51:39,230 - INFO - Checkpoint saved successfully
+2025-09-02 17:51:39,244 - INFO - Processing date 20230520 (attempt 1)
+2025-09-02 17:51:39,284 - INFO - Progress: 270/486 dates completed, 1 failed
+2025-09-02 17:51:39,320 - INFO - Querying NeSPReSO API for date: 2023-05-20
+2025-09-02 17:51:40,159 - INFO - Successfully processed date 2023-05-17, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-05-17.nc
+2025-09-02 17:51:40,160 - INFO - Date 20230517 processed successfully
+2025-09-02 17:51:40,178 - INFO - Processing date 20230521 (attempt 1)
+2025-09-02 17:51:40,197 - INFO - Querying NeSPReSO API for date: 2023-05-21
+2025-09-02 17:51:40,603 - INFO - Successfully processed date 2023-05-18, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-05-18.nc
+2025-09-02 17:51:40,604 - INFO - Date 20230518 processed successfully
+2025-09-02 17:51:40,604 - INFO - Processing date 20230522 (attempt 1)
+2025-09-02 17:51:40,619 - INFO - Querying NeSPReSO API for date: 2023-05-22
+2025-09-02 17:51:41,792 - INFO - Successfully processed date 2023-05-19, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-05-19.nc
+2025-09-02 17:51:41,793 - INFO - Date 20230519 processed successfully
+2025-09-02 17:51:41,808 - INFO - Processing date 20230523 (attempt 1)
+2025-09-02 17:51:41,829 - INFO - Querying NeSPReSO API for date: 2023-05-23
+2025-09-02 17:51:41,995 - INFO - Successfully processed date 2023-05-20, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-05-20.nc
+2025-09-02 17:51:41,995 - INFO - Date 20230520 processed successfully
+2025-09-02 17:51:42,009 - INFO - Processing date 20230524 (attempt 1)
+2025-09-02 17:51:42,099 - INFO - Querying NeSPReSO API for date: 2023-05-24
+2025-09-02 17:51:42,822 - INFO - Successfully processed date 2023-05-21, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-05-21.nc
+2025-09-02 17:51:42,823 - INFO - Date 20230521 processed successfully
+2025-09-02 17:51:42,830 - INFO - Processing date 20230525 (attempt 1)
+2025-09-02 17:51:42,844 - INFO - Querying NeSPReSO API for date: 2023-05-25
+2025-09-02 17:51:43,165 - INFO - Successfully processed date 2023-05-22, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-05-22.nc
+2025-09-02 17:51:43,166 - INFO - Date 20230522 processed successfully
+2025-09-02 17:51:43,188 - INFO - Processing date 20230526 (attempt 1)
+2025-09-02 17:51:43,195 - INFO - Querying NeSPReSO API for date: 2023-05-26
+2025-09-02 17:51:43,995 - INFO - Successfully processed date 2023-05-23, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-05-23.nc
+2025-09-02 17:51:43,996 - INFO - Date 20230523 processed successfully
+2025-09-02 17:51:44,116 - INFO - Processing date 20230527 (attempt 1)
+2025-09-02 17:51:44,142 - INFO - Querying NeSPReSO API for date: 2023-05-27
+2025-09-02 17:51:44,338 - INFO - Successfully processed date 2023-05-24, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-05-24.nc
+2025-09-02 17:51:44,339 - INFO - Date 20230524 processed successfully
+2025-09-02 17:51:44,358 - INFO - Processing date 20230528 (attempt 1)
+2025-09-02 17:51:44,374 - INFO - Querying NeSPReSO API for date: 2023-05-28
+2025-09-02 17:51:45,076 - INFO - Successfully processed date 2023-05-25, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-05-25.nc
+2025-09-02 17:51:45,076 - INFO - Date 20230525 processed successfully
+2025-09-02 17:51:45,086 - INFO - Processing date 20230529 (attempt 1)
+2025-09-02 17:51:45,120 - INFO - Querying NeSPReSO API for date: 2023-05-29
+2025-09-02 17:51:45,215 - INFO - Checkpoint saved successfully
+2025-09-02 17:51:45,215 - INFO - Progress: 280/486 dates completed, 1 failed
+2025-09-02 17:51:45,619 - INFO - Successfully processed date 2023-05-26, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-05-26.nc
+2025-09-02 17:51:45,620 - INFO - Date 20230526 processed successfully
+2025-09-02 17:51:45,639 - INFO - Processing date 20230530 (attempt 1)
+2025-09-02 17:51:45,654 - INFO - Querying NeSPReSO API for date: 2023-05-30
+2025-09-02 17:51:46,549 - INFO - Successfully processed date 2023-05-27, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-05-27.nc
+2025-09-02 17:51:46,549 - INFO - Date 20230527 processed successfully
+2025-09-02 17:51:46,556 - INFO - Processing date 20230531 (attempt 1)
+2025-09-02 17:51:46,563 - INFO - Querying NeSPReSO API for date: 2023-05-31
+2025-09-02 17:51:47,104 - INFO - Successfully processed date 2023-05-28, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-05-28.nc
+2025-09-02 17:51:47,104 - INFO - Date 20230528 processed successfully
+2025-09-02 17:51:47,104 - INFO - Processing date 20231003 (attempt 1)
+2025-09-02 17:51:47,104 - INFO - Querying NeSPReSO API for date: 2023-10-03
+2025-09-02 17:51:47,622 - INFO - Successfully processed date 2023-05-29, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-05-29.nc
+2025-09-02 17:51:47,623 - INFO - Date 20230529 processed successfully
+2025-09-02 17:51:47,642 - INFO - Processing date 20231004 (attempt 1)
+2025-09-02 17:51:47,657 - INFO - Querying NeSPReSO API for date: 2023-10-04
+2025-09-02 17:51:48,307 - INFO - Successfully processed date 2023-05-30, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-05-30.nc
+2025-09-02 17:51:48,307 - INFO - Date 20230530 processed successfully
+2025-09-02 17:51:48,323 - INFO - Processing date 20231005 (attempt 1)
+2025-09-02 17:51:48,323 - INFO - Querying NeSPReSO API for date: 2023-10-05
+2025-09-02 17:51:48,856 - INFO - Successfully processed date 2023-05-31, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-05-31.nc
+2025-09-02 17:51:48,856 - INFO - Date 20230531 processed successfully
+2025-09-02 17:51:48,875 - INFO - Processing date 20231006 (attempt 1)
+2025-09-02 17:51:48,909 - INFO - Querying NeSPReSO API for date: 2023-10-06
+2025-09-02 17:51:50,951 - INFO - Successfully processed date 2023-10-04, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-10-04.nc
+2025-09-02 17:51:50,951 - INFO - Date 20231004 processed successfully
+2025-09-02 17:51:50,958 - INFO - Processing date 20231007 (attempt 1)
+2025-09-02 17:51:50,971 - INFO - Querying NeSPReSO API for date: 2023-10-07
+2025-09-02 17:51:51,093 - INFO - Successfully processed date 2023-10-03, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-10-03.nc
+2025-09-02 17:51:51,093 - INFO - Date 20231003 processed successfully
+2025-09-02 17:51:51,101 - INFO - Processing date 20231008 (attempt 1)
+2025-09-02 17:51:51,118 - INFO - Querying NeSPReSO API for date: 2023-10-08
+2025-09-02 17:51:52,660 - INFO - Successfully processed date 2023-10-05, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-10-05.nc
+2025-09-02 17:51:52,661 - INFO - Date 20231005 processed successfully
+2025-09-02 17:51:52,667 - INFO - Processing date 20231009 (attempt 1)
+2025-09-02 17:51:52,682 - INFO - Querying NeSPReSO API for date: 2023-10-09
+2025-09-02 17:51:52,999 - INFO - Successfully processed date 2023-10-06, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-10-06.nc
+2025-09-02 17:51:52,999 - INFO - Date 20231006 processed successfully
+2025-09-02 17:51:53,014 - INFO - Processing date 20231010 (attempt 1)
+2025-09-02 17:51:53,022 - INFO - Querying NeSPReSO API for date: 2023-10-10
+2025-09-02 17:51:53,149 - INFO - Checkpoint saved successfully
+2025-09-02 17:51:53,149 - INFO - Progress: 290/486 dates completed, 1 failed
+2025-09-02 17:51:54,303 - INFO - Successfully processed date 2023-10-07, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-10-07.nc
+2025-09-02 17:51:54,304 - INFO - Date 20231007 processed successfully
+2025-09-02 17:51:54,324 - INFO - Processing date 20231011 (attempt 1)
+2025-09-02 17:51:54,351 - INFO - Querying NeSPReSO API for date: 2023-10-11
+2025-09-02 17:51:54,634 - INFO - Successfully processed date 2023-10-08, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-10-08.nc
+2025-09-02 17:51:54,635 - INFO - Date 20231008 processed successfully
+2025-09-02 17:51:54,657 - INFO - Processing date 20231012 (attempt 1)
+2025-09-02 17:51:54,691 - INFO - Querying NeSPReSO API for date: 2023-10-12
+2025-09-02 17:51:55,732 - INFO - Successfully processed date 2023-10-09, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-10-09.nc
+2025-09-02 17:51:55,733 - INFO - Date 20231009 processed successfully
+2025-09-02 17:51:55,760 - INFO - Processing date 20231013 (attempt 1)
+2025-09-02 17:51:55,797 - INFO - Querying NeSPReSO API for date: 2023-10-13
+2025-09-02 17:51:56,534 - INFO - Successfully processed date 2023-10-10, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-10-10.nc
+2025-09-02 17:51:56,534 - INFO - Date 20231010 processed successfully
+2025-09-02 17:51:56,549 - INFO - Processing date 20231014 (attempt 1)
+2025-09-02 17:51:56,556 - INFO - Querying NeSPReSO API for date: 2023-10-14
+2025-09-02 17:51:57,555 - INFO - Successfully processed date 2023-10-11, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-10-11.nc
+2025-09-02 17:51:57,555 - INFO - Date 20231011 processed successfully
+2025-09-02 17:51:57,571 - INFO - Processing date 20231015 (attempt 1)
+2025-09-02 17:51:57,586 - INFO - Querying NeSPReSO API for date: 2023-10-15
+2025-09-02 17:51:58,566 - INFO - Successfully processed date 2023-10-12, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-10-12.nc
+2025-09-02 17:51:58,567 - INFO - Date 20231012 processed successfully
+2025-09-02 17:51:58,583 - INFO - Processing date 20231016 (attempt 1)
+2025-09-02 17:51:58,593 - INFO - Querying NeSPReSO API for date: 2023-10-16
+2025-09-02 17:51:59,179 - INFO - Successfully processed date 2023-10-13, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-10-13.nc
+2025-09-02 17:51:59,180 - INFO - Date 20231013 processed successfully
+2025-09-02 17:51:59,195 - INFO - Processing date 20231017 (attempt 1)
+2025-09-02 17:51:59,212 - INFO - Querying NeSPReSO API for date: 2023-10-17
+2025-09-02 17:52:00,923 - INFO - Successfully processed date 2023-10-15, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-10-15.nc
+2025-09-02 17:52:00,924 - INFO - Date 20231015 processed successfully
+2025-09-02 17:52:00,937 - INFO - Processing date 20231018 (attempt 1)
+2025-09-02 17:52:00,945 - INFO - Querying NeSPReSO API for date: 2023-10-18
+2025-09-02 17:52:01,008 - INFO - Successfully processed date 2023-10-14, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-10-14.nc
+2025-09-02 17:52:01,009 - INFO - Date 20231014 processed successfully
+2025-09-02 17:52:01,027 - INFO - Processing date 20231019 (attempt 1)
+2025-09-02 17:52:01,043 - INFO - Querying NeSPReSO API for date: 2023-10-19
+2025-09-02 17:52:02,534 - INFO - Successfully processed date 2023-10-16, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-10-16.nc
+2025-09-02 17:52:02,535 - INFO - Date 20231016 processed successfully
+2025-09-02 17:52:02,543 - INFO - Processing date 20231020 (attempt 1)
+2025-09-02 17:52:02,557 - INFO - Querying NeSPReSO API for date: 2023-10-20
+2025-09-02 17:52:02,646 - INFO - Successfully processed date 2023-10-17, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-10-17.nc
+2025-09-02 17:52:02,657 - INFO - Date 20231017 processed successfully
+2025-09-02 17:52:02,676 - INFO - Processing date 20231021 (attempt 1)
+2025-09-02 17:52:02,684 - INFO - Querying NeSPReSO API for date: 2023-10-21
+2025-09-02 17:52:02,728 - INFO - Checkpoint saved successfully
+2025-09-02 17:52:02,729 - INFO - Progress: 300/486 dates completed, 1 failed
+2025-09-02 17:52:03,914 - INFO - Successfully processed date 2023-10-18, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-10-18.nc
+2025-09-02 17:52:03,915 - INFO - Date 20231018 processed successfully
+2025-09-02 17:52:03,948 - INFO - Processing date 20231022 (attempt 1)
+2025-09-02 17:52:03,961 - INFO - Querying NeSPReSO API for date: 2023-10-22
+2025-09-02 17:52:04,151 - INFO - Successfully processed date 2023-10-19, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-10-19.nc
+2025-09-02 17:52:04,152 - INFO - Date 20231019 processed successfully
+2025-09-02 17:52:04,152 - INFO - Processing date 20231023 (attempt 1)
+2025-09-02 17:52:04,168 - INFO - Querying NeSPReSO API for date: 2023-10-23
+2025-09-02 17:52:05,359 - INFO - Successfully processed date 2023-10-20, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-10-20.nc
+2025-09-02 17:52:05,360 - INFO - Date 20231020 processed successfully
+2025-09-02 17:52:05,367 - INFO - Processing date 20231024 (attempt 1)
+2025-09-02 17:52:05,381 - INFO - Querying NeSPReSO API for date: 2023-10-24
+2025-09-02 17:52:05,404 - INFO - Successfully processed date 2023-10-21, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-10-21.nc
+2025-09-02 17:52:05,406 - INFO - Date 20231021 processed successfully
+2025-09-02 17:52:05,419 - INFO - Processing date 20231025 (attempt 1)
+2025-09-02 17:52:05,442 - INFO - Querying NeSPReSO API for date: 2023-10-25
+2025-09-02 17:52:07,033 - INFO - Successfully processed date 2023-10-22, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-10-22.nc
+2025-09-02 17:52:07,033 - INFO - Date 20231022 processed successfully
+2025-09-02 17:52:07,055 - INFO - Processing date 20231026 (attempt 1)
+2025-09-02 17:52:07,070 - INFO - Querying NeSPReSO API for date: 2023-10-26
+2025-09-02 17:52:07,109 - INFO - Successfully processed date 2023-10-23, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-10-23.nc
+2025-09-02 17:52:07,110 - INFO - Date 20231023 processed successfully
+2025-09-02 17:52:07,125 - INFO - Processing date 20231027 (attempt 1)
+2025-09-02 17:52:07,140 - INFO - Querying NeSPReSO API for date: 2023-10-27
+2025-09-02 17:52:08,434 - INFO - Successfully processed date 2023-10-24, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-10-24.nc
+2025-09-02 17:52:08,434 - INFO - Date 20231024 processed successfully
+2025-09-02 17:52:08,464 - INFO - Processing date 20231028 (attempt 1)
+2025-09-02 17:52:08,482 - INFO - Querying NeSPReSO API for date: 2023-10-28
+2025-09-02 17:52:09,311 - INFO - Successfully processed date 2023-10-25, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-10-25.nc
+2025-09-02 17:52:09,312 - INFO - Date 20231025 processed successfully
+2025-09-02 17:52:09,390 - INFO - Processing date 20231029 (attempt 1)
+2025-09-02 17:52:09,418 - INFO - Querying NeSPReSO API for date: 2023-10-29
+2025-09-02 17:52:10,988 - INFO - Successfully processed date 2023-10-26, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-10-26.nc
+2025-09-02 17:52:10,988 - INFO - Date 20231026 processed successfully
+2025-09-02 17:52:10,994 - INFO - Processing date 20231030 (attempt 1)
+2025-09-02 17:52:11,007 - INFO - Querying NeSPReSO API for date: 2023-10-30
+2025-09-02 17:52:11,072 - INFO - Checkpoint saved successfully
+2025-09-02 17:52:11,091 - INFO - Progress: 310/486 dates completed, 1 failed
+2025-09-02 17:52:11,247 - INFO - Successfully processed date 2023-10-27, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-10-27.nc
+2025-09-02 17:52:11,248 - INFO - Date 20231027 processed successfully
+2025-09-02 17:52:11,262 - INFO - Processing date 20231031 (attempt 1)
+2025-09-02 17:52:11,278 - INFO - Querying NeSPReSO API for date: 2023-10-31
+2025-09-02 17:52:12,767 - INFO - Successfully processed date 2023-10-28, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-10-28.nc
+2025-09-02 17:52:12,768 - INFO - Date 20231028 processed successfully
+2025-09-02 17:52:12,775 - INFO - Processing date 20231101 (attempt 1)
+2025-09-02 17:52:12,787 - INFO - Querying NeSPReSO API for date: 2023-11-01
+2025-09-02 17:52:12,830 - INFO - Successfully processed date 2023-10-29, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-10-29.nc
+2025-09-02 17:52:12,831 - INFO - Date 20231029 processed successfully
+2025-09-02 17:52:12,839 - INFO - Processing date 20231102 (attempt 1)
+2025-09-02 17:52:12,846 - INFO - Querying NeSPReSO API for date: 2023-11-02
+2025-09-02 17:52:14,476 - INFO - Successfully processed date 2023-10-30, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-10-30.nc
+2025-09-02 17:52:14,476 - INFO - Date 20231030 processed successfully
+2025-09-02 17:52:14,495 - INFO - Processing date 20231103 (attempt 1)
+2025-09-02 17:52:14,509 - INFO - Querying NeSPReSO API for date: 2023-11-03
+2025-09-02 17:52:14,715 - INFO - Successfully processed date 2023-10-31, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-10-31.nc
+2025-09-02 17:52:14,715 - INFO - Date 20231031 processed successfully
+2025-09-02 17:52:14,728 - INFO - Processing date 20231104 (attempt 1)
+2025-09-02 17:52:14,745 - INFO - Querying NeSPReSO API for date: 2023-11-04
+2025-09-02 17:52:16,924 - INFO - Successfully processed date 2023-11-01, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-11-01.nc
+2025-09-02 17:52:16,924 - INFO - Date 20231101 processed successfully
+2025-09-02 17:52:16,931 - INFO - Processing date 20231105 (attempt 1)
+2025-09-02 17:52:16,938 - INFO - Querying NeSPReSO API for date: 2023-11-05
+2025-09-02 17:52:16,980 - INFO - Successfully processed date 2023-11-02, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-11-02.nc
+2025-09-02 17:52:16,981 - INFO - Date 20231102 processed successfully
+2025-09-02 17:52:16,997 - INFO - Processing date 20231106 (attempt 1)
+2025-09-02 17:52:17,004 - INFO - Querying NeSPReSO API for date: 2023-11-06
+2025-09-02 17:52:18,573 - INFO - Successfully processed date 2023-11-03, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-11-03.nc
+2025-09-02 17:52:18,573 - INFO - Date 20231103 processed successfully
+2025-09-02 17:52:18,758 - INFO - Processing date 20231107 (attempt 1)
+2025-09-02 17:52:18,784 - INFO - Successfully processed date 2023-11-04, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-11-04.nc
+2025-09-02 17:52:19,399 - INFO - Querying NeSPReSO API for date: 2023-11-07
+2025-09-02 17:52:19,529 - INFO - Date 20231104 processed successfully
+2025-09-02 17:52:19,655 - INFO - Processing date 20231108 (attempt 1)
+2025-09-02 17:52:19,668 - INFO - Querying NeSPReSO API for date: 2023-11-08
+2025-09-02 17:52:20,372 - INFO - Successfully processed date 2023-11-05, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-11-05.nc
+2025-09-02 17:52:20,372 - INFO - Date 20231105 processed successfully
+2025-09-02 17:52:20,384 - INFO - Processing date 20231109 (attempt 1)
+2025-09-02 17:52:20,402 - INFO - Querying NeSPReSO API for date: 2023-11-09
+2025-09-02 17:52:20,524 - INFO - Checkpoint saved successfully
+2025-09-02 17:52:20,525 - INFO - Progress: 320/486 dates completed, 1 failed
+2025-09-02 17:52:20,647 - INFO - Successfully processed date 2023-11-06, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-11-06.nc
+2025-09-02 17:52:20,647 - INFO - Date 20231106 processed successfully
+2025-09-02 17:52:20,662 - INFO - Processing date 20231110 (attempt 1)
+2025-09-02 17:52:20,678 - INFO - Querying NeSPReSO API for date: 2023-11-10
+2025-09-02 17:52:22,141 - INFO - Successfully processed date 2023-11-07, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-11-07.nc
+2025-09-02 17:52:22,141 - INFO - Date 20231107 processed successfully
+2025-09-02 17:52:22,149 - INFO - Processing date 20231111 (attempt 1)
+2025-09-02 17:52:22,162 - INFO - Querying NeSPReSO API for date: 2023-11-11
+2025-09-02 17:52:22,252 - INFO - Successfully processed date 2023-11-08, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-11-08.nc
+2025-09-02 17:52:22,253 - INFO - Date 20231108 processed successfully
+2025-09-02 17:52:22,309 - INFO - Processing date 20231112 (attempt 1)
+2025-09-02 17:52:22,331 - INFO - Querying NeSPReSO API for date: 2023-11-12
+2025-09-02 17:52:23,686 - INFO - Successfully processed date 2023-11-09, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-11-09.nc
+2025-09-02 17:52:23,686 - INFO - Date 20231109 processed successfully
+2025-09-02 17:52:23,698 - INFO - Processing date 20231113 (attempt 1)
+2025-09-02 17:52:23,711 - INFO - Querying NeSPReSO API for date: 2023-11-13
+2025-09-02 17:52:23,981 - INFO - Successfully processed date 2023-11-10, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-11-10.nc
+2025-09-02 17:52:23,982 - INFO - Date 20231110 processed successfully
+2025-09-02 17:52:23,996 - INFO - Processing date 20231114 (attempt 1)
+2025-09-02 17:52:24,004 - INFO - Querying NeSPReSO API for date: 2023-11-14
+2025-09-02 17:52:25,269 - INFO - Successfully processed date 2023-11-11, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-11-11.nc
+2025-09-02 17:52:25,270 - INFO - Date 20231111 processed successfully
+2025-09-02 17:52:25,292 - INFO - Processing date 20231115 (attempt 1)
+2025-09-02 17:52:25,300 - INFO - Querying NeSPReSO API for date: 2023-11-15
+2025-09-02 17:52:25,658 - INFO - Successfully processed date 2023-11-12, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-11-12.nc
+2025-09-02 17:52:25,659 - INFO - Date 20231112 processed successfully
+2025-09-02 17:52:25,674 - INFO - Processing date 20231116 (attempt 1)
+2025-09-02 17:52:25,688 - INFO - Querying NeSPReSO API for date: 2023-11-16
+2025-09-02 17:52:26,894 - INFO - Successfully processed date 2023-11-13, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-11-13.nc
+2025-09-02 17:52:26,895 - INFO - Date 20231113 processed successfully
+2025-09-02 17:52:26,909 - INFO - Processing date 20231117 (attempt 1)
+2025-09-02 17:52:26,923 - INFO - Querying NeSPReSO API for date: 2023-11-17
+2025-09-02 17:52:27,159 - INFO - Successfully processed date 2023-11-14, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-11-14.nc
+2025-09-02 17:52:27,159 - INFO - Date 20231114 processed successfully
+2025-09-02 17:52:27,173 - INFO - Processing date 20231118 (attempt 1)
+2025-09-02 17:52:27,188 - INFO - Querying NeSPReSO API for date: 2023-11-18
+2025-09-02 17:52:28,345 - INFO - Successfully processed date 2023-11-15, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-11-15.nc
+2025-09-02 17:52:28,346 - INFO - Date 20231115 processed successfully
+2025-09-02 17:52:28,359 - INFO - Processing date 20231119 (attempt 1)
+2025-09-02 17:52:28,365 - INFO - Querying NeSPReSO API for date: 2023-11-19
+2025-09-02 17:52:28,509 - INFO - Checkpoint saved successfully
+2025-09-02 17:52:28,510 - INFO - Progress: 330/486 dates completed, 1 failed
+2025-09-02 17:52:28,748 - INFO - Successfully processed date 2023-11-16, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-11-16.nc
+2025-09-02 17:52:28,749 - INFO - Date 20231116 processed successfully
+2025-09-02 17:52:28,769 - INFO - Processing date 20231120 (attempt 1)
+2025-09-02 17:52:28,783 - INFO - Querying NeSPReSO API for date: 2023-11-20
+2025-09-02 17:52:30,137 - INFO - Successfully processed date 2023-11-17, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-11-17.nc
+2025-09-02 17:52:30,137 - INFO - Date 20231117 processed successfully
+2025-09-02 17:52:30,152 - INFO - Processing date 20231121 (attempt 1)
+2025-09-02 17:52:30,159 - INFO - Querying NeSPReSO API for date: 2023-11-21
+2025-09-02 17:52:30,544 - INFO - Successfully processed date 2023-11-18, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-11-18.nc
+2025-09-02 17:52:30,544 - INFO - Date 20231118 processed successfully
+2025-09-02 17:52:30,559 - INFO - Processing date 20231122 (attempt 1)
+2025-09-02 17:52:30,567 - INFO - Querying NeSPReSO API for date: 2023-11-22
+2025-09-02 17:52:31,695 - INFO - Successfully processed date 2023-11-19, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-11-19.nc
+2025-09-02 17:52:31,695 - INFO - Date 20231119 processed successfully
+2025-09-02 17:52:31,702 - INFO - Processing date 20231123 (attempt 1)
+2025-09-02 17:52:31,716 - INFO - Querying NeSPReSO API for date: 2023-11-23
+2025-09-02 17:52:32,705 - INFO - Successfully processed date 2023-11-20, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-11-20.nc
+2025-09-02 17:52:32,705 - INFO - Date 20231120 processed successfully
+2025-09-02 17:52:32,712 - INFO - Processing date 20231124 (attempt 1)
+2025-09-02 17:52:32,727 - INFO - Querying NeSPReSO API for date: 2023-11-24
+2025-09-02 17:52:33,476 - INFO - Successfully processed date 2023-11-21, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-11-21.nc
+2025-09-02 17:52:33,476 - INFO - Date 20231121 processed successfully
+2025-09-02 17:52:33,490 - INFO - Processing date 20231125 (attempt 1)
+2025-09-02 17:52:33,504 - INFO - Querying NeSPReSO API for date: 2023-11-25
+2025-09-02 17:52:34,057 - INFO - Successfully processed date 2023-11-22, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-11-22.nc
+2025-09-02 17:52:34,057 - INFO - Date 20231122 processed successfully
+2025-09-02 17:52:34,071 - INFO - Processing date 20231126 (attempt 1)
+2025-09-02 17:52:34,078 - INFO - Querying NeSPReSO API for date: 2023-11-26
+2025-09-02 17:52:35,127 - INFO - Successfully processed date 2023-11-23, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-11-23.nc
+2025-09-02 17:52:35,128 - INFO - Date 20231123 processed successfully
+2025-09-02 17:52:35,144 - INFO - Processing date 20231127 (attempt 1)
+2025-09-02 17:52:35,175 - INFO - Querying NeSPReSO API for date: 2023-11-27
+2025-09-02 17:52:35,561 - INFO - Successfully processed date 2023-11-24, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-11-24.nc
+2025-09-02 17:52:35,561 - INFO - Date 20231124 processed successfully
+2025-09-02 17:52:35,577 - INFO - Processing date 20231128 (attempt 1)
+2025-09-02 17:52:35,591 - INFO - Querying NeSPReSO API for date: 2023-11-28
+2025-09-02 17:52:36,857 - INFO - Successfully processed date 2023-11-25, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-11-25.nc
+2025-09-02 17:52:36,857 - INFO - Date 20231125 processed successfully
+2025-09-02 17:52:36,872 - INFO - Processing date 20231129 (attempt 1)
+2025-09-02 17:52:36,888 - INFO - Querying NeSPReSO API for date: 2023-11-29
+2025-09-02 17:52:36,975 - INFO - Checkpoint saved successfully
+2025-09-02 17:52:36,975 - INFO - Progress: 340/486 dates completed, 1 failed
+2025-09-02 17:52:37,330 - INFO - Successfully processed date 2023-11-26, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-11-26.nc
+2025-09-02 17:52:37,331 - INFO - Date 20231126 processed successfully
+2025-09-02 17:52:37,338 - INFO - Processing date 20231130 (attempt 1)
+2025-09-02 17:52:37,344 - INFO - Querying NeSPReSO API for date: 2023-11-30
+2025-09-02 17:52:38,229 - INFO - Successfully processed date 2023-11-27, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-11-27.nc
+2025-09-02 17:52:38,230 - INFO - Date 20231127 processed successfully
+2025-09-02 17:52:38,310 - INFO - Processing date 20231201 (attempt 1)
+2025-09-02 17:52:38,330 - INFO - Querying NeSPReSO API for date: 2023-12-01
+2025-09-02 17:52:38,927 - INFO - Successfully processed date 2023-11-28, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-11-28.nc
+2025-09-02 17:52:38,928 - INFO - Date 20231128 processed successfully
+2025-09-02 17:52:38,940 - INFO - Processing date 20231202 (attempt 1)
+2025-09-02 17:52:38,947 - INFO - Querying NeSPReSO API for date: 2023-12-02
+2025-09-02 17:52:39,846 - INFO - Successfully processed date 2023-11-29, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-11-29.nc
+2025-09-02 17:52:39,847 - INFO - Date 20231129 processed successfully
+2025-09-02 17:52:39,853 - INFO - Processing date 20231203 (attempt 1)
+2025-09-02 17:52:39,867 - INFO - Querying NeSPReSO API for date: 2023-12-03
+2025-09-02 17:52:40,840 - INFO - Successfully processed date 2023-11-30, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-11-30.nc
+2025-09-02 17:52:40,841 - INFO - Date 20231130 processed successfully
+2025-09-02 17:52:40,849 - INFO - Processing date 20231204 (attempt 1)
+2025-09-02 17:52:40,864 - INFO - Querying NeSPReSO API for date: 2023-12-04
+2025-09-02 17:52:42,044 - INFO - Successfully processed date 2023-12-01, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-12-01.nc
+2025-09-02 17:52:42,044 - INFO - Date 20231201 processed successfully
+2025-09-02 17:52:42,052 - INFO - Processing date 20231205 (attempt 1)
+2025-09-02 17:52:42,059 - INFO - Querying NeSPReSO API for date: 2023-12-05
+2025-09-02 17:52:42,503 - INFO - Successfully processed date 2023-12-02, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-12-02.nc
+2025-09-02 17:52:42,503 - INFO - Date 20231202 processed successfully
+2025-09-02 17:52:42,511 - INFO - Processing date 20231206 (attempt 1)
+2025-09-02 17:52:42,527 - INFO - Querying NeSPReSO API for date: 2023-12-06
+2025-09-02 17:52:43,776 - INFO - Successfully processed date 2023-12-03, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-12-03.nc
+2025-09-02 17:52:43,776 - INFO - Date 20231203 processed successfully
+2025-09-02 17:52:43,790 - INFO - Processing date 20231207 (attempt 1)
+2025-09-02 17:52:43,797 - INFO - Querying NeSPReSO API for date: 2023-12-07
+2025-09-02 17:52:44,028 - INFO - Successfully processed date 2023-12-04, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-12-04.nc
+2025-09-02 17:52:44,029 - INFO - Date 20231204 processed successfully
+2025-09-02 17:52:44,036 - INFO - Processing date 20231208 (attempt 1)
+2025-09-02 17:52:44,043 - INFO - Querying NeSPReSO API for date: 2023-12-08
+2025-09-02 17:52:45,151 - INFO - Successfully processed date 2023-12-05, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-12-05.nc
+2025-09-02 17:52:45,151 - INFO - Date 20231205 processed successfully
+2025-09-02 17:52:45,160 - INFO - Processing date 20231209 (attempt 1)
+2025-09-02 17:52:45,167 - INFO - Querying NeSPReSO API for date: 2023-12-09
+2025-09-02 17:52:45,224 - INFO - Checkpoint saved successfully
+2025-09-02 17:52:45,224 - INFO - Progress: 350/486 dates completed, 1 failed
+2025-09-02 17:52:46,221 - INFO - Successfully processed date 2023-12-06, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-12-06.nc
+2025-09-02 17:52:46,221 - INFO - Date 20231206 processed successfully
+2025-09-02 17:52:46,235 - INFO - Processing date 20231210 (attempt 1)
+2025-09-02 17:52:46,250 - INFO - Querying NeSPReSO API for date: 2023-12-10
+2025-09-02 17:52:46,988 - INFO - Successfully processed date 2023-12-07, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-12-07.nc
+2025-09-02 17:52:46,988 - INFO - Date 20231207 processed successfully
+2025-09-02 17:52:47,004 - INFO - Processing date 20231211 (attempt 1)
+2025-09-02 17:52:47,020 - INFO - Querying NeSPReSO API for date: 2023-12-11
+2025-09-02 17:52:48,096 - INFO - Successfully processed date 2023-12-08, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-12-08.nc
+2025-09-02 17:52:48,097 - INFO - Date 20231208 processed successfully
+2025-09-02 17:52:48,109 - INFO - Processing date 20231212 (attempt 1)
+2025-09-02 17:52:48,129 - INFO - Querying NeSPReSO API for date: 2023-12-12
+2025-09-02 17:52:48,487 - INFO - Successfully processed date 2023-12-09, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-12-09.nc
+2025-09-02 17:52:48,488 - INFO - Date 20231209 processed successfully
+2025-09-02 17:52:48,500 - INFO - Processing date 20231213 (attempt 1)
+2025-09-02 17:52:48,603 - INFO - Querying NeSPReSO API for date: 2023-12-13
+2025-09-02 17:52:49,797 - INFO - Successfully processed date 2023-12-10, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-12-10.nc
+2025-09-02 17:52:49,798 - INFO - Date 20231210 processed successfully
+2025-09-02 17:52:49,812 - INFO - Processing date 20231214 (attempt 1)
+2025-09-02 17:52:49,820 - INFO - Querying NeSPReSO API for date: 2023-12-14
+2025-09-02 17:52:49,908 - INFO - Successfully processed date 2023-12-11, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-12-11.nc
+2025-09-02 17:52:49,908 - INFO - Date 20231211 processed successfully
+2025-09-02 17:52:49,923 - INFO - Processing date 20231215 (attempt 1)
+2025-09-02 17:52:49,937 - INFO - Querying NeSPReSO API for date: 2023-12-15
+2025-09-02 17:52:51,353 - INFO - Successfully processed date 2023-12-12, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-12-12.nc
+2025-09-02 17:52:51,353 - INFO - Date 20231212 processed successfully
+2025-09-02 17:52:51,368 - INFO - Processing date 20231216 (attempt 1)
+2025-09-02 17:52:51,383 - INFO - Querying NeSPReSO API for date: 2023-12-16
+2025-09-02 17:52:51,525 - INFO - Successfully processed date 2023-12-13, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-12-13.nc
+2025-09-02 17:52:51,526 - INFO - Date 20231213 processed successfully
+2025-09-02 17:52:51,539 - INFO - Processing date 20231217 (attempt 1)
+2025-09-02 17:52:51,546 - INFO - Querying NeSPReSO API for date: 2023-12-17
+2025-09-02 17:52:53,277 - INFO - Successfully processed date 2023-12-15, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-12-15.nc
+2025-09-02 17:52:53,278 - INFO - Date 20231215 processed successfully
+2025-09-02 17:52:53,298 - INFO - Processing date 20231218 (attempt 1)
+2025-09-02 17:52:53,321 - INFO - Querying NeSPReSO API for date: 2023-12-18
+2025-09-02 17:52:53,352 - INFO - Successfully processed date 2023-12-14, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-12-14.nc
+2025-09-02 17:52:53,353 - INFO - Date 20231214 processed successfully
+2025-09-02 17:52:53,364 - INFO - Processing date 20231219 (attempt 1)
+2025-09-02 17:52:53,377 - INFO - Querying NeSPReSO API for date: 2023-12-19
+2025-09-02 17:52:53,504 - INFO - Checkpoint saved successfully
+2025-09-02 17:52:53,505 - INFO - Progress: 360/486 dates completed, 1 failed
+2025-09-02 17:52:55,095 - INFO - Successfully processed date 2023-12-16, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-12-16.nc
+2025-09-02 17:52:55,096 - INFO - Date 20231216 processed successfully
+2025-09-02 17:52:55,121 - INFO - Processing date 20231220 (attempt 1)
+2025-09-02 17:52:55,140 - INFO - Querying NeSPReSO API for date: 2023-12-20
+2025-09-02 17:52:55,273 - INFO - Successfully processed date 2023-12-17, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-12-17.nc
+2025-09-02 17:52:55,274 - INFO - Date 20231217 processed successfully
+2025-09-02 17:52:55,293 - INFO - Processing date 20231221 (attempt 1)
+2025-09-02 17:52:55,328 - INFO - Querying NeSPReSO API for date: 2023-12-21
+2025-09-02 17:52:56,751 - INFO - Successfully processed date 2023-12-18, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-12-18.nc
+2025-09-02 17:52:56,751 - INFO - Date 20231218 processed successfully
+2025-09-02 17:52:56,751 - INFO - Processing date 20231222 (attempt 1)
+2025-09-02 17:52:56,752 - INFO - Querying NeSPReSO API for date: 2023-12-22
+2025-09-02 17:52:57,194 - INFO - Successfully processed date 2023-12-19, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-12-19.nc
+2025-09-02 17:52:57,194 - INFO - Date 20231219 processed successfully
+2025-09-02 17:52:57,212 - INFO - Processing date 20231223 (attempt 1)
+2025-09-02 17:52:57,250 - INFO - Querying NeSPReSO API for date: 2023-12-23
+2025-09-02 17:52:58,674 - INFO - Successfully processed date 2023-12-20, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-12-20.nc
+2025-09-02 17:52:58,674 - INFO - Date 20231220 processed successfully
+2025-09-02 17:52:58,707 - INFO - Processing date 20231224 (attempt 1)
+2025-09-02 17:52:58,729 - INFO - Querying NeSPReSO API for date: 2023-12-24
+2025-09-02 17:52:59,000 - INFO - Successfully processed date 2023-12-21, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-12-21.nc
+2025-09-02 17:52:59,001 - INFO - Date 20231221 processed successfully
+2025-09-02 17:52:59,026 - INFO - Processing date 20231225 (attempt 1)
+2025-09-02 17:52:59,045 - INFO - Querying NeSPReSO API for date: 2023-12-25
+2025-09-02 17:53:00,389 - INFO - Successfully processed date 2023-12-22, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-12-22.nc
+2025-09-02 17:53:00,389 - INFO - Date 20231222 processed successfully
+2025-09-02 17:53:00,396 - INFO - Processing date 20231226 (attempt 1)
+2025-09-02 17:53:00,403 - INFO - Querying NeSPReSO API for date: 2023-12-26
+2025-09-02 17:53:00,824 - INFO - Successfully processed date 2023-12-23, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-12-23.nc
+2025-09-02 17:53:00,824 - INFO - Date 20231223 processed successfully
+2025-09-02 17:53:00,832 - INFO - Processing date 20231227 (attempt 1)
+2025-09-02 17:53:00,843 - INFO - Querying NeSPReSO API for date: 2023-12-27
+2025-09-02 17:53:01,781 - INFO - Successfully processed date 2023-12-24, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-12-24.nc
+2025-09-02 17:53:01,781 - INFO - Date 20231224 processed successfully
+2025-09-02 17:53:01,787 - INFO - Processing date 20231228 (attempt 1)
+2025-09-02 17:53:01,794 - INFO - Querying NeSPReSO API for date: 2023-12-28
+2025-09-02 17:53:02,271 - INFO - Successfully processed date 2023-12-25, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-12-25.nc
+2025-09-02 17:53:02,272 - INFO - Date 20231225 processed successfully
+2025-09-02 17:53:02,288 - INFO - Processing date 20231229 (attempt 1)
+2025-09-02 17:53:02,304 - INFO - Querying NeSPReSO API for date: 2023-12-29
+2025-09-02 17:53:02,486 - INFO - Checkpoint saved successfully
+2025-09-02 17:53:02,486 - INFO - Progress: 370/486 dates completed, 1 failed
+2025-09-02 17:53:03,384 - INFO - Successfully processed date 2023-12-26, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-12-26.nc
+2025-09-02 17:53:03,384 - INFO - Date 20231226 processed successfully
+2025-09-02 17:53:03,406 - INFO - Processing date 20231230 (attempt 1)
+2025-09-02 17:53:03,414 - INFO - Querying NeSPReSO API for date: 2023-12-30
+2025-09-02 17:53:04,162 - INFO - Successfully processed date 2023-12-27, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-12-27.nc
+2025-09-02 17:53:04,163 - INFO - Date 20231227 processed successfully
+2025-09-02 17:53:04,163 - INFO - Processing date 20231231 (attempt 1)
+2025-09-02 17:53:04,178 - INFO - Querying NeSPReSO API for date: 2023-12-31
+2025-09-02 17:53:05,321 - INFO - Successfully processed date 2023-12-28, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-12-28.nc
+2025-09-02 17:53:05,321 - INFO - Date 20231228 processed successfully
+2025-09-02 17:53:05,345 - INFO - Processing date 20240515 (attempt 1)
+2025-09-02 17:53:05,351 - INFO - Querying NeSPReSO API for date: 2024-05-15
+2025-09-02 17:53:05,920 - INFO - Successfully processed date 2023-12-29, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-12-29.nc
+2025-09-02 17:53:05,920 - INFO - Date 20231229 processed successfully
+2025-09-02 17:53:05,942 - INFO - Processing date 20240516 (attempt 1)
+2025-09-02 17:53:05,950 - INFO - Querying NeSPReSO API for date: 2024-05-16
+2025-09-02 17:53:07,564 - INFO - Successfully processed date 2023-12-30, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-12-30.nc
+2025-09-02 17:53:07,564 - INFO - Date 20231230 processed successfully
+2025-09-02 17:53:07,572 - INFO - Processing date 20240517 (attempt 1)
+2025-09-02 17:53:07,582 - INFO - Querying NeSPReSO API for date: 2024-05-17
+2025-09-02 17:53:08,109 - INFO - Successfully processed date 2023-12-31, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2023-12-31.nc
+2025-09-02 17:53:08,109 - INFO - Date 20231231 processed successfully
+2025-09-02 17:53:08,125 - INFO - Processing date 20240518 (attempt 1)
+2025-09-02 17:53:08,145 - INFO - Querying NeSPReSO API for date: 2024-05-18
+2025-09-02 17:53:10,410 - INFO - Successfully processed date 2024-05-15, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2024-05-15.nc
+2025-09-02 17:53:10,410 - INFO - Date 20240515 processed successfully
+2025-09-02 17:53:10,418 - INFO - Processing date 20240519 (attempt 1)
+2025-09-02 17:53:10,446 - INFO - Querying NeSPReSO API for date: 2024-05-19
+2025-09-02 17:53:10,531 - INFO - Successfully processed date 2024-05-16, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2024-05-16.nc
+2025-09-02 17:53:10,532 - INFO - Date 20240516 processed successfully
+2025-09-02 17:53:10,546 - INFO - Processing date 20240520 (attempt 1)
+2025-09-02 17:53:10,571 - INFO - Querying NeSPReSO API for date: 2024-05-20
+2025-09-02 17:53:12,187 - INFO - Successfully processed date 2024-05-18, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2024-05-18.nc
+2025-09-02 17:53:12,188 - INFO - Date 20240518 processed successfully
+2025-09-02 17:53:12,263 - INFO - Successfully processed date 2024-05-17, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2024-05-17.nc
+2025-09-02 17:53:12,825 - INFO - Processing date 20240521 (attempt 1)
+2025-09-02 17:53:12,826 - INFO - Date 20240517 processed successfully
+2025-09-02 17:53:12,880 - INFO - Querying NeSPReSO API for date: 2024-05-21
+2025-09-02 17:53:12,926 - INFO - Processing date 20240522 (attempt 1)
+2025-09-02 17:53:12,966 - INFO - Querying NeSPReSO API for date: 2024-05-22
+2025-09-02 17:53:13,057 - INFO - Checkpoint saved successfully
+2025-09-02 17:53:13,057 - INFO - Progress: 380/486 dates completed, 1 failed
+2025-09-02 17:53:13,791 - INFO - Successfully processed date 2024-05-19, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2024-05-19.nc
+2025-09-02 17:53:13,792 - INFO - Date 20240519 processed successfully
+2025-09-02 17:53:13,792 - INFO - Processing date 20240523 (attempt 1)
+2025-09-02 17:53:13,792 - INFO - Querying NeSPReSO API for date: 2024-05-23
+2025-09-02 17:53:13,832 - INFO - Successfully processed date 2024-05-20, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2024-05-20.nc
+2025-09-02 17:53:13,832 - INFO - Date 20240520 processed successfully
+2025-09-02 17:53:13,833 - INFO - Processing date 20240524 (attempt 1)
+2025-09-02 17:53:13,833 - INFO - Querying NeSPReSO API for date: 2024-05-24
+2025-09-02 17:53:15,433 - INFO - Successfully processed date 2024-05-21, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2024-05-21.nc
+2025-09-02 17:53:15,433 - INFO - Date 20240521 processed successfully
+2025-09-02 17:53:15,455 - INFO - Processing date 20240525 (attempt 1)
+2025-09-02 17:53:15,455 - INFO - Querying NeSPReSO API for date: 2024-05-25
+2025-09-02 17:53:15,672 - INFO - Successfully processed date 2024-05-22, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2024-05-22.nc
+2025-09-02 17:53:15,672 - INFO - Date 20240522 processed successfully
+2025-09-02 17:53:15,691 - INFO - Processing date 20240526 (attempt 1)
+2025-09-02 17:53:15,708 - INFO - Querying NeSPReSO API for date: 2024-05-26
+2025-09-02 17:53:17,605 - INFO - Successfully processed date 2024-05-23, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2024-05-23.nc
+2025-09-02 17:53:17,606 - INFO - Date 20240523 processed successfully
+2025-09-02 17:53:17,640 - INFO - Processing date 20240527 (attempt 1)
+2025-09-02 17:53:17,662 - INFO - Querying NeSPReSO API for date: 2024-05-27
+2025-09-02 17:53:17,839 - INFO - Successfully processed date 2024-05-24, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2024-05-24.nc
+2025-09-02 17:53:17,839 - INFO - Date 20240524 processed successfully
+2025-09-02 17:53:17,854 - INFO - Processing date 20240528 (attempt 1)
+2025-09-02 17:53:17,877 - INFO - Querying NeSPReSO API for date: 2024-05-28
+2025-09-02 17:53:19,279 - INFO - Successfully processed date 2024-05-25, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2024-05-25.nc
+2025-09-02 17:53:19,282 - INFO - Date 20240525 processed successfully
+2025-09-02 17:53:19,317 - INFO - Processing date 20240529 (attempt 1)
+2025-09-02 17:53:19,318 - INFO - Querying NeSPReSO API for date: 2024-05-29
+2025-09-02 17:53:19,750 - INFO - Successfully processed date 2024-05-26, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2024-05-26.nc
+2025-09-02 17:53:19,750 - INFO - Date 20240526 processed successfully
+2025-09-02 17:53:19,750 - INFO - Processing date 20240530 (attempt 1)
+2025-09-02 17:53:19,750 - INFO - Querying NeSPReSO API for date: 2024-05-30
+2025-09-02 17:53:20,857 - INFO - Successfully processed date 2024-05-27, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2024-05-27.nc
+2025-09-02 17:53:20,858 - INFO - Date 20240527 processed successfully
+2025-09-02 17:53:20,886 - INFO - Processing date 20240531 (attempt 1)
+2025-09-02 17:53:20,909 - INFO - Querying NeSPReSO API for date: 2024-05-31
+2025-09-02 17:53:21,650 - INFO - Successfully processed date 2024-05-28, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2024-05-28.nc
+2025-09-02 17:53:21,650 - INFO - Date 20240528 processed successfully
+2025-09-02 17:53:21,658 - INFO - Processing date 20240601 (attempt 1)
+2025-09-02 17:53:21,667 - INFO - Querying NeSPReSO API for date: 2024-06-01
+2025-09-02 17:53:21,838 - INFO - Checkpoint saved successfully
+2025-09-02 17:53:21,866 - INFO - Progress: 390/486 dates completed, 1 failed
+2025-09-02 17:53:22,938 - INFO - Successfully processed date 2024-05-29, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2024-05-29.nc
+2025-09-02 17:53:22,938 - INFO - Date 20240529 processed successfully
+2025-09-02 17:53:22,946 - INFO - Processing date 20240602 (attempt 1)
+2025-09-02 17:53:22,997 - INFO - Querying NeSPReSO API for date: 2024-06-02
+2025-09-02 17:53:23,370 - INFO - Successfully processed date 2024-05-30, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2024-05-30.nc
+2025-09-02 17:53:23,370 - INFO - Date 20240530 processed successfully
+2025-09-02 17:53:23,392 - INFO - Processing date 20240603 (attempt 1)
+2025-09-02 17:53:23,399 - INFO - Querying NeSPReSO API for date: 2024-06-03
+2025-09-02 17:53:24,329 - INFO - Successfully processed date 2024-05-31, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2024-05-31.nc
+2025-09-02 17:53:24,329 - INFO - Date 20240531 processed successfully
+2025-09-02 17:53:24,340 - INFO - Processing date 20240604 (attempt 1)
+2025-09-02 17:53:24,363 - INFO - Querying NeSPReSO API for date: 2024-06-04
+2025-09-02 17:53:25,843 - INFO - Successfully processed date 2024-06-01, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2024-06-01.nc
+2025-09-02 17:53:25,843 - INFO - Date 20240601 processed successfully
+2025-09-02 17:53:25,885 - INFO - Processing date 20240605 (attempt 1)
+2025-09-02 17:53:25,901 - INFO - Querying NeSPReSO API for date: 2024-06-05
+2025-09-02 17:53:26,140 - INFO - Successfully processed date 2024-06-02, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2024-06-02.nc
+2025-09-02 17:53:26,141 - INFO - Date 20240602 processed successfully
+2025-09-02 17:53:26,249 - INFO - Processing date 20240606 (attempt 1)
+2025-09-02 17:53:26,264 - INFO - Querying NeSPReSO API for date: 2024-06-06
+2025-09-02 17:53:27,242 - INFO - Successfully processed date 2024-06-03, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2024-06-03.nc
+2025-09-02 17:53:27,242 - INFO - Date 20240603 processed successfully
+2025-09-02 17:53:27,262 - INFO - Processing date 20240607 (attempt 1)
+2025-09-02 17:53:27,278 - INFO - Querying NeSPReSO API for date: 2024-06-07
+2025-09-02 17:53:27,796 - INFO - Successfully processed date 2024-06-04, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2024-06-04.nc
+2025-09-02 17:53:27,796 - INFO - Date 20240604 processed successfully
+2025-09-02 17:53:27,815 - INFO - Processing date 20240608 (attempt 1)
+2025-09-02 17:53:27,823 - INFO - Querying NeSPReSO API for date: 2024-06-08
+2025-09-02 17:53:28,735 - INFO - Successfully processed date 2024-06-05, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2024-06-05.nc
+2025-09-02 17:53:28,735 - INFO - Date 20240605 processed successfully
+2025-09-02 17:53:28,750 - INFO - Processing date 20240609 (attempt 1)
+2025-09-02 17:53:28,765 - INFO - Querying NeSPReSO API for date: 2024-06-09
+2025-09-02 17:53:29,558 - INFO - Successfully processed date 2024-06-06, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2024-06-06.nc
+2025-09-02 17:53:29,558 - INFO - Date 20240606 processed successfully
+2025-09-02 17:53:29,574 - INFO - Processing date 20240610 (attempt 1)
+2025-09-02 17:53:29,584 - INFO - Querying NeSPReSO API for date: 2024-06-10
+2025-09-02 17:53:30,389 - INFO - Successfully processed date 2024-06-07, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2024-06-07.nc
+2025-09-02 17:53:30,389 - INFO - Date 20240607 processed successfully
+2025-09-02 17:53:30,422 - INFO - Processing date 20240611 (attempt 1)
+2025-09-02 17:53:30,491 - INFO - Querying NeSPReSO API for date: 2024-06-11
+2025-09-02 17:53:30,540 - INFO - Checkpoint saved successfully
+2025-09-02 17:53:30,540 - INFO - Progress: 400/486 dates completed, 1 failed
+2025-09-02 17:53:31,170 - INFO - Successfully processed date 2024-06-08, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2024-06-08.nc
+2025-09-02 17:53:31,170 - INFO - Date 20240608 processed successfully
+2025-09-02 17:53:31,191 - INFO - Processing date 20240612 (attempt 1)
+2025-09-02 17:53:31,198 - INFO - Querying NeSPReSO API for date: 2024-06-12
+2025-09-02 17:53:32,461 - INFO - Successfully processed date 2024-06-09, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2024-06-09.nc
+2025-09-02 17:53:32,462 - INFO - Date 20240609 processed successfully
+2025-09-02 17:53:32,490 - INFO - Processing date 20240613 (attempt 1)
+2025-09-02 17:53:32,498 - INFO - Querying NeSPReSO API for date: 2024-06-13
+2025-09-02 17:53:32,513 - INFO - Successfully processed date 2024-06-10, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2024-06-10.nc
+2025-09-02 17:53:32,514 - INFO - Date 20240610 processed successfully
+2025-09-02 17:53:32,527 - INFO - Processing date 20240614 (attempt 1)
+2025-09-02 17:53:32,533 - INFO - Querying NeSPReSO API for date: 2024-06-14
+2025-09-02 17:53:33,934 - INFO - Successfully processed date 2024-06-11, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2024-06-11.nc
+2025-09-02 17:53:33,934 - INFO - Date 20240611 processed successfully
+2025-09-02 17:53:33,950 - INFO - Processing date 20240615 (attempt 1)
+2025-09-02 17:53:33,985 - INFO - Querying NeSPReSO API for date: 2024-06-15
+2025-09-02 17:53:34,230 - INFO - Successfully processed date 2024-06-12, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2024-06-12.nc
+2025-09-02 17:53:34,231 - INFO - Date 20240612 processed successfully
+2025-09-02 17:53:34,246 - INFO - Processing date 20240616 (attempt 1)
+2025-09-02 17:53:34,253 - INFO - Querying NeSPReSO API for date: 2024-06-16
+2025-09-02 17:53:35,774 - INFO - Successfully processed date 2024-06-13, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2024-06-13.nc
+2025-09-02 17:53:35,775 - INFO - Date 20240613 processed successfully
+2025-09-02 17:53:35,791 - INFO - Processing date 20240617 (attempt 1)
+2025-09-02 17:53:35,813 - INFO - Querying NeSPReSO API for date: 2024-06-17
+2025-09-02 17:53:35,826 - INFO - Successfully processed date 2024-06-14, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2024-06-14.nc
+2025-09-02 17:53:35,833 - INFO - Date 20240614 processed successfully
+2025-09-02 17:53:35,849 - INFO - Processing date 20240618 (attempt 1)
+2025-09-02 17:53:35,869 - INFO - Querying NeSPReSO API for date: 2024-06-18
+2025-09-02 17:53:37,113 - INFO - Successfully processed date 2024-06-15, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2024-06-15.nc
+2025-09-02 17:53:37,113 - INFO - Date 20240615 processed successfully
+2025-09-02 17:53:37,139 - INFO - Processing date 20240619 (attempt 1)
+2025-09-02 17:53:37,154 - INFO - Querying NeSPReSO API for date: 2024-06-19
+2025-09-02 17:53:37,214 - INFO - Successfully processed date 2024-06-16, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2024-06-16.nc
+2025-09-02 17:53:37,215 - INFO - Date 20240616 processed successfully
+2025-09-02 17:53:37,228 - INFO - Processing date 20240620 (attempt 1)
+2025-09-02 17:53:37,248 - INFO - Querying NeSPReSO API for date: 2024-06-20
+2025-09-02 17:53:38,669 - INFO - Successfully processed date 2024-06-18, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2024-06-18.nc
+2025-09-02 17:53:38,670 - INFO - Date 20240618 processed successfully
+2025-09-02 17:53:38,678 - INFO - Processing date 20240621 (attempt 1)
+2025-09-02 17:53:38,703 - INFO - Querying NeSPReSO API for date: 2024-06-21
+2025-09-02 17:53:38,711 - INFO - Successfully processed date 2024-06-17, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2024-06-17.nc
+2025-09-02 17:53:38,761 - INFO - Date 20240617 processed successfully
+2025-09-02 17:53:38,774 - INFO - Processing date 20240622 (attempt 1)
+2025-09-02 17:53:38,789 - INFO - Querying NeSPReSO API for date: 2024-06-22
+2025-09-02 17:53:38,798 - INFO - Checkpoint saved successfully
+2025-09-02 17:53:38,802 - INFO - Progress: 410/486 dates completed, 1 failed
+2025-09-02 17:53:40,132 - INFO - Successfully processed date 2024-06-20, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2024-06-20.nc
+2025-09-02 17:53:40,133 - INFO - Date 20240620 processed successfully
+2025-09-02 17:53:40,141 - INFO - Processing date 20240623 (attempt 1)
+2025-09-02 17:53:40,155 - INFO - Querying NeSPReSO API for date: 2024-06-23
+2025-09-02 17:53:40,215 - INFO - Successfully processed date 2024-06-19, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2024-06-19.nc
+2025-09-02 17:53:40,215 - INFO - Date 20240619 processed successfully
+2025-09-02 17:53:40,249 - INFO - Processing date 20240624 (attempt 1)
+2025-09-02 17:53:40,265 - INFO - Querying NeSPReSO API for date: 2024-06-24
+2025-09-02 17:53:41,410 - INFO - Successfully processed date 2024-06-21, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2024-06-21.nc
+2025-09-02 17:53:41,411 - INFO - Date 20240621 processed successfully
+2025-09-02 17:53:41,418 - INFO - Processing date 20240625 (attempt 1)
+2025-09-02 17:53:41,426 - INFO - Querying NeSPReSO API for date: 2024-06-25
+2025-09-02 17:53:41,846 - INFO - Successfully processed date 2024-06-22, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2024-06-22.nc
+2025-09-02 17:53:41,847 - INFO - Date 20240622 processed successfully
+2025-09-02 17:53:41,885 - INFO - Processing date 20240626 (attempt 1)
+2025-09-02 17:53:41,905 - INFO - Querying NeSPReSO API for date: 2024-06-26
+2025-09-02 17:53:42,807 - INFO - Successfully processed date 2024-06-23, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2024-06-23.nc
+2025-09-02 17:53:42,807 - INFO - Date 20240623 processed successfully
+2025-09-02 17:53:42,824 - INFO - Processing date 20240627 (attempt 1)
+2025-09-02 17:53:42,850 - INFO - Querying NeSPReSO API for date: 2024-06-27
+2025-09-02 17:53:43,378 - INFO - Successfully processed date 2024-06-24, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2024-06-24.nc
+2025-09-02 17:53:43,378 - INFO - Date 20240624 processed successfully
+2025-09-02 17:53:43,399 - INFO - Processing date 20240628 (attempt 1)
+2025-09-02 17:53:43,399 - INFO - Querying NeSPReSO API for date: 2024-06-28
+2025-09-02 17:53:44,135 - INFO - Successfully processed date 2024-06-25, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2024-06-25.nc
+2025-09-02 17:53:44,135 - INFO - Date 20240625 processed successfully
+2025-09-02 17:53:44,151 - INFO - Processing date 20240629 (attempt 1)
+2025-09-02 17:53:44,186 - INFO - Querying NeSPReSO API for date: 2024-06-29
+2025-09-02 17:53:45,088 - INFO - Successfully processed date 2024-06-26, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2024-06-26.nc
+2025-09-02 17:53:45,088 - INFO - Date 20240626 processed successfully
+2025-09-02 17:53:45,103 - INFO - Processing date 20240630 (attempt 1)
+2025-09-02 17:53:45,109 - INFO - Querying NeSPReSO API for date: 2024-06-30
+2025-09-02 17:53:45,637 - INFO - Successfully processed date 2024-06-27, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2024-06-27.nc
+2025-09-02 17:53:45,638 - INFO - Date 20240627 processed successfully
+2025-09-02 17:53:45,645 - INFO - Processing date 20240701 (attempt 1)
+2025-09-02 17:53:45,662 - INFO - Querying NeSPReSO API for date: 2024-07-01
+2025-09-02 17:53:45,784 - INFO - Checkpoint saved successfully
+2025-09-02 17:53:45,785 - INFO - Progress: 420/486 dates completed, 1 failed
+2025-09-02 17:53:46,715 - INFO - Successfully processed date 2024-06-28, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2024-06-28.nc
+2025-09-02 17:53:46,715 - INFO - Date 20240628 processed successfully
+2025-09-02 17:53:46,715 - INFO - Processing date 20240702 (attempt 1)
+2025-09-02 17:53:46,726 - INFO - Querying NeSPReSO API for date: 2024-07-02
+2025-09-02 17:53:47,298 - INFO - Successfully processed date 2024-06-29, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2024-06-29.nc
+2025-09-02 17:53:47,299 - INFO - Date 20240629 processed successfully
+2025-09-02 17:53:47,313 - INFO - Processing date 20240703 (attempt 1)
+2025-09-02 17:53:47,331 - INFO - Querying NeSPReSO API for date: 2024-07-03
+2025-09-02 17:53:48,298 - INFO - Successfully processed date 2024-06-30, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2024-06-30.nc
+2025-09-02 17:53:48,299 - INFO - Date 20240630 processed successfully
+2025-09-02 17:53:48,313 - INFO - Processing date 20240704 (attempt 1)
+2025-09-02 17:53:48,320 - INFO - Querying NeSPReSO API for date: 2024-07-04
+2025-09-02 17:53:49,109 - INFO - Successfully processed date 2024-07-01, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2024-07-01.nc
+2025-09-02 17:53:49,109 - INFO - Date 20240701 processed successfully
+2025-09-02 17:53:49,137 - INFO - Processing date 20240705 (attempt 1)
+2025-09-02 17:53:49,145 - INFO - Querying NeSPReSO API for date: 2024-07-05
+2025-09-02 17:53:50,141 - INFO - Successfully processed date 2024-07-02, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2024-07-02.nc
+2025-09-02 17:53:50,142 - INFO - Date 20240702 processed successfully
+2025-09-02 17:53:50,149 - INFO - Processing date 20240706 (attempt 1)
+2025-09-02 17:53:50,164 - INFO - Querying NeSPReSO API for date: 2024-07-06
+2025-09-02 17:53:50,708 - INFO - Successfully processed date 2024-07-03, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2024-07-03.nc
+2025-09-02 17:53:50,708 - INFO - Date 20240703 processed successfully
+2025-09-02 17:53:50,725 - INFO - Processing date 20240707 (attempt 1)
+2025-09-02 17:53:50,740 - INFO - Querying NeSPReSO API for date: 2024-07-07
+2025-09-02 17:53:51,672 - INFO - Successfully processed date 2024-07-04, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2024-07-04.nc
+2025-09-02 17:53:51,677 - INFO - Date 20240704 processed successfully
+2025-09-02 17:53:51,699 - INFO - Processing date 20240708 (attempt 1)
+2025-09-02 17:53:51,706 - INFO - Querying NeSPReSO API for date: 2024-07-08
+2025-09-02 17:53:52,174 - INFO - Successfully processed date 2024-07-05, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2024-07-05.nc
+2025-09-02 17:53:52,175 - INFO - Date 20240705 processed successfully
+2025-09-02 17:53:52,271 - INFO - Processing date 20240709 (attempt 1)
+2025-09-02 17:53:52,366 - INFO - Querying NeSPReSO API for date: 2024-07-09
+2025-09-02 17:53:53,206 - INFO - Successfully processed date 2024-07-06, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2024-07-06.nc
+2025-09-02 17:53:53,206 - INFO - Date 20240706 processed successfully
+2025-09-02 17:53:53,237 - INFO - Processing date 20240710 (attempt 1)
+2025-09-02 17:53:53,245 - INFO - Querying NeSPReSO API for date: 2024-07-10
+2025-09-02 17:53:53,381 - INFO - Successfully processed date 2024-07-07, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2024-07-07.nc
+2025-09-02 17:53:53,381 - INFO - Date 20240707 processed successfully
+2025-09-02 17:53:53,388 - INFO - Processing date 20240711 (attempt 1)
+2025-09-02 17:53:53,389 - INFO - Querying NeSPReSO API for date: 2024-07-11
+2025-09-02 17:53:53,492 - INFO - Checkpoint saved successfully
+2025-09-02 17:53:53,493 - INFO - Progress: 430/486 dates completed, 1 failed
+2025-09-02 17:53:54,757 - INFO - Successfully processed date 2024-07-09, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2024-07-09.nc
+2025-09-02 17:53:54,757 - INFO - Date 20240709 processed successfully
+2025-09-02 17:53:54,781 - INFO - Processing date 20240712 (attempt 1)
+2025-09-02 17:53:54,811 - INFO - Querying NeSPReSO API for date: 2024-07-12
+2025-09-02 17:53:54,892 - INFO - Successfully processed date 2024-07-08, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2024-07-08.nc
+2025-09-02 17:53:54,996 - INFO - Date 20240708 processed successfully
+2025-09-02 17:53:55,007 - INFO - Processing date 20240713 (attempt 1)
+2025-09-02 17:53:55,020 - INFO - Querying NeSPReSO API for date: 2024-07-13
+2025-09-02 17:53:56,224 - INFO - Successfully processed date 2024-07-10, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2024-07-10.nc
+2025-09-02 17:53:56,224 - INFO - Date 20240710 processed successfully
+2025-09-02 17:53:56,234 - INFO - Processing date 20240714 (attempt 1)
+2025-09-02 17:53:56,242 - INFO - Querying NeSPReSO API for date: 2024-07-14
+2025-09-02 17:53:56,268 - INFO - Successfully processed date 2024-07-11, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2024-07-11.nc
+2025-09-02 17:53:56,269 - INFO - Date 20240711 processed successfully
+2025-09-02 17:53:56,284 - INFO - Processing date 20240715 (attempt 1)
+2025-09-02 17:53:56,300 - INFO - Querying NeSPReSO API for date: 2024-07-15
+2025-09-02 17:53:57,474 - INFO - Successfully processed date 2024-07-12, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2024-07-12.nc
+2025-09-02 17:53:57,474 - INFO - Date 20240712 processed successfully
+2025-09-02 17:53:57,474 - INFO - Processing date 20240716 (attempt 1)
+2025-09-02 17:53:57,475 - INFO - Querying NeSPReSO API for date: 2024-07-16
+2025-09-02 17:53:58,187 - INFO - Successfully processed date 2024-07-13, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2024-07-13.nc
+2025-09-02 17:53:58,187 - INFO - Date 20240713 processed successfully
+2025-09-02 17:53:58,194 - INFO - Processing date 20240717 (attempt 1)
+2025-09-02 17:53:58,202 - INFO - Querying NeSPReSO API for date: 2024-07-17
+2025-09-02 17:53:58,800 - INFO - Successfully processed date 2024-07-14, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2024-07-14.nc
+2025-09-02 17:53:58,801 - INFO - Date 20240714 processed successfully
+2025-09-02 17:53:58,808 - INFO - Processing date 20240718 (attempt 1)
+2025-09-02 17:53:58,827 - INFO - Querying NeSPReSO API for date: 2024-07-18
+2025-09-02 17:53:59,612 - INFO - Successfully processed date 2024-07-15, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2024-07-15.nc
+2025-09-02 17:53:59,612 - INFO - Date 20240715 processed successfully
+2025-09-02 17:53:59,625 - INFO - Processing date 20240719 (attempt 1)
+2025-09-02 17:53:59,632 - INFO - Querying NeSPReSO API for date: 2024-07-19
+2025-09-02 17:53:59,970 - INFO - Successfully processed date 2024-07-16, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2024-07-16.nc
+2025-09-02 17:53:59,970 - INFO - Date 20240716 processed successfully
+2025-09-02 17:53:59,984 - INFO - Processing date 20240720 (attempt 1)
+2025-09-02 17:53:59,991 - INFO - Querying NeSPReSO API for date: 2024-07-20
+2025-09-02 17:54:00,841 - INFO - Successfully processed date 2024-07-17, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2024-07-17.nc
+2025-09-02 17:54:00,841 - INFO - Date 20240717 processed successfully
+2025-09-02 17:54:00,855 - INFO - Processing date 20240721 (attempt 1)
+2025-09-02 17:54:00,868 - INFO - Querying NeSPReSO API for date: 2024-07-21
+2025-09-02 17:54:00,931 - INFO - Checkpoint saved successfully
+2025-09-02 17:54:00,932 - INFO - Progress: 440/486 dates completed, 1 failed
+2025-09-02 17:54:01,495 - INFO - Successfully processed date 2024-07-18, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2024-07-18.nc
+2025-09-02 17:54:01,496 - INFO - Date 20240718 processed successfully
+2025-09-02 17:54:01,511 - INFO - Processing date 20240722 (attempt 1)
+2025-09-02 17:54:01,526 - INFO - Querying NeSPReSO API for date: 2024-07-22
+2025-09-02 17:54:02,791 - INFO - Successfully processed date 2024-07-19, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2024-07-19.nc
+2025-09-02 17:54:02,791 - INFO - Date 20240719 processed successfully
+2025-09-02 17:54:02,810 - INFO - Processing date 20240723 (attempt 1)
+2025-09-02 17:54:02,824 - INFO - Querying NeSPReSO API for date: 2024-07-23
+2025-09-02 17:54:02,971 - INFO - Successfully processed date 2024-07-20, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2024-07-20.nc
+2025-09-02 17:54:02,972 - INFO - Date 20240720 processed successfully
+2025-09-02 17:54:02,987 - INFO - Processing date 20240724 (attempt 1)
+2025-09-02 17:54:03,001 - INFO - Querying NeSPReSO API for date: 2024-07-24
+2025-09-02 17:54:04,287 - INFO - Successfully processed date 2024-07-21, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2024-07-21.nc
+2025-09-02 17:54:04,287 - INFO - Date 20240721 processed successfully
+2025-09-02 17:54:04,302 - INFO - Processing date 20240725 (attempt 1)
+2025-09-02 17:54:04,317 - INFO - Querying NeSPReSO API for date: 2024-07-25
+2025-09-02 17:54:04,668 - INFO - Successfully processed date 2024-07-22, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2024-07-22.nc
+2025-09-02 17:54:04,668 - INFO - Date 20240722 processed successfully
+2025-09-02 17:54:04,683 - INFO - Processing date 20240726 (attempt 1)
+2025-09-02 17:54:04,690 - INFO - Querying NeSPReSO API for date: 2024-07-26
+2025-09-02 17:54:05,443 - INFO - Successfully processed date 2024-07-23, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2024-07-23.nc
+2025-09-02 17:54:05,443 - INFO - Date 20240723 processed successfully
+2025-09-02 17:54:05,459 - INFO - Processing date 20240727 (attempt 1)
+2025-09-02 17:54:05,465 - INFO - Querying NeSPReSO API for date: 2024-07-27
+2025-09-02 17:54:05,720 - INFO - Successfully processed date 2024-07-24, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2024-07-24.nc
+2025-09-02 17:54:05,720 - INFO - Date 20240724 processed successfully
+2025-09-02 17:54:05,759 - INFO - Processing date 20240728 (attempt 1)
+2025-09-02 17:54:05,775 - INFO - Querying NeSPReSO API for date: 2024-07-28
+2025-09-02 17:54:07,049 - INFO - Successfully processed date 2024-07-25, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2024-07-25.nc
+2025-09-02 17:54:07,049 - INFO - Date 20240725 processed successfully
+2025-09-02 17:54:07,057 - INFO - Processing date 20240729 (attempt 1)
+2025-09-02 17:54:07,072 - INFO - Querying NeSPReSO API for date: 2024-07-29
+2025-09-02 17:54:07,384 - INFO - Successfully processed date 2024-07-26, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2024-07-26.nc
+2025-09-02 17:54:07,385 - INFO - Date 20240726 processed successfully
+2025-09-02 17:54:07,435 - INFO - Processing date 20240730 (attempt 1)
+2025-09-02 17:54:07,436 - INFO - Querying NeSPReSO API for date: 2024-07-30
+2025-09-02 17:54:08,497 - INFO - Successfully processed date 2024-07-27, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2024-07-27.nc
+2025-09-02 17:54:08,498 - INFO - Date 20240727 processed successfully
+2025-09-02 17:54:08,509 - INFO - Processing date 20240731 (attempt 1)
+2025-09-02 17:54:08,516 - INFO - Querying NeSPReSO API for date: 2024-07-31
+2025-09-02 17:54:08,596 - INFO - Checkpoint saved successfully
+2025-09-02 17:54:08,596 - INFO - Progress: 450/486 dates completed, 1 failed
+2025-09-02 17:54:08,695 - INFO - Successfully processed date 2024-07-28, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2024-07-28.nc
+2025-09-02 17:54:08,695 - INFO - Date 20240728 processed successfully
+2025-09-02 17:54:08,711 - INFO - Processing date 20240801 (attempt 1)
+2025-09-02 17:54:08,735 - INFO - Querying NeSPReSO API for date: 2024-08-01
+2025-09-02 17:54:09,855 - INFO - Successfully processed date 2024-07-29, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2024-07-29.nc
+2025-09-02 17:54:09,855 - INFO - Date 20240729 processed successfully
+2025-09-02 17:54:09,863 - INFO - Processing date 20240802 (attempt 1)
+2025-09-02 17:54:09,878 - INFO - Querying NeSPReSO API for date: 2024-08-02
+2025-09-02 17:54:10,121 - INFO - Successfully processed date 2024-07-30, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2024-07-30.nc
+2025-09-02 17:54:10,121 - INFO - Date 20240730 processed successfully
+2025-09-02 17:54:10,180 - INFO - Processing date 20240803 (attempt 1)
+2025-09-02 17:54:10,189 - INFO - Querying NeSPReSO API for date: 2024-08-03
+2025-09-02 17:54:11,536 - INFO - Successfully processed date 2024-07-31, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2024-07-31.nc
+2025-09-02 17:54:11,536 - INFO - Date 20240731 processed successfully
+2025-09-02 17:54:11,552 - INFO - Processing date 20240804 (attempt 1)
+2025-09-02 17:54:11,579 - INFO - Querying NeSPReSO API for date: 2024-08-04
+2025-09-02 17:54:13,152 - INFO - Successfully processed date 2024-08-01, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2024-08-01.nc
+2025-09-02 17:54:13,153 - INFO - Date 20240801 processed successfully
+2025-09-02 17:54:13,181 - INFO - Processing date 20240805 (attempt 1)
+2025-09-02 17:54:13,200 - INFO - Querying NeSPReSO API for date: 2024-08-05
+2025-09-02 17:54:13,243 - INFO - Successfully processed date 2024-08-02, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2024-08-02.nc
+2025-09-02 17:54:13,243 - INFO - Date 20240802 processed successfully
+2025-09-02 17:54:13,260 - INFO - Processing date 20240806 (attempt 1)
+2025-09-02 17:54:13,274 - INFO - Querying NeSPReSO API for date: 2024-08-06
+2025-09-02 17:54:15,128 - INFO - Successfully processed date 2024-08-03, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2024-08-03.nc
+2025-09-02 17:54:15,129 - INFO - Date 20240803 processed successfully
+2025-09-02 17:54:15,137 - INFO - Processing date 20240807 (attempt 1)
+2025-09-02 17:54:15,149 - INFO - Querying NeSPReSO API for date: 2024-08-07
+2025-09-02 17:54:15,228 - INFO - Successfully processed date 2024-08-04, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2024-08-04.nc
+2025-09-02 17:54:15,228 - INFO - Date 20240804 processed successfully
+2025-09-02 17:54:15,238 - INFO - Processing date 20240808 (attempt 1)
+2025-09-02 17:54:15,250 - INFO - Querying NeSPReSO API for date: 2024-08-08
+2025-09-02 17:54:16,730 - INFO - Successfully processed date 2024-08-05, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2024-08-05.nc
+2025-09-02 17:54:16,731 - INFO - Date 20240805 processed successfully
+2025-09-02 17:54:16,737 - INFO - Processing date 20240809 (attempt 1)
+2025-09-02 17:54:16,744 - INFO - Querying NeSPReSO API for date: 2024-08-09
+2025-09-02 17:54:16,994 - INFO - Successfully processed date 2024-08-06, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2024-08-06.nc
+2025-09-02 17:54:16,994 - INFO - Date 20240806 processed successfully
+2025-09-02 17:54:17,007 - INFO - Processing date 20240810 (attempt 1)
+2025-09-02 17:54:17,034 - INFO - Querying NeSPReSO API for date: 2024-08-10
+2025-09-02 17:54:17,111 - INFO - Checkpoint saved successfully
+2025-09-02 17:54:17,112 - INFO - Progress: 460/486 dates completed, 1 failed
+2025-09-02 17:54:17,904 - INFO - Successfully processed date 2024-08-07, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2024-08-07.nc
+2025-09-02 17:54:17,905 - INFO - Date 20240807 processed successfully
+2025-09-02 17:54:17,921 - INFO - Processing date 20240811 (attempt 1)
+2025-09-02 17:54:17,928 - INFO - Querying NeSPReSO API for date: 2024-08-11
+2025-09-02 17:54:18,470 - INFO - Successfully processed date 2024-08-08, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2024-08-08.nc
+2025-09-02 17:54:18,471 - INFO - Date 20240808 processed successfully
+2025-09-02 17:54:18,485 - INFO - Processing date 20240812 (attempt 1)
+2025-09-02 17:54:18,494 - INFO - Querying NeSPReSO API for date: 2024-08-12
+2025-09-02 17:54:19,536 - INFO - Successfully processed date 2024-08-09, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2024-08-09.nc
+2025-09-02 17:54:19,536 - INFO - Date 20240809 processed successfully
+2025-09-02 17:54:19,558 - INFO - Processing date 20240813 (attempt 1)
+2025-09-02 17:54:19,572 - INFO - Querying NeSPReSO API for date: 2024-08-13
+2025-09-02 17:54:20,407 - INFO - Successfully processed date 2024-08-10, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2024-08-10.nc
+2025-09-02 17:54:20,407 - INFO - Date 20240810 processed successfully
+2025-09-02 17:54:20,423 - INFO - Processing date 20240814 (attempt 1)
+2025-09-02 17:54:20,454 - INFO - Querying NeSPReSO API for date: 2024-08-14
+2025-09-02 17:54:21,266 - INFO - Successfully processed date 2024-08-11, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2024-08-11.nc
+2025-09-02 17:54:21,266 - INFO - Date 20240811 processed successfully
+2025-09-02 17:54:21,266 - INFO - Processing date 20240815 (attempt 1)
+2025-09-02 17:54:21,304 - INFO - Querying NeSPReSO API for date: 2024-08-15
+2025-09-02 17:54:21,947 - INFO - Successfully processed date 2024-08-12, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2024-08-12.nc
+2025-09-02 17:54:21,948 - INFO - Date 20240812 processed successfully
+2025-09-02 17:54:21,964 - INFO - Processing date 20240816 (attempt 1)
+2025-09-02 17:54:21,984 - INFO - Querying NeSPReSO API for date: 2024-08-16
+2025-09-02 17:54:22,766 - INFO - Successfully processed date 2024-08-13, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2024-08-13.nc
+2025-09-02 17:54:22,767 - INFO - Date 20240813 processed successfully
+2025-09-02 17:54:22,780 - INFO - Processing date 20240817 (attempt 1)
+2025-09-02 17:54:22,796 - INFO - Querying NeSPReSO API for date: 2024-08-17
+2025-09-02 17:54:23,611 - INFO - Successfully processed date 2024-08-14, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2024-08-14.nc
+2025-09-02 17:54:23,611 - INFO - Date 20240814 processed successfully
+2025-09-02 17:54:23,627 - INFO - Processing date 20240818 (attempt 1)
+2025-09-02 17:54:23,644 - INFO - Querying NeSPReSO API for date: 2024-08-18
+2025-09-02 17:54:24,100 - INFO - Successfully processed date 2024-08-15, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2024-08-15.nc
+2025-09-02 17:54:24,101 - INFO - Date 20240815 processed successfully
+2025-09-02 17:54:24,384 - INFO - Processing date 20240819 (attempt 1)
+2025-09-02 17:54:24,405 - INFO - Querying NeSPReSO API for date: 2024-08-19
+2025-09-02 17:54:25,006 - INFO - Successfully processed date 2024-08-16, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2024-08-16.nc
+2025-09-02 17:54:25,006 - INFO - Date 20240816 processed successfully
+2025-09-02 17:54:25,019 - INFO - Processing date 20240820 (attempt 1)
+2025-09-02 17:54:25,029 - INFO - Querying NeSPReSO API for date: 2024-08-20
+2025-09-02 17:54:25,103 - INFO - Checkpoint saved successfully
+2025-09-02 17:54:25,103 - INFO - Progress: 470/486 dates completed, 1 failed
+2025-09-02 17:54:25,340 - INFO - Successfully processed date 2024-08-17, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2024-08-17.nc
+2025-09-02 17:54:25,340 - INFO - Date 20240817 processed successfully
+2025-09-02 17:54:25,366 - INFO - Processing date 20240821 (attempt 1)
+2025-09-02 17:54:25,374 - INFO - Querying NeSPReSO API for date: 2024-08-21
+2025-09-02 17:54:26,935 - INFO - Successfully processed date 2024-08-19, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2024-08-19.nc
+2025-09-02 17:54:26,936 - INFO - Date 20240819 processed successfully
+2025-09-02 17:54:26,957 - INFO - Processing date 20240822 (attempt 1)
+2025-09-02 17:54:26,964 - INFO - Querying NeSPReSO API for date: 2024-08-22
+2025-09-02 17:54:27,101 - INFO - Successfully processed date 2024-08-18, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2024-08-18.nc
+2025-09-02 17:54:27,101 - INFO - Date 20240818 processed successfully
+2025-09-02 17:54:27,117 - INFO - Processing date 20240823 (attempt 1)
+2025-09-02 17:54:27,131 - INFO - Querying NeSPReSO API for date: 2024-08-23
+2025-09-02 17:54:28,353 - INFO - Successfully processed date 2024-08-20, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2024-08-20.nc
+2025-09-02 17:54:28,353 - INFO - Date 20240820 processed successfully
+2025-09-02 17:54:28,643 - INFO - Successfully processed date 2024-08-21, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2024-08-21.nc
+2025-09-02 17:54:29,505 - INFO - Processing date 20240824 (attempt 1)
+2025-09-02 17:54:29,505 - INFO - Date 20240821 processed successfully
+2025-09-02 17:54:30,042 - INFO - Querying NeSPReSO API for date: 2024-08-24
+2025-09-02 17:54:30,111 - INFO - Successfully processed date 2024-08-22, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2024-08-22.nc
+2025-09-02 17:54:30,332 - INFO - Successfully processed date 2024-08-23, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2024-08-23.nc
+2025-09-02 17:54:30,458 - INFO - Processing date 20240825 (attempt 1)
+2025-09-02 17:54:30,496 - INFO - Date 20240822 processed successfully
+2025-09-02 17:54:30,602 - INFO - Date 20240823 processed successfully
+2025-09-02 17:54:30,621 - INFO - Querying NeSPReSO API for date: 2024-08-25
+2025-09-02 17:54:30,631 - INFO - Processing date 20240826 (attempt 1)
+2025-09-02 17:54:30,639 - INFO - Processing date 20240827 (attempt 1)
+2025-09-02 17:54:30,669 - INFO - Querying NeSPReSO API for date: 2024-08-26
+2025-09-02 17:54:30,682 - INFO - Querying NeSPReSO API for date: 2024-08-27
+2025-09-02 17:54:31,755 - INFO - Successfully processed date 2024-08-24, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2024-08-24.nc
+2025-09-02 17:54:31,755 - INFO - Date 20240824 processed successfully
+2025-09-02 17:54:31,783 - INFO - Processing date 20240828 (attempt 1)
+2025-09-02 17:54:31,810 - INFO - Querying NeSPReSO API for date: 2024-08-28
+2025-09-02 17:54:32,304 - INFO - Successfully processed date 2024-08-25, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2024-08-25.nc
+2025-09-02 17:54:32,305 - INFO - Date 20240825 processed successfully
+2025-09-02 17:54:32,321 - INFO - Processing date 20240829 (attempt 1)
+2025-09-02 17:54:32,335 - INFO - Querying NeSPReSO API for date: 2024-08-29
+2025-09-02 17:54:33,295 - INFO - Successfully processed date 2024-08-26, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2024-08-26.nc
+2025-09-02 17:54:33,296 - INFO - Date 20240826 processed successfully
+2025-09-02 17:54:33,318 - INFO - Processing date 20240830 (attempt 1)
+2025-09-02 17:54:33,350 - INFO - Querying NeSPReSO API for date: 2024-08-30
+2025-09-02 17:54:33,370 - INFO - Checkpoint saved successfully
+2025-09-02 17:54:33,390 - INFO - Progress: 480/486 dates completed, 1 failed
+2025-09-02 17:54:33,543 - INFO - Successfully processed date 2024-08-27, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2024-08-27.nc
+2025-09-02 17:54:33,543 - INFO - Date 20240827 processed successfully
+2025-09-02 17:54:33,552 - INFO - Processing date 20240831 (attempt 1)
+2025-09-02 17:54:33,578 - INFO - Querying NeSPReSO API for date: 2024-08-31
+2025-09-02 17:54:34,489 - INFO - Successfully processed date 2024-08-28, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2024-08-28.nc
+2025-09-02 17:54:34,489 - INFO - Date 20240828 processed successfully
+2025-09-02 17:54:35,243 - INFO - Successfully processed date 2024-08-29, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2024-08-29.nc
+2025-09-02 17:54:35,244 - INFO - Date 20240829 processed successfully
+2025-09-02 17:54:36,031 - INFO - Successfully processed date 2024-08-30, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2024-08-30.nc
+2025-09-02 17:54:36,032 - INFO - Date 20240830 processed successfully
+2025-09-02 17:54:36,830 - INFO - Successfully processed date 2024-08-31, saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/nespreso_grid_2024-08-31.nc
+2025-09-02 17:54:36,830 - INFO - Date 20240831 processed successfully
+2025-09-02 17:54:36,928 - INFO - Checkpoint saved successfully
+2025-09-02 17:54:36,928 - INFO - Batch processing completed. 485/486 dates processed successfully, 1 failed
+2025-09-02 17:54:36,930 - INFO - Generating summary report...
+2025-09-02 17:54:37,025 - INFO - Summary report saved to /Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/archive_summary.json
+2025-09-02 17:54:37,025 - INFO - Archive Summary: 3505/3506 dates processed successfully (100.0%)
+2025-09-02 17:54:37,025 - INFO - Archive building process completed successfully!

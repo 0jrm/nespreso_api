@@ -32,7 +32,7 @@ import numpy as np
 from services.utils import preprocess_inputs, apply_netcdf_global_attributes
 
 # Default API endpoint
-DEFAULT_API = "http://0.0.0.0:5000/v1/profile"
+DEFAULT_API = "https://ozavala.coaps.fsu.edu/nespreso_profile"
 
 # Default timeout settings
 DEFAULT_TIMEOUT = 1800  # 30 minutes

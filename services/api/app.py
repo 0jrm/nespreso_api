@@ -460,7 +460,7 @@ def create_app(config: dict | None = None) -> Flask:
     app = Flask(__name__)
     if config:
         app.config.update(config)
-    bp = Blueprint("profile", __name__, url_prefix="/v1/profile")
+    bp = Blueprint("profile", __name__, url_prefix="/v1_profile")
 
     @bp.route("", methods=["POST"])
     def profile():

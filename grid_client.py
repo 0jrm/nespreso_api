@@ -34,7 +34,7 @@ import os
 
 # Configuration
 GRID_OUTPUT_DIR = os.path.join("uses", "grid")
-DEFAULT_API_URL = "http://localhost:5000/v1/profile/grid"
+DEFAULT_API_URL = "https://ozavala.coaps.fsu.edu/nespreso_grid"
 DEFAULT_TIMEOUT = 600  # 10 minutes
 
 

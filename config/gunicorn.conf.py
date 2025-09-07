@@ -4,7 +4,7 @@ Gunicorn configuration file for NeSPReSO API
 """
 
 # Server socket
-bind = "146.201.220.56:5000"
+bind = "0.0.0.0:5000"
 backlog = 2048
 
 # Worker processes

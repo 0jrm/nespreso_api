@@ -58,6 +58,17 @@ SSS_ROOT    = Path(env("SATDB_SSS_ROOT", "/Net/work/ozavala/DATA/GOFFISH/SSS/SMA
 AVISO_ROOT  = Path(env("SATDB_AVISO_ROOT", "/Net/work/ozavala/DATA/GOFFISH/AVISO/GoM/"))
 LOG_PATH    = Path(env("SATDB_LOG", "/unity/g2/jmiranda/nespreso_api/scripts/sat_db/update.log"))
 
+# Alternate AVISO source (post-2024-10): CMEMS GLOBAL_ANALYSISFORECAST PHY ANFC monthly subsets
+ANFC_ROOT            = Path(env("SATDB_ANFC_ROOT", "/Net/work/ozavala/DATA/GOFFISH/AVISO/GoM/CMEMS_GLOBAL_PHY_ANFC"))
+ANFC_DATASET_ID      = env("SATDB_ANFC_DATASET_ID", "cmems_mod_glo_phy_anfc_0.083deg_P1D-m")
+ANFC_DATASET_VERSION = env("SATDB_ANFC_VERSION", "")  # optional; empty means latest
+ANFC_VARIABLE        = env("SATDB_ANFC_VARIABLE", "zos")  # SSH variable in ANFC
+ANFC_BBOX            = env("SATDB_ANFC_BBOX", "-98,-81,18,31")  # lon_min,lon_max,lat_min,lat_max
+
+# Conversion to approximate DUACS ADT from ANFC SSH (zos)
+ADT_FROM_SSH_SLOPE     = float(env("SATDB_ADT_FROM_SSH_SLOPE", "1.015492"))
+ADT_FROM_SSH_INTERCEPT = float(env("SATDB_ADT_FROM_SSH_INTERCEPT", "0.423671"))
+
 # Backoff parameters
 MAX_TRIES          = int(env("SATDB_MAX_TRIES", "8"))
 BASE_BACKOFF_MIN   = float(env("SATDB_BASE_BACKOFF_MIN", "30"))   # 30 minutes
@@ -137,6 +148,13 @@ def setup_logging(log_path: Optional[str], level: str = "INFO", also_stdout: boo
     logging.getLogger("botocore").setLevel(logging.WARNING)
 
     logger.debug(f"Logging initialized at {path} level={level} also_stdout={also_stdout}")
+
+def _parse_bbox(bbox_str: str) -> Tuple[float, float, float, float]:
+    parts = [p.strip() for p in (bbox_str or "").split(",")]
+    if len(parts) != 4:
+        raise ValueError("bbox must have 4 comma-separated numbers: lon_min,lon_max,lat_min,lat_max")
+    lon_min, lon_max, lat_min, lat_max = [float(p) for p in parts]
+    return lon_min, lon_max, lat_min, lat_max
 
 # ---------------------------- external deps ----------------------------
 # We import lazily so that --report, --bootstrap can run without network libs if needed.
@@ -263,65 +281,49 @@ def ensure_aviso_available(aviso_root: str, date_: datetime) -> Path:
 
     _assert_writable(aviso_path)
 
-    # Create daily downloads directory
-    daily_dir = aviso_path / "daily_downloads" / month_tag
-    daily_dir.mkdir(parents=True, exist_ok=True)
+    # Decide source by month: DUACS (through 2024-10) vs ANFC (2024-11+)
+    use_duacs = (date_.year < 2024) or (date_.year == 2024 and date_.month <= 10)
 
-    tmpdir = tempfile.mkdtemp(dir=str(aviso_path))
-    try:
-        # Download available daily files for this month
-        pattern = f"*{date_.year}{date_.month:02d}??*.nc"  # YYYYMMDD
-        logger.debug(f"AVISO download daily files for {month_tag}")
-        resp = copernicusmarine.get(
-            dataset_id=("cmems_obs-sl_glo_phy-ssh_my_allsat-l4-duacs-0.125deg_P1D"),
-            filter=pattern,
-            output_directory=tmpdir,
-            overwrite=False
-        )
+    if use_duacs:
+        # Legacy path: download daily DUACS and aggregate monthly
+        # Create daily downloads directory
+        daily_dir = aviso_path / "daily_downloads" / month_tag
+        daily_dir.mkdir(parents=True, exist_ok=True)
 
-        # Move downloaded files to daily directory
-        for file_info in resp.files:
-            src_path = Path(file_info.file_path)
-            dst_path = daily_dir / src_path.name
-            if not dst_path.exists():  # Don't overwrite existing files
-                shutil.move(str(src_path), str(dst_path))
-
-        # Get all available daily files
-        daily_files = sorted(daily_dir.glob("*.nc"))
-        if not daily_files:
-            logger.info(f"AVISO {month_tag}: no daily files available yet")
-            raise FileNotFoundError(f"No DUACS files for {month_tag}")
-
-        # Check if we have all days for the month
-        import calendar
-        days_in_month = calendar.monthrange(date_.year, date_.month)[1]
-        available_days = len(daily_files)
-
-        logger.info(f"AVISO {month_tag}: {available_days}/{days_in_month} daily files available")
-
-        # Only create final monthly file if we have all days
-        if available_days >= days_in_month:
-            ds = xr.open_mfdataset(
-                daily_files, combine="nested", concat_dim="time",
-                parallel=False, decode_times=False, engine="netcdf4"
+        tmpdir = tempfile.mkdtemp(dir=str(aviso_path))
+        try:
+            # Download available daily files for this month
+            pattern = f"*{date_.year}{date_.month:02d}??*.nc"  # YYYYMMDD
+            logger.debug(f"AVISO DUACS download daily files for {month_tag}")
+            resp = copernicusmarine.get(
+                dataset_id=("cmems_obs-sl_glo_phy-ssh_my_allsat-l4-duacs-0.125deg_P1D"),
+                filter=pattern,
+                output_directory=tmpdir,
+                overwrite=False
             )
-            ds = xr.decode_cf(ds)
-            ds = ds.chunk({"time": -1, "latitude": 171, "longitude": 173})
-            encoding = {v: {"zlib": True, "complevel": 0} for v in ds.data_vars}
 
-            tmp_month = Path(tmpdir) / f"{month_tag}.nc"
-            ds.to_netcdf(tmp_month, engine="h5netcdf", encoding=encoding)
-            ds.close(); del ds
-            gc.collect(); time.sleep(0.1)
+            # Move downloaded files to daily directory
+            for file_info in resp.files:
+                src_path = Path(file_info.file_path)
+                dst_path = daily_dir / src_path.name
+                if not dst_path.exists():  # Don't overwrite existing files
+                    shutil.move(str(src_path), str(dst_path))
 
-            _atomic_move(tmp_month, final)
+            # Get all available daily files
+            daily_files = sorted(daily_dir.glob("*.nc"))
+            if not daily_files:
+                logger.info(f"AVISO {month_tag}: no daily files available yet")
+                raise FileNotFoundError(f"No DUACS files for {month_tag}")
 
-            # Clean up daily files after successful monthly creation
-            shutil.rmtree(daily_dir, ignore_errors=True)
-            logger.info(f"AVISO {month_tag}: monthly file completed -> {final}")
-        else:
-            # Create intermediate file for partial month
-            if available_days > 0:
+            # Check if we have all days for the month
+            import calendar
+            days_in_month = calendar.monthrange(date_.year, date_.month)[1]
+            available_days = len(daily_files)
+
+            logger.info(f"AVISO {month_tag}: {available_days}/{days_in_month} daily files available")
+
+            # Only create final monthly file if we have all days
+            if available_days >= days_in_month:
                 ds = xr.open_mfdataset(
                     daily_files, combine="nested", concat_dim="time",
                     parallel=False, decode_times=False, engine="netcdf4"
@@ -335,12 +337,121 @@ def ensure_aviso_available(aviso_root: str, date_: datetime) -> Path:
                 ds.close(); del ds
                 gc.collect(); time.sleep(0.1)
 
-                final.parent.mkdir(parents=True, exist_ok=True)
                 _atomic_move(tmp_month, final)
-                logger.info(f"AVISO {month_tag}: partial monthly file created ({available_days}/{days_in_month} days) -> {final}")
+
+                # Clean up daily files after successful monthly creation
+                shutil.rmtree(daily_dir, ignore_errors=True)
+                logger.info(f"AVISO {month_tag}: monthly file completed -> {final}")
             else:
-                logger.info(f"AVISO {month_tag}: no files found to build partial monthly file")
-                raise FileNotFoundError(f"No DUACS files for {month_tag}")
+                # Create intermediate file for partial month
+                if available_days > 0:
+                    ds = xr.open_mfdataset(
+                        daily_files, combine="nested", concat_dim="time",
+                        parallel=False, decode_times=False, engine="netcdf4"
+                    )
+                    ds = xr.decode_cf(ds)
+                    ds = ds.chunk({"time": -1, "latitude": 171, "longitude": 173})
+                    encoding = {v: {"zlib": True, "complevel": 0} for v in ds.data_vars}
+
+                    tmp_month = Path(tmpdir) / f"{month_tag}.nc"
+                    ds.to_netcdf(tmp_month, engine="h5netcdf", encoding=encoding)
+                    ds.close(); del ds
+                    gc.collect(); time.sleep(0.1)
+
+                    final.parent.mkdir(parents=True, exist_ok=True)
+                    _atomic_move(tmp_month, final)
+                    logger.info(f"AVISO {month_tag}: partial monthly file created ({available_days}/{days_in_month} days) -> {final}")
+                else:
+                    logger.info(f"AVISO {month_tag}: no files found to build partial monthly file")
+                    raise FileNotFoundError(f"No DUACS files for {month_tag}")
+
+        finally:
+            shutil.rmtree(tmpdir, ignore_errors=True)
+
+        return final
+
+    # New path (ANFC): subset monthly SSH, convert to ADT, and write compatible file
+    tmpdir = tempfile.mkdtemp(dir=str(aviso_path))
+    try:
+        # Use cached ANFC monthly subset if present, else download it
+        anfc_month = ANFC_ROOT / f"{month_tag}.nc"
+        if not anfc_month.exists() or anfc_month.stat().st_size == 0:
+            ANFC_ROOT.mkdir(parents=True, exist_ok=True)
+            _assert_writable(ANFC_ROOT)
+
+            # Compute month start/end
+            import calendar
+            month_start = date_.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+            last_day = calendar.monthrange(date_.year, date_.month)[1]
+            month_end = date_.replace(day=last_day, hour=23, minute=59, second=59, microsecond=0)
+
+            lon_min, lon_max, lat_min, lat_max = _parse_bbox(ANFC_BBOX)
+
+            subset_kwargs = dict(
+                dataset_id=ANFC_DATASET_ID,
+                variables=[ANFC_VARIABLE],
+                minimum_longitude=lon_min,
+                maximum_longitude=lon_max,
+                minimum_latitude=lat_min,
+                maximum_latitude=lat_max,
+                start_datetime=month_start.strftime("%Y-%m-%dT%H:%M:%S"),
+                end_datetime=month_end.strftime("%Y-%m-%dT%H:%M:%S"),
+                output_filename=str(Path(tmpdir) / f"{month_tag}.raw.nc"),
+            )
+            if ANFC_DATASET_VERSION:
+                subset_kwargs["dataset_version"] = ANFC_DATASET_VERSION
+
+            logger.info(f"AVISO {month_tag}: downloading ANFC {ANFC_DATASET_ID} var={ANFC_VARIABLE} bbox={ANFC_BBOX}")
+            copernicusmarine.subset(**subset_kwargs)
+            os.replace(Path(tmpdir) / f"{month_tag}.raw.nc", anfc_month)
+            logger.info(f"AVISO {month_tag}: wrote ANFC subset {anfc_month}")
+
+        # Open ANFC monthly and build ADT
+        ds_src = xr.open_dataset(anfc_month, decode_cf=True)
+        if ANFC_VARIABLE not in ds_src.data_vars and ANFC_VARIABLE not in ds_src.variables:
+            ds_src.close()
+            raise KeyError(f"Variable '{ANFC_VARIABLE}' not found in {anfc_month}")
+
+        ssh = ds_src[ANFC_VARIABLE]
+        adt = (ssh * ADT_FROM_SSH_SLOPE) + ADT_FROM_SSH_INTERCEPT
+        adt = adt.rename("adt")
+
+        # Variable attributes for compatibility
+        adt.attrs.update({
+            "long_name": "Absolute Dynamic Topography (converted from SSH)",
+            "units": ssh.attrs.get("units", "m"),
+            "source_variable": ANFC_VARIABLE,
+            "conversion": f"ADT = {ADT_FROM_SSH_SLOPE} * SSH + {ADT_FROM_SSH_INTERCEPT}",
+        })
+
+        ds_out = adt.to_dataset(name="adt")
+
+        # Global metadata
+        history_line = f"Converted from {ANFC_VARIABLE} using ADT = {ADT_FROM_SSH_SLOPE} * SSH + {ADT_FROM_SSH_INTERCEPT} on {datetime.now(timezone.utc).isoformat()}"
+        new_history = "; ".join([x for x in [ds_src.attrs.get("history"), history_line] if x])
+        ds_out.attrs.update({
+            "source_product": "CMEMS GLOBAL_ANALYSISFORECAST_PHY_001_024",
+            "source_dataset_id": ANFC_DATASET_ID,
+            "source_dataset_version": ANFC_DATASET_VERSION or "latest",
+            "conversion_formula": f"ADT = {ADT_FROM_SSH_SLOPE} * SSH + {ADT_FROM_SSH_INTERCEPT}",
+            "conversion_from": ANFC_VARIABLE,
+            "history": new_history,
+        })
+
+        # Chunk and write with compression
+        lat_dim = "latitude" if "latitude" in ds_out.dims else ("lat" if "lat" in ds_out.dims else None)
+        lon_dim = "longitude" if "longitude" in ds_out.dims else ("lon" if "lon" in ds_out.dims else None)
+        if lat_dim and lon_dim:
+            ds_out = ds_out.chunk({"time": -1, lat_dim: min(171, ds_out.sizes[lat_dim]), lon_dim: min(173, ds_out.sizes[lon_dim])})
+        encoding = {v: {"zlib": True, "complevel": 0} for v in ds_out.data_vars}
+
+        tmp_month = Path(tmpdir) / f"{month_tag}.nc"
+        ds_out.to_netcdf(tmp_month, engine="h5netcdf", encoding=encoding)
+        ds_src.close(); ds_out.close(); del ds_src; del ds_out
+        gc.collect(); time.sleep(0.1)
+
+        _atomic_move(tmp_month, final)
+        logger.info(f"AVISO {month_tag}: monthly file created from ANFC -> {final}")
 
     finally:
         shutil.rmtree(tmpdir, ignore_errors=True)

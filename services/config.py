@@ -27,6 +27,8 @@ class Config:
     SSS_ROOT: str = os.getenv("NESPRESO_SSS_ROOT", "/Net/work/ozavala/DATA/GOFFISH/SSS/SMAP_Global/")
     SST_ROOT: str = os.getenv("NESPRESO_SST_ROOT", "/Net/work/ozavala/DATA/GOFFISH/SST/OISST/")
     AVISO_ROOT: str = os.getenv("NESPRESO_AVISO_ROOT", "/unity/f1/ozavala/DATA/GOFFISH/AVISO/GoM/")
+    AVISO_NEW_ROOT: str = os.getenv("NESPRESO_AVISO_NEW_ROOT", "/Net/work/ozavala/DATA/GOFFISH/AVISO/GoM/CMEMS_GLOBAL_PHY_ANFC/")
+    AVISO_SWITCH_DATE: str = os.getenv("NESPRESO_AVISO_SWITCH_DATE", "2024-11-01")
     AVISO_ALT_ROOT: str = os.getenv("NESPRESO_AVISO_ALT_ROOT", "")
 
     # Numerical constants

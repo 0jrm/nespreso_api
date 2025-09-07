@@ -783,18 +783,35 @@ def create_app(config: dict | None = None) -> Flask:
                     logger.error(error_msg)
                     return jsonify({"error": error_msg}), 400
                 
-                # Check AVISO data availability (AVISO uses monthly naming, not daily)
+                # Check AVISO data availability (monthly or daily depending on source)
                 missing_aviso_dates = []
                 for year, month, day in unique_dates:
-                    # AVISO files use pattern: {year}-{month:02d}.nc
-                    aviso_pattern = f"{CFG.AVISO_ROOT}/{year}-{month:02d}.nc"
-                    aviso_files = glob.glob(aviso_pattern)
+                    # Use date-aware root selection
+                    try:
+                        from services.accessor.sat import _select_aviso_root  # local import to avoid cycles
+                        aviso_root = _select_aviso_root(datetime(year, month, day))
+                    except Exception:
+                        aviso_root = CFG.AVISO_ROOT
+                    # Prefer monthly file if present
+                    monthly_pattern = f"{aviso_root}/{year}-{month:02d}.nc"
+                    aviso_files = glob.glob(monthly_pattern)
+                    if not aviso_files:
+                        # Fall back to daily file patterns (flat or year subfolder)
+                        tag = f"{year}{month:02d}{day:02d}"
+                        daily_patterns = [
+                            f"{aviso_root}/*{tag}*.nc",
+                            f"{aviso_root}/{year}/*{tag}*.nc",
+                        ]
+                        for patt in daily_patterns:
+                            aviso_files = glob.glob(patt)
+                            if aviso_files:
+                                break
                     
                     if not aviso_files:
                         missing_aviso_dates.append(f"{year}-{month:02d}-{day:02d}")
-                        logger.warning(f"AVISO data missing for {year}-{month:02d}-{day:02d} (monthly file)")
+                        logger.warning(f"AVISO data missing for {year}-{month:02d}-{day:02d} (monthly/daily file)")
                     else:
-                        logger.info(f"AVISO data available for {year}-{month:02d}-{day:02d} (monthly file): {len(aviso_files)} files")
+                        logger.info(f"AVISO data available for {year}-{month:02d}-{day:02d}: {len(aviso_files)} files")
                 
                 # If any AVISO files are missing, fail the request
                 if missing_aviso_dates:

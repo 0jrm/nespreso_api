@@ -108,6 +108,16 @@ def _round_bbox(bbox, ndigits=2):
         return None
     return tuple(round(float(x), ndigits) for x in bbox)
 
+def _select_aviso_root(c_date: datetime) -> str:
+    """Choose AVISO root based on configured switch date."""
+    try:
+        switch_dt = datetime.strptime(CFG.AVISO_SWITCH_DATE, "%Y-%m-%d")
+    except Exception:
+        switch_dt = datetime(2024, 11, 1)
+    if c_date >= switch_dt and getattr(CFG, "AVISO_NEW_ROOT", ""):
+        return CFG.AVISO_NEW_ROOT
+    return CFG.AVISO_ROOT
+
 # -----------------------------
 # Readers (open → extract arrays → close)
 # -----------------------------
@@ -117,60 +127,111 @@ def get_aviso_by_date(aviso_folder: str, c_date: datetime, bbox=None):
     """
     Return (lat, lon, adt_2d) for nearest available time to c_date.
     """
+    ds = None
     monthly = join(aviso_folder, f"{c_date.year}-{c_date.month:02d}.nc")
+    # 1) Try monthly file at provided folder
     if os.path.isfile(monthly):
         try:
             print(f"DEBUG[aviso]: Loading monthly file: {monthly}")
-            ds = xr.open_dataset(monthly, drop_variables=[v for v in []])  # minimal open
+            ds = xr.open_dataset(monthly)
         except Exception as e:
             print(f"DEBUG[aviso]: Failed to open monthly file {monthly}: {e}")
             ds = None
-    else:
-        ds = None
+    # 2) Try daily files within provided folder (flat or year subfolder)
+    if ds is None:
+        tag = c_date.strftime('%Y%m%d')
+        daily_patterns = [
+            join(aviso_folder, f"*{tag}*.nc"),
+            join(aviso_folder, str(c_date.year), f"*{tag}*.nc"),
+        ]
+        daily_files = []
+        for patt in daily_patterns:
+            daily_files = glob.glob(patt)
+            if daily_files:
+                break
+        if daily_files:
+            try:
+                print(f"DEBUG[aviso]: Loading daily file: {daily_files[0]}")
+                ds = xr.open_dataset(daily_files[0])
+            except Exception as e:
+                print(f"DEBUG[aviso]: Failed to open daily file {daily_files[0]}: {e}")
+                ds = None
+    # 3) Fall back to alternate root (legacy AVISO daily pattern)
+    if ds is None:
         alt_root = CFG.AVISO_ALT_ROOT
-        if not alt_root:
-            raise FileNotFoundError(f"AVISO file not found: {monthly}")
-        alt_pattern = f"nrt_global_allsat_phy_l4_{c_date.strftime('%Y%m%d')}"
-        try:
-            files = [f for f in os.listdir(alt_root) if alt_pattern in f]
-        except FileNotFoundError:
-            files = []
-        if not files:
-            raise FileNotFoundError(f"No AVISO files for {c_date:%Y-%m-%d} under {alt_root}")
-        try:
-            print(f"DEBUG[aviso]: Loading alt file: {join(alt_root, files[0])}")
-            ds = xr.open_dataset(join(alt_root, files[0]), drop_variables=[v for v in []])
-        except Exception as e:
-            print(f"DEBUG[aviso]: Failed to open alt file: {e}")
-            ds = None
+        if alt_root:
+            alt_pattern = f"nrt_global_allsat_phy_l4_{c_date.strftime('%Y%m%d')}"
+            try:
+                files = [f for f in os.listdir(alt_root) if alt_pattern in f]
+            except FileNotFoundError:
+                files = []
+            if files:
+                try:
+                    print(f"DEBUG[aviso]: Loading alt file: {join(alt_root, files[0])}")
+                    ds = xr.open_dataset(join(alt_root, files[0]))
+                except Exception as e:
+                    print(f"DEBUG[aviso]: Failed to open alt file: {e}")
+                    ds = None
+    if ds is None:
+        raise FileNotFoundError(f"AVISO data unavailable for {c_date:%Y-%m-%d}")
 
     if ds is None:
         raise FileNotFoundError(f"AVISO data unavailable for {c_date:%Y-%m-%d}")
 
     try:
-        target_time = np.datetime64(c_date)
-        # nearest time index (dataset can be daily or multi-time monthly)
-        tcoord = ds["time"].values
-        idx = int(np.argmin(np.abs(tcoord - target_time)).item()) if tcoord.ndim == 1 else 0
-        sub = ds.isel(time=idx)
+        # Select nearest time if present
+        if "time" in ds.variables or "time" in ds.coords:
+            target_time = np.datetime64(c_date)
+            tcoord = ds["time"].values
+            idx = int(np.argmin(np.abs(tcoord - target_time)).item()) if getattr(tcoord, 'ndim', 1) == 1 else 0
+            sub = ds.isel(time=idx)
+        else:
+            sub = ds
+
+        # Determine coordinate names
+        lat_name = "latitude" if "latitude" in sub.coords or "latitude" in sub.variables else ("lat" if "lat" in sub.coords or "lat" in sub.variables else None)
+        lon_name = "longitude" if "longitude" in sub.coords or "longitude" in sub.variables else ("lon" if "lon" in sub.coords or "lon" in sub.variables else None)
+        if lat_name is None or lon_name is None:
+            raise ValueError("AVISO dataset missing latitude/longitude coordinates")
 
         if bbox is not None:
-            sub = sub.sel(latitude=slice(bbox[0], bbox[1]),
-                          longitude=slice(bbox[2], bbox[3]))
+            sub = sub.sel(**{lat_name: slice(bbox[0], bbox[1]), lon_name: slice(bbox[2], bbox[3])})
 
-        lats = sub.latitude.values
-        lons = sub.longitude.values
+        lats = sub[lat_name].values
+        lons = sub[lon_name].values
         
         # Add timeout protection for data access
         try:
-            adt = np.asarray(sub.adt.values, dtype=np.float32)  # 2D (lat, lon)
-            print(f"DEBUG[aviso]: Successfully loaded ADT data, shape: {adt.shape}")
+            var_name = "adt" if "adt" in sub.variables else ("zos" if "zos" in sub.variables else None)
+            if var_name is None:
+                # Try common alternatives
+                for cand in ["ssh", "sla", "adt_mean", "zos_mean"]:
+                    if cand in sub.variables:
+                        var_name = cand
+                        break
+            if var_name is None:
+                raise KeyError("No SSH/ADT variable found in AVISO dataset (expected one of: adt, zos, ssh, sla)")
+            adt = np.asarray(sub[var_name].values, dtype=np.float32)  # 2D (lat, lon)
+            # Convert zos to ADT if needed
+            if var_name == "zos":
+                adt = (1.015492 * adt + 0.423671).astype(np.float32)
+                print(f"DEBUG[aviso]: Converted zos to ADT via linear transform, shape: {adt.shape}")
+            else:
+                print(f"DEBUG[aviso]: Successfully loaded {var_name} data, shape: {adt.shape}")
         except Exception as e:
             print(f"DEBUG[aviso]: Failed to access ADT values: {e}")
             # Try alternative approach
             try:
-                adt = sub.adt.to_numpy().astype(np.float32)
-                print(f"DEBUG[aviso]: Successfully loaded ADT data via to_numpy(), shape: {adt.shape}")
+                # Attempt to use zos if adt path failed
+                var_name = "adt" if "adt" in sub.variables else ("zos" if "zos" in sub.variables else None)
+                if var_name is None:
+                    raise e
+                adt = sub[var_name].to_numpy().astype(np.float32)
+                if var_name == "zos":
+                    adt = (1.015492 * adt + 0.423671).astype(np.float32)
+                    print(f"DEBUG[aviso]: Converted zos to ADT via linear transform (to_numpy), shape: {adt.shape}")
+                else:
+                    print(f"DEBUG[aviso]: Successfully loaded {var_name} data via to_numpy(), shape: {adt.shape}")
             except Exception as e2:
                 print(f"DEBUG[aviso]: Alternative ADT loading also failed: {e2}")
                 raise e2
@@ -407,13 +468,14 @@ def load_satellite_data(times, lat, lon):
                 print(f"DEBUG[sat]: SST data failed for {y}-{m:02d}-{d:02d}: {e}")
                 sst_lats = sst_lons = sst_arr = None
             try:
-                ssh_lats, ssh_lons, ssh_arr = cached_aviso_arrays(CFG.AVISO_ROOT, y, m, d, bbox_r)
+                aviso_root = _select_aviso_root(datetime(y, m, d))
+                ssh_lats, ssh_lons, ssh_arr = cached_aviso_arrays(aviso_root, y, m, d, bbox_r)
                 print(f"DEBUG[sat]: SSH data loaded for {y}-{m:02d}-{d:02d}, shape: {ssh_arr.shape if ssh_arr is not None else 'None'}")
                 if ssh_arr is not None:
                     print(f"DEBUG[sat]: SSH data within bbox - valid pixels: {np.sum(np.isfinite(ssh_arr))}/{ssh_arr.size}")
                     print(f"DEBUG[sat]: SSH data within bbox - range: {np.nanmin(ssh_arr):.3f} to {np.nanmax(ssh_arr):.3f}")
                     # Get the filename from the cache key or function call
-                    print(f"DEBUG[sat]: SSH data source: CFG.AVISO_ROOT={CFG.AVISO_ROOT}, year={y}, month={m:02d}, day={d:02d}")
+                    print(f"DEBUG[sat]: SSH data source: aviso_root={aviso_root}, year={y}, month={m:02d}, day={d:02d}")
             except TimeoutError as e:
                 print(f"DEBUG[sat]: SSH data loading timed out for {y}-{m:02d}-{d:02d}: {e}")
                 ssh_lats = ssh_lons = ssh_arr = None
@@ -595,7 +657,8 @@ def load_satellite_data(times, lat, lon):
         except Exception:
             sst_arr = None
         try:
-            ssh_lats, ssh_lons, ssh_arr = cached_aviso_arrays(CFG.AVISO_ROOT, y, m, d, bbox_r)
+            aviso_root = _select_aviso_root(datetime(y, m, d))
+            ssh_lats, ssh_lons, ssh_arr = cached_aviso_arrays(aviso_root, y, m, d, bbox_r)
         except Exception:
             ssh_arr = None
 

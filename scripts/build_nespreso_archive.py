@@ -13,6 +13,20 @@ Features:
 - Easy pause/resume functionality
 - Comprehensive logging
 - Error handling and retry logic
+
+Usage examples:
+- Build the archive interactively (will prompt to resume if a checkpoint exists):
+- Start fresh even if a checkpoint exists (answer "n" when prompted):
+  python build_nespreso_archive.py
+
+- Show progress without running any jobs:
+  python build_nespreso_archive.py --status
+
+Notes:
+- AVISO availability is merged from two roots: `aviso_root` before 2024-11-01 and
+  `new_aviso_root` on/after 2024-11-01.
+- To adjust paths, API URL, or worker count, edit the `ArchiveConfig` defaults
+  below or instantiate `ArchiveConfig` with custom arguments.
 """
 
 import os
@@ -73,7 +87,8 @@ class ArchiveConfig:
     sst_root: str = "/Net/work/ozavala/DATA/GOFFISH/SST/OISST/"
     sss_root: str = "/Net/work/ozavala/DATA/GOFFISH/SSS/SMAP_Global/"
     aviso_root: str = "/Net/work/ozavala/DATA/GOFFISH/AVISO/GoM/"
-    api_url: str = "http://localhost:5000/v1/profile/grid"
+    new_aviso_root: str = "/Net/work/ozavala/DATA/GOFFISH/AVISO/GoM/CMEMS_GLOBAL_PHY_ANFC/"
+    api_url: str = "http://146.201.220.56:5000/v1/profile/grid"
     output_dir: str = "/Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO"
     checkpoint_file: str = "/Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/archive_checkpoint.json"
     max_workers: int = 4
@@ -146,12 +161,63 @@ class ArchiveBuilder:
         """Get dates with complete satellite data using the scanner"""
         logger.info("Getting complete dates using scanner...")
         
-        # Use the scanner to find complete dates
+        # Use the scanner to find dates for SST/SSS and AVISO (old root)
         available_dates = scan_all_satellite_directories(
             self.config.sst_root,
             self.config.sss_root, 
             self.config.aviso_root
         )
+
+        # Also scan AVISO using the new root, then merge starting 2024-11-01
+        try:
+            available_dates_new_aviso = scan_all_satellite_directories(
+                self.config.sst_root,
+                self.config.sss_root,
+                self.config.new_aviso_root
+            ).get('aviso', {})
+        except Exception:
+            available_dates_new_aviso = {}
+
+        # Merge AVISO availability: use old root before 2024-11, new root from 2024-11 onward
+        old_aviso_by_year = available_dates.get('aviso', {}) or {}
+        merged_aviso: Dict[str, Set[str]] = {}
+        years_union = set(old_aviso_by_year.keys()) | set(available_dates_new_aviso.keys())
+
+        for year in years_union:
+            try:
+                year_int = int(year)
+            except ValueError:
+                continue
+
+            old_set = old_aviso_by_year.get(year, set()) or set()
+            new_set = available_dates_new_aviso.get(year, set()) or set()
+
+            if year_int < 2024:
+                merged_set = set(old_set)
+            elif year_int > 2024:
+                merged_set = set(new_set) if new_set else set(old_set)
+            else:  # year == 2024
+                # Keep months Jan-Oct from old, Nov-Dec from new
+                merged_set = set()
+                for adate in old_set:
+                    if len(adate) == 8 and adate.endswith('01'):
+                        try:
+                            if int(adate[4:6]) < 11:
+                                merged_set.add(adate)
+                        except ValueError:
+                            continue
+                for adate in new_set:
+                    if len(adate) == 8 and adate.endswith('01'):
+                        try:
+                            if int(adate[4:6]) >= 11:
+                                merged_set.add(adate)
+                        except ValueError:
+                            continue
+
+            if merged_set:
+                merged_aviso[year] = merged_set
+
+        available_dates['aviso'] = merged_aviso
         
         # Determine the earliest year where all three sources have data
         try:

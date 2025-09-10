@@ -1,562 +1,1034 @@
-2025-09-07 11:38:07,360 INFO Request: 1 profiles (logging of payload suppressed)
-DEBUG: Before satellite loading - times length: 1
-DEBUG: Before satellite loading - lat_arr length: 1
-DEBUG: Before satellite loading - lon_arr length: 1
-DEBUG: Before satellite loading - unique dates: 1
-DEBUG[sat]: load_satellite_data: T=1, N=1
-DEBUG[sss]: Trying SSS file: /Net/work/ozavala/DATA/GOFFISH/SSS/SMAP_Global/2024/RSS_smap_SSS_L3_8day_running_2024_001_FNL_v06.0.nc
-DEBUG[sss]: Successfully opened SSS file: /Net/work/ozavala/DATA/GOFFISH/SSS/SMAP_Global/2024/RSS_smap_SSS_L3_8day_running_2024_001_FNL_v06.0.nc
-DEBUG[sss]: SSS data loaded successfully, shape: (4, 4), range: 35.346 to 36.161
-DEBUG[sst]: Using SST file: /Net/work/ozavala/DATA/GOFFISH/SST/OISST/2024/20240101090000-JPL-L4_GHRSST-SSTfnd-MUR-GLOB-v02.0-fv04.1_subset.nc
-DEBUG[aviso]: Loading monthly file: /unity/f1/ozavala/DATA/GOFFISH/AVISO/GoM/2024-01.nc
-DEBUG[aviso]: Successfully loaded adt data, shape: (8, 8)
-DEBUG[sss]: 1/1 interpolated values are NaN, applying fallback
-DEBUG[sss]: Point 0 (lat=25.000, lon=-80.000) - fallback to nearest neighbor: 35.507
-DEBUG[sss]: After fallback: 0/1 values are still NaN
-DEBUG[sat]: cross-product done in 3.07s  (T=1, N=1)
-DEBUG[sat]: Valid data counts - SSS: 1/1, SST: 1/1, SSH: 1/1
-DEBUG: Satellite data loaded - sss: (1, 1), sst: (1, 1), aviso: (1, 1)
-DEBUG: Filtering satellite data for NaN values...
-DEBUG: Satellite data filtering: 1/1 locations have valid satellite data
-DEBUG: All locations have valid satellite data, no filtering needed
-DEBUG: About to call prepare_inputs with shapes: dtime=(1,), lat_arr=(1,), lon_arr=(1,), sss=(1, 1), sst=(1, 1), aviso=(1, 1)
-DEBUG: Note: Satellite data filtering already completed, prepare_inputs will not filter again
-DEBUG[prepare_inputs]: Checking satellite data validity...
-DEBUG[prepare_inputs]: Current data shapes - time: (1,), lat: (1,), lon: (1,)
-DEBUG[prepare_inputs]: Current satellite data shapes - sss: (1, 1), sst: (1, 1), ssh: (1, 1)
-DEBUG[prepare_inputs]: Final dataset size: 1 time points × 1 locations = 1 total samples
-DEBUG[prepare_inputs]: Returning input tensor with shape: torch.Size([1, 9])
-DEBUG: prepare_inputs completed successfully, batch shape: torch.Size([1, 9])
-DEBUG: About to call infer with batch shape: torch.Size([1, 9])
-DEBUG: Inference completed successfully, pcs shape: (1, 30)
-DEBUG: About to get PCA objects
-DEBUG: PCA objects loaded successfully from /unity/g2/jmiranda/nespreso_api/models/pca_stats.pkl
-DEBUG: PCA temp type: <class 'sklearn.decomposition._pca.PCA'>, PCA sal type: <class 'sklearn.decomposition._pca.PCA'>
-DEBUG: PCA objects loaded successfully
-DEBUG: pcs shape: (1, 30)
-DEBUG: temp_pcs shape: (1, 15)
-DEBUG: sal_pcs shape: (1, 15)
-DEBUG: About to perform PCA inverse transform for temperature
-DEBUG: Temperature PCA inverse completed, shape: (1, 1801)
-DEBUG: About to perform PCA inverse transform for salinity
-DEBUG: Salinity PCA inverse completed, shape: (1, 1801)
-DEBUG: pred_T shape after transpose: (1801, 1)
-DEBUG: pred_S shape after transpose: (1801, 1)
-DEBUG: depth shape: (1801,)
-DEBUG: original sss shape: (1, 1)
-DEBUG: original sst shape: (1, 1)
-DEBUG: original aviso shape: (1, 1)
-DEBUG: Number of profiles from model: 1
-DEBUG: Number of profiles requested: 1
-DEBUG: Number of unique dates: 1
-DEBUG: sss_profile shape: (1,)
-DEBUG: sst_profile shape: (1,)
-DEBUG: aviso_profile shape: (1,)
-DEBUG: sss_profile sample: [35.507362]
-DEBUG: sst_profile sample: [297.895]
-DEBUG: aviso_profile sample: [-0.0381861]
-2025-09-07 11:38:10,785 WARNING h5netcdf in-memory failed; writing via secure temp file: unexpected encoding for scipy backend: ['zlib', 'complevel']
-146.201.220.16 - - [07/Sep/2025:11:38:10 -0400] "POST /v1_profile HTTP/1.1" 200 42108 "-" "curl/7.76.1" 3447649
-2025-09-07 11:39:37,733 INFO Request: 1 profiles (logging of payload suppressed)
-DEBUG: Before satellite loading - times length: 1
-DEBUG: Before satellite loading - lat_arr length: 1
-DEBUG: Before satellite loading - lon_arr length: 1
-DEBUG: Before satellite loading - unique dates: 1
-DEBUG[sat]: load_satellite_data: T=1, N=1
-DEBUG[sss]: Trying SSS file: /Net/work/ozavala/DATA/GOFFISH/SSS/SMAP_Global/2024/RSS_smap_SSS_L3_8day_running_2024_001_FNL_v06.0.nc
-DEBUG[sss]: Successfully opened SSS file: /Net/work/ozavala/DATA/GOFFISH/SSS/SMAP_Global/2024/RSS_smap_SSS_L3_8day_running_2024_001_FNL_v06.0.nc
-DEBUG[sss]: SSS data loaded successfully, shape: (4, 4), range: 35.346 to 36.161
-DEBUG[sst]: Using SST file: /Net/work/ozavala/DATA/GOFFISH/SST/OISST/2024/20240101090000-JPL-L4_GHRSST-SSTfnd-MUR-GLOB-v02.0-fv04.1_subset.nc
-DEBUG[aviso]: Loading monthly file: /unity/f1/ozavala/DATA/GOFFISH/AVISO/GoM/2024-01.nc
-DEBUG[aviso]: Successfully loaded adt data, shape: (8, 8)
-DEBUG[sss]: 1/1 interpolated values are NaN, applying fallback
-DEBUG[sss]: Point 0 (lat=25.000, lon=-80.000) - fallback to nearest neighbor: 35.507
-DEBUG[sss]: After fallback: 0/1 values are still NaN
-DEBUG[sat]: cross-product done in 1.10s  (T=1, N=1)
-DEBUG[sat]: Valid data counts - SSS: 1/1, SST: 1/1, SSH: 1/1
-DEBUG: Satellite data loaded - sss: (1, 1), sst: (1, 1), aviso: (1, 1)
-DEBUG: Filtering satellite data for NaN values...
-DEBUG: Satellite data filtering: 1/1 locations have valid satellite data
-DEBUG: All locations have valid satellite data, no filtering needed
-DEBUG: About to call prepare_inputs with shapes: dtime=(1,), lat_arr=(1,), lon_arr=(1,), sss=(1, 1), sst=(1, 1), aviso=(1, 1)
-DEBUG: Note: Satellite data filtering already completed, prepare_inputs will not filter again
-DEBUG[prepare_inputs]: Checking satellite data validity...
-DEBUG[prepare_inputs]: Current data shapes - time: (1,), lat: (1,), lon: (1,)
-DEBUG[prepare_inputs]: Current satellite data shapes - sss: (1, 1), sst: (1, 1), ssh: (1, 1)
-DEBUG[prepare_inputs]: Final dataset size: 1 time points × 1 locations = 1 total samples
-DEBUG[prepare_inputs]: Returning input tensor with shape: torch.Size([1, 9])
-DEBUG: prepare_inputs completed successfully, batch shape: torch.Size([1, 9])
-DEBUG: About to call infer with batch shape: torch.Size([1, 9])
-DEBUG: Inference completed successfully, pcs shape: (1, 30)
-DEBUG: About to get PCA objects
-DEBUG: PCA objects loaded successfully from /unity/g2/jmiranda/nespreso_api/models/pca_stats.pkl
-DEBUG: PCA temp type: <class 'sklearn.decomposition._pca.PCA'>, PCA sal type: <class 'sklearn.decomposition._pca.PCA'>
-DEBUG: PCA objects loaded successfully
-DEBUG: pcs shape: (1, 30)
-DEBUG: temp_pcs shape: (1, 15)
-DEBUG: sal_pcs shape: (1, 15)
-DEBUG: About to perform PCA inverse transform for temperature
-DEBUG: Temperature PCA inverse completed, shape: (1, 1801)
-DEBUG: About to perform PCA inverse transform for salinity
-DEBUG: Salinity PCA inverse completed, shape: (1, 1801)
-DEBUG: pred_T shape after transpose: (1801, 1)
-DEBUG: pred_S shape after transpose: (1801, 1)
-DEBUG: depth shape: (1801,)
-DEBUG: original sss shape: (1, 1)
-DEBUG: original sst shape: (1, 1)
-DEBUG: original aviso shape: (1, 1)
-DEBUG: Number of profiles from model: 1
-DEBUG: Number of profiles requested: 1
-DEBUG: Number of unique dates: 1
-DEBUG: sss_profile shape: (1,)
-DEBUG: sst_profile shape: (1,)
-DEBUG: aviso_profile shape: (1,)
-DEBUG: sss_profile sample: [35.507362]
-DEBUG: sst_profile sample: [297.895]
-DEBUG: aviso_profile sample: [-0.0381861]
-2025-09-07 11:39:39,004 WARNING h5netcdf in-memory failed; writing via secure temp file: unexpected encoding for scipy backend: ['zlib', 'complevel']
-127.0.0.1 - - [07/Sep/2025:11:39:39 -0400] "POST /v1_profile HTTP/1.1" 200 42108 "-" "curl/7.76.1" 1286527
-2025-09-07 11:42:09,315 INFO Request: 1 profiles (logging of payload suppressed)
-DEBUG: Before satellite loading - times length: 1
-DEBUG: Before satellite loading - lat_arr length: 1
-DEBUG: Before satellite loading - lon_arr length: 1
-DEBUG: Before satellite loading - unique dates: 1
-DEBUG[sat]: load_satellite_data: T=1, N=1
-DEBUG[sss]: 1/1 interpolated values are NaN, applying fallback
-DEBUG[sss]: Point 0 (lat=25.000, lon=-80.000) - fallback to nearest neighbor: 35.507
-DEBUG[sss]: After fallback: 0/1 values are still NaN
-DEBUG[sat]: cross-product done in 0.19s  (T=1, N=1)
-DEBUG[sat]: Valid data counts - SSS: 1/1, SST: 1/1, SSH: 1/1
-DEBUG: Satellite data loaded - sss: (1, 1), sst: (1, 1), aviso: (1, 1)
-DEBUG: Filtering satellite data for NaN values...
-DEBUG: Satellite data filtering: 1/1 locations have valid satellite data
-DEBUG: All locations have valid satellite data, no filtering needed
-DEBUG: About to call prepare_inputs with shapes: dtime=(1,), lat_arr=(1,), lon_arr=(1,), sss=(1, 1), sst=(1, 1), aviso=(1, 1)
-DEBUG: Note: Satellite data filtering already completed, prepare_inputs will not filter again
-DEBUG[prepare_inputs]: Checking satellite data validity...
-DEBUG[prepare_inputs]: Current data shapes - time: (1,), lat: (1,), lon: (1,)
-DEBUG[prepare_inputs]: Current satellite data shapes - sss: (1, 1), sst: (1, 1), ssh: (1, 1)
-DEBUG[prepare_inputs]: Final dataset size: 1 time points × 1 locations = 1 total samples
-DEBUG[prepare_inputs]: Returning input tensor with shape: torch.Size([1, 9])
-DEBUG: prepare_inputs completed successfully, batch shape: torch.Size([1, 9])
-DEBUG: About to call infer with batch shape: torch.Size([1, 9])
-DEBUG: Inference completed successfully, pcs shape: (1, 30)
-DEBUG: About to get PCA objects
-DEBUG: PCA objects loaded successfully
-DEBUG: pcs shape: (1, 30)
-DEBUG: temp_pcs shape: (1, 15)
-DEBUG: sal_pcs shape: (1, 15)
-DEBUG: About to perform PCA inverse transform for temperature
-DEBUG: Temperature PCA inverse completed, shape: (1, 1801)
-DEBUG: About to perform PCA inverse transform for salinity
-DEBUG: Salinity PCA inverse completed, shape: (1, 1801)
-DEBUG: pred_T shape after transpose: (1801, 1)
-DEBUG: pred_S shape after transpose: (1801, 1)
-DEBUG: depth shape: (1801,)
-DEBUG: original sss shape: (1, 1)
-DEBUG: original sst shape: (1, 1)
-DEBUG: original aviso shape: (1, 1)
-DEBUG: Number of profiles from model: 1
-DEBUG: Number of profiles requested: 1
-DEBUG: Number of unique dates: 1
-DEBUG: sss_profile shape: (1,)
-DEBUG: sst_profile shape: (1,)
-DEBUG: aviso_profile shape: (1,)
-DEBUG: sss_profile sample: [35.507362]
-DEBUG: sst_profile sample: [297.895]
-DEBUG: aviso_profile sample: [-0.0381861]
-2025-09-07 11:42:09,559 WARNING h5netcdf in-memory failed; writing via secure temp file: unexpected encoding for scipy backend: ['zlib', 'complevel']
-146.201.220.35 - - [07/Sep/2025:11:42:09 -0400] "POST /v1_profile HTTP/1.1" 200 42108 "-" "curl/7.76.1" 255951
-2025-09-07 11:42:12,662 INFO Grid query request for date: 2024-01-01, BBOX: None, resolution: None
-2025-09-07 11:42:12,663 INFO Loaded grid with 1018 points inside mask
-2025-09-07 11:42:12,675 INFO Processing grid query for 1018 points
-2025-09-07 11:42:12,690 INFO Loading satellite data...
-2025-09-07 11:42:12,706 INFO Validating satellite data file availability...
-2025-09-07 11:42:12,713 INFO Checking satellite data availability for 1 unique dates
-2025-09-07 11:42:12,719 INFO SST data available for 2024-01-01: 2 files
-2025-09-07 11:42:13,381 INFO SSS data available for 2024-01-01 (DOY 1): 2 files
-2025-09-07 11:42:13,383 INFO AVISO data available for 2024-01-01: 1 files
-2025-09-07 11:42:13,396 INFO All required satellite data files are available. Proceeding with data loading...
+2025-09-09 06:56:29,457 INFO Grid query request for date: 2019-07-08, BBOX: None, resolution: None
+2025-09-09 06:56:29,479 INFO Loaded grid with 1018 points inside mask
+2025-09-09 06:56:29,479 INFO Processing grid query for 1018 points
+2025-09-09 06:56:29,479 INFO Loading satellite data...
+2025-09-09 06:56:29,479 INFO Validating satellite data file availability...
+2025-09-09 06:56:29,480 INFO Checking satellite data availability for 1 unique dates
+2025-09-09 06:56:29,672 INFO SST data available for 2019-07-08: 1 files
+2025-09-09 06:56:30,130 INFO SSS data available for 2019-07-08 (DOY 189): 1 files
+2025-09-09 06:56:30,182 INFO AVISO data available for 2019-07-08: 1 files
+2025-09-09 06:56:30,182 INFO All required satellite data files are available. Proceeding with data loading...
 DEBUG[sat]: load_satellite_data: T=1018, N=1018
-DEBUG[sat]: Processing date 2024-01-01 with 1018 points
+DEBUG[sat]: Processing date 2019-07-08 with 1018 points
 DEBUG[sat]: Bounding box: lat[18.500, 29.500], lon[-97.500, -82.000]
 DEBUG[sat]: Points lat range: 19.000 to 29.000
 DEBUG[sat]: Points lon range: -97.000 to -82.500
-DEBUG[sss]: Trying SSS file: /Net/work/ozavala/DATA/GOFFISH/SSS/SMAP_Global/2024/RSS_smap_SSS_L3_8day_running_2024_001_FNL_v06.0.nc
-DEBUG[sss]: Successfully opened SSS file: /Net/work/ozavala/DATA/GOFFISH/SSS/SMAP_Global/2024/RSS_smap_SSS_L3_8day_running_2024_001_FNL_v06.0.nc
-DEBUG[sss]: SSS data loaded successfully, shape: (44, 62), range: 32.912 to 38.085
-DEBUG[sat]: SSS data loaded for 2024-01-01, shape: (44, 62)
-DEBUG[sat]: SSS data within bbox - valid pixels: 2160/2728
-DEBUG[sat]: SSS data within bbox - range: 32.912 to 38.085
-DEBUG[sat]: SSS data source: CFG.SSS_ROOT=/Net/work/ozavala/DATA/GOFFISH/SSS/SMAP_Global/, year=2024, month=01, day=01
-DEBUG[sst]: Using SST file: /Net/work/ozavala/DATA/GOFFISH/SST/OISST/2024/20240101090000-JPL-L4_GHRSST-SSTfnd-MUR-GLOB-v02.0-fv04.1_subset.nc
-DEBUG[sat]: SST data loaded for 2024-01-01, shape: (1101, 1551)
-DEBUG[sat]: SST data within bbox - valid pixels: 1515005/1707651
-DEBUG[sat]: SST data within bbox - range: 284.461 to 301.617
-DEBUG[sat]: SST data source: CFG.SST_ROOT=/Net/work/ozavala/DATA/GOFFISH/SST/OISST/, year=2024, month=01, day=01
-DEBUG[aviso]: Loading monthly file: /unity/f1/ozavala/DATA/GOFFISH/AVISO/GoM/2024-01.nc
-DEBUG[aviso]: Successfully loaded adt data, shape: (88, 124)
-DEBUG[sat]: SSH data loaded for 2024-01-01, shape: (88, 124)
-DEBUG[sat]: SSH data within bbox - valid pixels: 9828/10912
-DEBUG[sat]: SSH data within bbox - range: 0.049 to 0.910
-DEBUG[sat]: SSH data source: aviso_root=/unity/f1/ozavala/DATA/GOFFISH/AVISO/GoM/, year=2024, month=01, day=01
-DEBUG[sat]: SSS bounds check - 1018/1018 coordinates within data bounds
-DEBUG[sat]: SST bounds check - 1018/1018 coordinates within data bounds
+DEBUG[sss]: Trying SSS file: /Net/work/ozavala/DATA/GOFFISH/SSS/SMAP_Global/2019/RSS_smap_SSS_L3_8day_running_2019_189_FNL_v06.0.nc
+DEBUG[sss]: Failed to open SSS file /Net/work/ozavala/DATA/GOFFISH/SSS/SMAP_Global/2019/RSS_smap_SSS_L3_8day_running_2019_189_FNL_v06.0.nc: [Errno 2] No such file or directory: '/Net/work/ozavala/DATA/GOFFISH/SSS/SMAP_Global/2019/RSS_smap_SSS_L3_8day_running_2019_189_FNL_v06.0.nc'
+DEBUG[sss]: Trying SSS file: /Net/work/ozavala/DATA/GOFFISH/SSS/SMAP_Global/2019/RSS_smap_SSS_L3_8day_running_2019_189_FNL_v05.0.nc
+DEBUG[sss]: Failed to open SSS file /Net/work/ozavala/DATA/GOFFISH/SSS/SMAP_Global/2019/RSS_smap_SSS_L3_8day_running_2019_189_FNL_v05.0.nc: did not find a match in any of xarray's currently installed IO backends ['netcdf4', 'h5netcdf', 'scipy', 'rasterio', 'zarr']. Consider explicitly selecting one of the installed engines via the ``engine`` parameter, or installing additional IO dependencies, see:
+https://docs.xarray.dev/en/stable/getting-started-guide/installing.html
+https://docs.xarray.dev/en/stable/user-guide/io.html
+DEBUG[sss]: Trying wildcard pattern: /Net/work/ozavala/DATA/GOFFISH/SSS/SMAP_Global/2019/RSS_smap_SSS_L3_8day_running_2019_189_FNL_v*.nc
+DEBUG[sss]: Found files: ['/Net/work/ozavala/DATA/GOFFISH/SSS/SMAP_Global/2019/RSS_smap_SSS_L3_8day_running_2019_189_FNL_v05.0.nc']
+DEBUG[sss]: Failed to open SSS file via wildcard: did not find a match in any of xarray's currently installed IO backends ['netcdf4', 'h5netcdf', 'scipy', 'rasterio', 'zarr']. Consider explicitly selecting one of the installed engines via the ``engine`` parameter, or installing additional IO dependencies, see:
+https://docs.xarray.dev/en/stable/getting-started-guide/installing.html
+https://docs.xarray.dev/en/stable/user-guide/io.html
+DEBUG[sat]: SSS data failed for 2019-07-08: SSS not found for 2019-07-08: did not find a match in any of xarray's currently installed IO backends ['netcdf4', 'h5netcdf', 'scipy', 'rasterio', 'zarr']. Consider explicitly selecting one of the installed engines via the ``engine`` parameter, or installing additional IO dependencies, see:
+https://docs.xarray.dev/en/stable/getting-started-guide/installing.html
+https://docs.xarray.dev/en/stable/user-guide/io.html
+DEBUG[sst]: Using SST file: /Net/work/ozavala/DATA/GOFFISH/SST/OISST/2019/20190708090000-JPL-L4_GHRSST-SSTfnd-MUR-GLOB-v02.0-fv04.1_subset.nc
+DEBUG[sat]: SST data failed for 2019-07-08: did not find a match in any of xarray's currently installed IO backends ['netcdf4', 'h5netcdf', 'scipy', 'rasterio', 'zarr']. Consider explicitly selecting one of the installed engines via the ``engine`` parameter, or installing additional IO dependencies, see:
+https://docs.xarray.dev/en/stable/getting-started-guide/installing.html
+https://docs.xarray.dev/en/stable/user-guide/io.html
+DEBUG[aviso]: Loading monthly file: /unity/f1/ozavala/DATA/GOFFISH/AVISO/GoM/2019-07.nc
+DEBUG[aviso]: Successfully loaded adt data, shape: (44, 62)
+DEBUG[sat]: SSH data loaded for 2019-07-08, shape: (44, 62)
+DEBUG[sat]: SSH data within bbox - valid pixels: 2460/2728
+DEBUG[sat]: SSH data within bbox - range: 0.088 to 1.118
+DEBUG[sat]: SSH data source: aviso_root=/unity/f1/ozavala/DATA/GOFFISH/AVISO/GoM/, year=2019, month=07, day=08
 DEBUG[sat]: SSH bounds check - 1018/1018 coordinates within data bounds
-DEBUG[sss]: Interpolating SSS for 1018 points
-DEBUG[sss]: SSS array shape: (44, 62), range: 32.912 to 38.085
-DEBUG[sss]: SSS lats range: 18.625 to 29.375
-DEBUG[sss]: SSS lons range: -97.375 to -82.125
-DEBUG[sss]: Target coords range - lat: 19.000 to 29.000
-DEBUG[sss]: Target coords range - lon: -97.000 to -82.500
-DEBUG[sss]: 30/1018 interpolated values are NaN, applying fallback
-DEBUG[sss]: Point 0 (lat=19.000, lon=-95.000) - nearest neighbor also NaN, keeping NaN
-DEBUG[sss]: Point 4 (lat=19.500, lon=-95.750) - nearest neighbor also NaN, keeping NaN
-DEBUG[sss]: Point 17 (lat=20.000, lon=-96.000) - nearest neighbor also NaN, keeping NaN
-DEBUG[sss]: Point 81 (lat=21.250, lon=-96.500) - nearest neighbor also NaN, keeping NaN
-DEBUG[sss]: Point 194 (lat=22.500, lon=-84.750) - fallback to nearest neighbor: 36.194
-DEBUG[sss]: Point 195 (lat=22.500, lon=-84.500) - nearest neighbor also NaN, keeping NaN
-DEBUG[sss]: Point 224 (lat=22.750, lon=-84.500) - fallback to nearest neighbor: 36.032
-DEBUG[sss]: Point 225 (lat=22.750, lon=-84.250) - nearest neighbor also NaN, keeping NaN
-DEBUG[sss]: Point 226 (lat=22.750, lon=-84.000) - nearest neighbor also NaN, keeping NaN
-DEBUG[sss]: Point 258 (lat=23.000, lon=-84.250) - fallback to nearest neighbor: 36.031
-DEBUG[sss]: Point 259 (lat=23.000, lon=-84.000) - nearest neighbor also NaN, keeping NaN
-DEBUG[sss]: Point 260 (lat=23.000, lon=-83.750) - nearest neighbor also NaN, keeping NaN
-DEBUG[sss]: Point 261 (lat=23.000, lon=-83.500) - nearest neighbor also NaN, keeping NaN
-DEBUG[sss]: Point 262 (lat=23.000, lon=-83.250) - nearest neighbor also NaN, keeping NaN
-DEBUG[sss]: Point 297 (lat=23.250, lon=-83.750) - fallback to nearest neighbor: 36.437
-DEBUG[sss]: Point 298 (lat=23.250, lon=-83.500) - nearest neighbor also NaN, keeping NaN
-DEBUG[sss]: Point 299 (lat=23.250, lon=-83.250) - nearest neighbor also NaN, keeping NaN
-DEBUG[sss]: Point 300 (lat=23.250, lon=-83.000) - nearest neighbor also NaN, keeping NaN
-DEBUG[sss]: Point 301 (lat=23.250, lon=-82.750) - nearest neighbor also NaN, keeping NaN
-DEBUG[sss]: Point 302 (lat=23.250, lon=-82.500) - nearest neighbor also NaN, keeping NaN
-DEBUG[sss]: Point 346 (lat=23.500, lon=-82.750) - fallback to nearest neighbor: 35.590
-DEBUG[sss]: Point 347 (lat=23.500, lon=-82.500) - nearest neighbor also NaN, keeping NaN
-DEBUG[sss]: Point 637 (lat=25.250, lon=-90.500) - fallback to nearest neighbor: 36.653
-DEBUG[sss]: Point 638 (lat=25.250, lon=-90.250) - fallback to nearest neighbor: 36.636
-DEBUG[sss]: Point 681 (lat=25.500, lon=-90.750) - fallback to nearest neighbor: 36.663
-DEBUG[sss]: Point 682 (lat=25.500, lon=-90.500) - fallback to nearest neighbor: 36.727
-DEBUG[sss]: Point 683 (lat=25.500, lon=-90.250) - nearest neighbor also NaN, keeping NaN
-DEBUG[sss]: Point 725 (lat=25.750, lon=-90.750) - fallback to nearest neighbor: 36.700
-DEBUG[sss]: Point 726 (lat=25.750, lon=-90.500) - nearest neighbor also NaN, keeping NaN
-DEBUG[sss]: Point 727 (lat=25.750, lon=-90.250) - nearest neighbor also NaN, keeping NaN
-DEBUG[sss]: After fallback: 20/1018 values are still NaN
-DEBUG[sss]: Interpolation completed, result shape: (1018,)
-DEBUG[sss]: Interpolated values range: 35.590 to 37.048
-DEBUG[sss]: NaN count in interpolated values: 20
-DEBUG[sss]: SSS interpolation successful for 1018 points
-DEBUG[sst]: Interpolated values range: 294.434 to 300.729
-DEBUG[sst]: SST interpolation successful for 1018 points
-DEBUG[ssh]: Interpolated values range: 0.085 to 0.892
+DEBUG[ssh]: 2/1018 interpolated values are NaN, applying fallback
+DEBUG[ssh]: Point 226 (lat=22.750, lon=-84.000) - fallback to nearest neighbor: 0.891
+DEBUG[ssh]: Point 262 (lat=23.000, lon=-83.250) - fallback to nearest neighbor: 0.864
+DEBUG[ssh]: After fallback: 0/1018 values are still NaN
+DEBUG[ssh]: Interpolated values range: 0.190 to 1.105
 DEBUG[ssh]: SSH interpolation successful for 1018 points
-DEBUG[sat]: one-to-one done in 0.56s  (N=1018)
-DEBUG[sat]: Valid data counts - SSS: 998/1018, SST: 1018/1018, SSH: 1018/1018
-2025-09-07 11:42:13,959 INFO Satellite data loaded: sss=(1018,), sst=(1018,), aviso=(1018,)
-2025-09-07 11:42:13,959 INFO Validating satellite data quality...
-2025-09-07 11:42:13,959 INFO Satellite data validation: 998/1018 locations have complete satellite data
-2025-09-07 11:42:13,974 WARNING Filtering out 20 locations (2.0%) with missing satellite data
-2025-09-07 11:42:13,980 INFO After satellite filtering: 998 locations remaining
-2025-09-07 11:42:13,994 INFO Sample satellite data after filtering:
-2025-09-07 11:42:14,008 INFO   SSS: min=35.590, max=37.048, mean=36.637
-2025-09-07 11:42:14,077 INFO   SST: min=294.434, max=300.729, mean=297.765
-2025-09-07 11:42:14,097 INFO   AVISO: min=-0.323, max=0.484, mean=0.024
-2025-09-07 11:42:14,111 INFO Preparing model inputs...
-DEBUG[prepare_inputs]: Checking satellite data validity...
-DEBUG[prepare_inputs]: Current data shapes - time: (998,), lat: (998,), lon: (998,)
-DEBUG[prepare_inputs]: Current satellite data shapes - sss: (998,), sst: (998,), ssh: (998,)
-DEBUG[prepare_inputs]: Final dataset size: 998 time points × 998 locations = 996004 total samples
-DEBUG[prepare_inputs]: Returning input tensor with shape: torch.Size([998, 9])
-2025-09-07 11:42:14,146 INFO Input preparation completed, batch shape: torch.Size([998, 9])
-2025-09-07 11:42:14,190 INFO Starting model inference...
-2025-09-07 11:42:14,250 INFO Inference completed, pcs shape: (998, 30)
-2025-09-07 11:42:14,250 INFO Performing PCA inverse transform...
-2025-09-07 11:42:14,272 INFO PCA inverse completed, pred_T: (1801, 998), pred_S: (1801, 998)
-2025-09-07 11:42:14,272 INFO Processing satellite data for grid mapping...
-2025-09-07 11:42:14,288 INFO Satellite data processed: sss=(998,), sst=(998,), aviso=(998,)
-2025-09-07 11:42:14,309 INFO Sample SST values: min=294.434, max=300.729, mean=297.765
-2025-09-07 11:42:14,322 INFO Sample SSS values: min=35.590, max=37.048, mean=36.637
-2025-09-07 11:42:14,336 INFO Sample AVISO values: min=-0.323, max=0.484, mean=0.024
-2025-09-07 11:42:14,350 INFO Building grid dataset...
-2025-09-07 11:42:14,364 INFO Creating grid with 40 lat points and 58 lon points
-2025-09-07 11:42:14,375 INFO Lat range: 19.250 to 29.000
-2025-09-07 11:42:14,396 INFO Lon range: -97.000 to -82.750
-2025-09-07 11:42:14,432 INFO Writing NetCDF file...
-2025-09-07 11:42:14,435 WARNING h5netcdf in-memory failed; writing via secure temp file: unexpected encoding for scipy backend: ['zlib', 'complevel']
-2025-09-07 11:42:14,970 INFO NetCDF file created successfully
-2025-09-07 11:42:14,971 INFO Grid query completed successfully: NeSPReSO_grid_2024-01-01.nc
-146.201.220.35 - - [07/Sep/2025:11:42:14 -0400] "POST /v1_profile/grid HTTP/1.1" 200 8445176 "-" "curl/7.76.1" 2329498
-2025-09-07 11:42:20,432 INFO Grid query request for date: 2024-01-01, BBOX: None, resolution: None
-2025-09-07 11:42:20,433 INFO Loaded grid with 1018 points inside mask
-2025-09-07 11:42:20,440 INFO Processing grid query for 1018 points
-2025-09-07 11:42:20,454 INFO Loading satellite data...
-2025-09-07 11:42:20,479 INFO Validating satellite data file availability...
-2025-09-07 11:42:20,486 INFO Checking satellite data availability for 1 unique dates
-2025-09-07 11:42:20,497 INFO SST data available for 2024-01-01: 2 files
-2025-09-07 11:42:20,511 INFO SSS data available for 2024-01-01 (DOY 1): 2 files
-2025-09-07 11:42:20,534 INFO AVISO data available for 2024-01-01: 1 files
-2025-09-07 11:42:20,540 INFO All required satellite data files are available. Proceeding with data loading...
+DEBUG[sat]: one-to-one done in 1.48s  (N=1018)
+DEBUG[sat]: Valid data counts - SSS: 0/1018, SST: 0/1018, SSH: 1018/1018
+WARNING: No valid SSS data, using climatological fallback
+2025-09-09 06:56:31,667 INFO Satellite data loaded: sss=(1018,), sst=(1018,), aviso=(1018,)
+2025-09-09 06:56:31,667 INFO Validating satellite data quality...
+2025-09-09 06:56:31,667 INFO Satellite data validation: 0/1018 locations have complete satellite data
+2025-09-09 06:56:31,667 WARNING Filtering out 1018 locations (100.0%) with missing satellite data
+2025-09-09 06:56:31,667 INFO After satellite filtering: 0 locations remaining
+2025-09-09 06:56:31,667 ERROR Satellite accessor failed: No locations remaining after satellite data filtering
+146.201.220.35 - - [09/Sep/2025:06:56:31 -0400] "POST /v1_profile/grid HTTP/1.1" 503 119 "-" "python-requests/2.32.5" 2213340
+2025-09-09 15:04:21,457 INFO Grid query request for date: 2019-07-08, BBOX: None, resolution: None
+2025-09-09 15:04:21,463 INFO Loaded grid with 1018 points inside mask
+2025-09-09 15:04:21,463 INFO Processing grid query for 1018 points
+2025-09-09 15:04:21,463 INFO Loading satellite data...
+2025-09-09 15:04:21,463 INFO Validating satellite data file availability...
+2025-09-09 15:04:21,463 INFO Checking satellite data availability for 1 unique dates
+2025-09-09 15:04:21,465 INFO SST data available for 2019-07-08: 1 files
+2025-09-09 15:04:21,466 INFO SSS data available for 2019-07-08 (DOY 189): 1 files
+2025-09-09 15:04:21,467 INFO AVISO data available for 2019-07-08: 1 files
+2025-09-09 15:04:21,467 INFO All required satellite data files are available. Proceeding with data loading...
 DEBUG[sat]: load_satellite_data: T=1018, N=1018
-DEBUG[sat]: Processing date 2024-01-01 with 1018 points
+DEBUG[sat]: Processing date 2019-07-08 with 1018 points
 DEBUG[sat]: Bounding box: lat[18.500, 29.500], lon[-97.500, -82.000]
 DEBUG[sat]: Points lat range: 19.000 to 29.000
 DEBUG[sat]: Points lon range: -97.000 to -82.500
-DEBUG[sat]: SSS data loaded for 2024-01-01, shape: (44, 62)
-DEBUG[sat]: SSS data within bbox - valid pixels: 2160/2728
-DEBUG[sat]: SSS data within bbox - range: 32.912 to 38.085
-DEBUG[sat]: SSS data source: CFG.SSS_ROOT=/Net/work/ozavala/DATA/GOFFISH/SSS/SMAP_Global/, year=2024, month=01, day=01
-DEBUG[sat]: SST data loaded for 2024-01-01, shape: (1101, 1551)
-DEBUG[sat]: SST data within bbox - valid pixels: 1515005/1707651
-DEBUG[sat]: SST data within bbox - range: 284.461 to 301.617
-DEBUG[sat]: SST data source: CFG.SST_ROOT=/Net/work/ozavala/DATA/GOFFISH/SST/OISST/, year=2024, month=01, day=01
-DEBUG[sat]: SSH data loaded for 2024-01-01, shape: (88, 124)
-DEBUG[sat]: SSH data within bbox - valid pixels: 9828/10912
-DEBUG[sat]: SSH data within bbox - range: 0.049 to 0.910
-DEBUG[sat]: SSH data source: aviso_root=/unity/f1/ozavala/DATA/GOFFISH/AVISO/GoM/, year=2024, month=01, day=01
-DEBUG[sat]: SSS bounds check - 1018/1018 coordinates within data bounds
-DEBUG[sat]: SST bounds check - 1018/1018 coordinates within data bounds
+DEBUG[sss]: Trying SSS file: /Net/work/ozavala/DATA/GOFFISH/SSS/SMAP_Global/2019/RSS_smap_SSS_L3_8day_running_2019_189_FNL_v06.0.nc
+DEBUG[sss]: Failed to open SSS file /Net/work/ozavala/DATA/GOFFISH/SSS/SMAP_Global/2019/RSS_smap_SSS_L3_8day_running_2019_189_FNL_v06.0.nc: [Errno 2] No such file or directory: '/Net/work/ozavala/DATA/GOFFISH/SSS/SMAP_Global/2019/RSS_smap_SSS_L3_8day_running_2019_189_FNL_v06.0.nc'
+DEBUG[sss]: Trying SSS file: /Net/work/ozavala/DATA/GOFFISH/SSS/SMAP_Global/2019/RSS_smap_SSS_L3_8day_running_2019_189_FNL_v05.0.nc
+DEBUG[sss]: Failed to open SSS file /Net/work/ozavala/DATA/GOFFISH/SSS/SMAP_Global/2019/RSS_smap_SSS_L3_8day_running_2019_189_FNL_v05.0.nc: did not find a match in any of xarray's currently installed IO backends ['netcdf4', 'h5netcdf', 'scipy', 'rasterio', 'zarr']. Consider explicitly selecting one of the installed engines via the ``engine`` parameter, or installing additional IO dependencies, see:
+https://docs.xarray.dev/en/stable/getting-started-guide/installing.html
+https://docs.xarray.dev/en/stable/user-guide/io.html
+DEBUG[sss]: Trying wildcard pattern: /Net/work/ozavala/DATA/GOFFISH/SSS/SMAP_Global/2019/RSS_smap_SSS_L3_8day_running_2019_189_FNL_v*.nc
+DEBUG[sss]: Found files: ['/Net/work/ozavala/DATA/GOFFISH/SSS/SMAP_Global/2019/RSS_smap_SSS_L3_8day_running_2019_189_FNL_v05.0.nc']
+DEBUG[sss]: Failed to open SSS file via wildcard: did not find a match in any of xarray's currently installed IO backends ['netcdf4', 'h5netcdf', 'scipy', 'rasterio', 'zarr']. Consider explicitly selecting one of the installed engines via the ``engine`` parameter, or installing additional IO dependencies, see:
+https://docs.xarray.dev/en/stable/getting-started-guide/installing.html
+https://docs.xarray.dev/en/stable/user-guide/io.html
+DEBUG[sat]: SSS data failed for 2019-07-08: SSS not found for 2019-07-08: did not find a match in any of xarray's currently installed IO backends ['netcdf4', 'h5netcdf', 'scipy', 'rasterio', 'zarr']. Consider explicitly selecting one of the installed engines via the ``engine`` parameter, or installing additional IO dependencies, see:
+https://docs.xarray.dev/en/stable/getting-started-guide/installing.html
+https://docs.xarray.dev/en/stable/user-guide/io.html
+DEBUG[sst]: Using SST file: /Net/work/ozavala/DATA/GOFFISH/SST/OISST/2019/20190708090000-JPL-L4_GHRSST-SSTfnd-MUR-GLOB-v02.0-fv04.1_subset.nc
+DEBUG[sat]: SST data failed for 2019-07-08: did not find a match in any of xarray's currently installed IO backends ['netcdf4', 'h5netcdf', 'scipy', 'rasterio', 'zarr']. Consider explicitly selecting one of the installed engines via the ``engine`` parameter, or installing additional IO dependencies, see:
+https://docs.xarray.dev/en/stable/getting-started-guide/installing.html
+https://docs.xarray.dev/en/stable/user-guide/io.html
+DEBUG[sat]: SSH data loaded for 2019-07-08, shape: (44, 62)
+DEBUG[sat]: SSH data within bbox - valid pixels: 2460/2728
+DEBUG[sat]: SSH data within bbox - range: 0.088 to 1.118
+DEBUG[sat]: SSH data source: aviso_root=/unity/f1/ozavala/DATA/GOFFISH/AVISO/GoM/, year=2019, month=07, day=08
 DEBUG[sat]: SSH bounds check - 1018/1018 coordinates within data bounds
-DEBUG[sss]: Interpolating SSS for 1018 points
-DEBUG[sss]: SSS array shape: (44, 62), range: 32.912 to 38.085
-DEBUG[sss]: SSS lats range: 18.625 to 29.375
-DEBUG[sss]: SSS lons range: -97.375 to -82.125
-DEBUG[sss]: Target coords range - lat: 19.000 to 29.000
-DEBUG[sss]: Target coords range - lon: -97.000 to -82.500
-DEBUG[sss]: 30/1018 interpolated values are NaN, applying fallback
-DEBUG[sss]: Point 0 (lat=19.000, lon=-95.000) - nearest neighbor also NaN, keeping NaN
-DEBUG[sss]: Point 4 (lat=19.500, lon=-95.750) - nearest neighbor also NaN, keeping NaN
-DEBUG[sss]: Point 17 (lat=20.000, lon=-96.000) - nearest neighbor also NaN, keeping NaN
-DEBUG[sss]: Point 81 (lat=21.250, lon=-96.500) - nearest neighbor also NaN, keeping NaN
-DEBUG[sss]: Point 194 (lat=22.500, lon=-84.750) - fallback to nearest neighbor: 36.194
-DEBUG[sss]: Point 195 (lat=22.500, lon=-84.500) - nearest neighbor also NaN, keeping NaN
-DEBUG[sss]: Point 224 (lat=22.750, lon=-84.500) - fallback to nearest neighbor: 36.032
-DEBUG[sss]: Point 225 (lat=22.750, lon=-84.250) - nearest neighbor also NaN, keeping NaN
-DEBUG[sss]: Point 226 (lat=22.750, lon=-84.000) - nearest neighbor also NaN, keeping NaN
-DEBUG[sss]: Point 258 (lat=23.000, lon=-84.250) - fallback to nearest neighbor: 36.031
-DEBUG[sss]: Point 259 (lat=23.000, lon=-84.000) - nearest neighbor also NaN, keeping NaN
-DEBUG[sss]: Point 260 (lat=23.000, lon=-83.750) - nearest neighbor also NaN, keeping NaN
-DEBUG[sss]: Point 261 (lat=23.000, lon=-83.500) - nearest neighbor also NaN, keeping NaN
-DEBUG[sss]: Point 262 (lat=23.000, lon=-83.250) - nearest neighbor also NaN, keeping NaN
-DEBUG[sss]: Point 297 (lat=23.250, lon=-83.750) - fallback to nearest neighbor: 36.437
-DEBUG[sss]: Point 298 (lat=23.250, lon=-83.500) - nearest neighbor also NaN, keeping NaN
-DEBUG[sss]: Point 299 (lat=23.250, lon=-83.250) - nearest neighbor also NaN, keeping NaN
-DEBUG[sss]: Point 300 (lat=23.250, lon=-83.000) - nearest neighbor also NaN, keeping NaN
-DEBUG[sss]: Point 301 (lat=23.250, lon=-82.750) - nearest neighbor also NaN, keeping NaN
-DEBUG[sss]: Point 302 (lat=23.250, lon=-82.500) - nearest neighbor also NaN, keeping NaN
-DEBUG[sss]: Point 346 (lat=23.500, lon=-82.750) - fallback to nearest neighbor: 35.590
-DEBUG[sss]: Point 347 (lat=23.500, lon=-82.500) - nearest neighbor also NaN, keeping NaN
-DEBUG[sss]: Point 637 (lat=25.250, lon=-90.500) - fallback to nearest neighbor: 36.653
-DEBUG[sss]: Point 638 (lat=25.250, lon=-90.250) - fallback to nearest neighbor: 36.636
-DEBUG[sss]: Point 681 (lat=25.500, lon=-90.750) - fallback to nearest neighbor: 36.663
-DEBUG[sss]: Point 682 (lat=25.500, lon=-90.500) - fallback to nearest neighbor: 36.727
-DEBUG[sss]: Point 683 (lat=25.500, lon=-90.250) - nearest neighbor also NaN, keeping NaN
-DEBUG[sss]: Point 725 (lat=25.750, lon=-90.750) - fallback to nearest neighbor: 36.700
-DEBUG[sss]: Point 726 (lat=25.750, lon=-90.500) - nearest neighbor also NaN, keeping NaN
-DEBUG[sss]: Point 727 (lat=25.750, lon=-90.250) - nearest neighbor also NaN, keeping NaN
-DEBUG[sss]: After fallback: 20/1018 values are still NaN
-DEBUG[sss]: Interpolation completed, result shape: (1018,)
-DEBUG[sss]: Interpolated values range: 35.590 to 37.048
-DEBUG[sss]: NaN count in interpolated values: 20
-DEBUG[sss]: SSS interpolation successful for 1018 points
-DEBUG[sst]: Interpolated values range: 294.434 to 300.729
-DEBUG[sst]: SST interpolation successful for 1018 points
-DEBUG[ssh]: Interpolated values range: 0.085 to 0.892
+DEBUG[ssh]: 2/1018 interpolated values are NaN, applying fallback
+DEBUG[ssh]: Point 226 (lat=22.750, lon=-84.000) - fallback to nearest neighbor: 0.891
+DEBUG[ssh]: Point 262 (lat=23.000, lon=-83.250) - fallback to nearest neighbor: 0.864
+DEBUG[ssh]: After fallback: 0/1018 values are still NaN
+DEBUG[ssh]: Interpolated values range: 0.190 to 1.105
+DEBUG[ssh]: SSH interpolation successful for 1018 points
+DEBUG[sat]: one-to-one done in 0.12s  (N=1018)
+DEBUG[sat]: Valid data counts - SSS: 0/1018, SST: 0/1018, SSH: 1018/1018
+WARNING: No valid SSS data, using climatological fallback
+2025-09-09 15:04:21,583 INFO Satellite data loaded: sss=(1018,), sst=(1018,), aviso=(1018,)
+2025-09-09 15:04:21,583 INFO Validating satellite data quality...
+2025-09-09 15:04:21,583 INFO Satellite data validation: 0/1018 locations have complete satellite data
+2025-09-09 15:04:21,583 WARNING Filtering out 1018 locations (100.0%) with missing satellite data
+2025-09-09 15:04:21,583 INFO After satellite filtering: 0 locations remaining
+2025-09-09 15:04:21,583 ERROR Satellite accessor failed: No locations remaining after satellite data filtering
+146.201.220.35 - - [09/Sep/2025:15:04:21 -0400] "POST /v1_profile/grid HTTP/1.1" 503 119 "-" "python-requests/2.32.5" 128787
+2025-09-10 09:22:28,974 INFO Grid query request for date: 2019-07-08, BBOX: None, resolution: None
+2025-09-10 09:22:29,008 INFO Loaded grid with 1018 points inside mask
+2025-09-10 09:22:29,009 INFO Processing grid query for 1018 points
+2025-09-10 09:22:29,009 INFO Loading satellite data...
+2025-09-10 09:22:29,009 INFO Validating satellite data file availability...
+2025-09-10 09:22:29,009 INFO Checking satellite data availability for 1 unique dates
+2025-09-10 09:22:29,135 INFO SST data available for 2019-07-08: 1 files
+2025-09-10 09:22:29,483 INFO SSS data available for 2019-07-08 (DOY 189): 1 files
+2025-09-10 09:22:29,533 INFO AVISO data available for 2019-07-08: 1 files
+2025-09-10 09:22:29,533 INFO All required satellite data files are available. Proceeding with data loading...
+DEBUG[sat]: load_satellite_data: T=1018, N=1018
+DEBUG[sat]: Processing date 2019-07-08 with 1018 points
+DEBUG[sat]: Bounding box: lat[18.500, 29.500], lon[-97.500, -82.000]
+DEBUG[sat]: Points lat range: 19.000 to 29.000
+DEBUG[sat]: Points lon range: -97.000 to -82.500
+DEBUG[sss]: Trying SSS file: /Net/work/ozavala/DATA/GOFFISH/SSS/SMAP_Global/2019/RSS_smap_SSS_L3_8day_running_2019_189_FNL_v06.0.nc
+DEBUG[sss]: Failed to open SSS file /Net/work/ozavala/DATA/GOFFISH/SSS/SMAP_Global/2019/RSS_smap_SSS_L3_8day_running_2019_189_FNL_v06.0.nc: [Errno 2] No such file or directory: '/Net/work/ozavala/DATA/GOFFISH/SSS/SMAP_Global/2019/RSS_smap_SSS_L3_8day_running_2019_189_FNL_v06.0.nc'
+DEBUG[sss]: Trying SSS file: /Net/work/ozavala/DATA/GOFFISH/SSS/SMAP_Global/2019/RSS_smap_SSS_L3_8day_running_2019_189_FNL_v05.0.nc
+DEBUG[sss]: Failed to open SSS file /Net/work/ozavala/DATA/GOFFISH/SSS/SMAP_Global/2019/RSS_smap_SSS_L3_8day_running_2019_189_FNL_v05.0.nc: did not find a match in any of xarray's currently installed IO backends ['netcdf4', 'h5netcdf', 'scipy', 'rasterio', 'zarr']. Consider explicitly selecting one of the installed engines via the ``engine`` parameter, or installing additional IO dependencies, see:
+https://docs.xarray.dev/en/stable/getting-started-guide/installing.html
+https://docs.xarray.dev/en/stable/user-guide/io.html
+DEBUG[sss]: Trying wildcard pattern: /Net/work/ozavala/DATA/GOFFISH/SSS/SMAP_Global/2019/RSS_smap_SSS_L3_8day_running_2019_189_FNL_v*.nc
+DEBUG[sss]: Found files: ['/Net/work/ozavala/DATA/GOFFISH/SSS/SMAP_Global/2019/RSS_smap_SSS_L3_8day_running_2019_189_FNL_v05.0.nc']
+DEBUG[sss]: Failed to open SSS file via wildcard: did not find a match in any of xarray's currently installed IO backends ['netcdf4', 'h5netcdf', 'scipy', 'rasterio', 'zarr']. Consider explicitly selecting one of the installed engines via the ``engine`` parameter, or installing additional IO dependencies, see:
+https://docs.xarray.dev/en/stable/getting-started-guide/installing.html
+https://docs.xarray.dev/en/stable/user-guide/io.html
+DEBUG[sat]: SSS data failed for 2019-07-08: SSS not found for 2019-07-08: did not find a match in any of xarray's currently installed IO backends ['netcdf4', 'h5netcdf', 'scipy', 'rasterio', 'zarr']. Consider explicitly selecting one of the installed engines via the ``engine`` parameter, or installing additional IO dependencies, see:
+https://docs.xarray.dev/en/stable/getting-started-guide/installing.html
+https://docs.xarray.dev/en/stable/user-guide/io.html
+DEBUG[sst]: Using SST file: /Net/work/ozavala/DATA/GOFFISH/SST/OISST/2019/20190708090000-JPL-L4_GHRSST-SSTfnd-MUR-GLOB-v02.0-fv04.1_subset.nc
+DEBUG[sat]: SST data failed for 2019-07-08: did not find a match in any of xarray's currently installed IO backends ['netcdf4', 'h5netcdf', 'scipy', 'rasterio', 'zarr']. Consider explicitly selecting one of the installed engines via the ``engine`` parameter, or installing additional IO dependencies, see:
+https://docs.xarray.dev/en/stable/getting-started-guide/installing.html
+https://docs.xarray.dev/en/stable/user-guide/io.html
+DEBUG[sat]: SSH data loaded for 2019-07-08, shape: (44, 62)
+DEBUG[sat]: SSH data within bbox - valid pixels: 2460/2728
+DEBUG[sat]: SSH data within bbox - range: 0.088 to 1.118
+DEBUG[sat]: SSH data source: aviso_root=/unity/f1/ozavala/DATA/GOFFISH/AVISO/GoM/, year=2019, month=07, day=08
+DEBUG[sat]: SSH bounds check - 1018/1018 coordinates within data bounds
+DEBUG[ssh]: 2/1018 interpolated values are NaN, applying fallback
+DEBUG[ssh]: Point 226 (lat=22.750, lon=-84.000) - fallback to nearest neighbor: 0.891
+DEBUG[ssh]: Point 262 (lat=23.000, lon=-83.250) - fallback to nearest neighbor: 0.864
+DEBUG[ssh]: After fallback: 0/1018 values are still NaN
+DEBUG[ssh]: Interpolated values range: 0.190 to 1.105
 DEBUG[ssh]: SSH interpolation successful for 1018 points
 DEBUG[sat]: one-to-one done in 0.15s  (N=1018)
-DEBUG[sat]: Valid data counts - SSS: 998/1018, SST: 1018/1018, SSH: 1018/1018
-2025-09-07 11:42:20,704 INFO Satellite data loaded: sss=(1018,), sst=(1018,), aviso=(1018,)
-2025-09-07 11:42:20,704 INFO Validating satellite data quality...
-2025-09-07 11:42:20,704 INFO Satellite data validation: 998/1018 locations have complete satellite data
-2025-09-07 11:42:20,718 WARNING Filtering out 20 locations (2.0%) with missing satellite data
-2025-09-07 11:42:20,747 INFO After satellite filtering: 998 locations remaining
-2025-09-07 11:42:20,759 INFO Sample satellite data after filtering:
-2025-09-07 11:42:20,765 INFO   SSS: min=35.590, max=37.048, mean=36.637
-2025-09-07 11:42:20,777 INFO   SST: min=294.434, max=300.729, mean=297.765
-2025-09-07 11:42:20,783 INFO   AVISO: min=-0.323, max=0.484, mean=0.024
-2025-09-07 11:42:20,795 INFO Preparing model inputs...
-DEBUG[prepare_inputs]: Checking satellite data validity...
-DEBUG[prepare_inputs]: Current data shapes - time: (998,), lat: (998,), lon: (998,)
-DEBUG[prepare_inputs]: Current satellite data shapes - sss: (998,), sst: (998,), ssh: (998,)
-DEBUG[prepare_inputs]: Final dataset size: 998 time points × 998 locations = 996004 total samples
-DEBUG[prepare_inputs]: Returning input tensor with shape: torch.Size([998, 9])
-2025-09-07 11:42:20,829 INFO Input preparation completed, batch shape: torch.Size([998, 9])
-2025-09-07 11:42:20,829 INFO Starting model inference...
-2025-09-07 11:42:20,835 INFO Inference completed, pcs shape: (998, 30)
-2025-09-07 11:42:20,847 INFO Performing PCA inverse transform...
-2025-09-07 11:42:20,869 INFO PCA inverse completed, pred_T: (1801, 998), pred_S: (1801, 998)
-2025-09-07 11:42:20,870 INFO Processing satellite data for grid mapping...
-2025-09-07 11:42:20,870 INFO Satellite data processed: sss=(998,), sst=(998,), aviso=(998,)
-2025-09-07 11:42:20,892 INFO Sample SST values: min=294.434, max=300.729, mean=297.765
-2025-09-07 11:42:20,905 INFO Sample SSS values: min=35.590, max=37.048, mean=36.637
-2025-09-07 11:42:20,911 INFO Sample AVISO values: min=-0.323, max=0.484, mean=0.024
-2025-09-07 11:42:20,925 INFO Building grid dataset...
-2025-09-07 11:42:20,939 INFO Creating grid with 40 lat points and 58 lon points
-2025-09-07 11:42:20,951 INFO Lat range: 19.250 to 29.000
-2025-09-07 11:42:20,963 INFO Lon range: -97.000 to -82.750
-2025-09-07 11:42:20,996 INFO Writing NetCDF file...
-2025-09-07 11:42:20,999 WARNING h5netcdf in-memory failed; writing via secure temp file: unexpected encoding for scipy backend: ['zlib', 'complevel']
-2025-09-07 11:42:21,486 INFO NetCDF file created successfully
-2025-09-07 11:42:21,486 INFO Grid query completed successfully: NeSPReSO_grid_2024-01-01.nc
-146.201.220.35 - - [07/Sep/2025:11:42:21 -0400] "POST /v1_profile/grid HTTP/1.1" 200 8445176 "-" "curl/7.76.1" 1149860
-2025-09-07 11:45:07,397 INFO Request: 1 profiles (logging of payload suppressed)
-DEBUG: Before satellite loading - times length: 1
-DEBUG: Before satellite loading - lat_arr length: 1
-DEBUG: Before satellite loading - lon_arr length: 1
-DEBUG: Before satellite loading - unique dates: 1
-DEBUG[sat]: load_satellite_data: T=1, N=1
-DEBUG[sss]: 1/1 interpolated values are NaN, applying fallback
-DEBUG[sss]: Point 0 (lat=25.000, lon=-80.000) - fallback to nearest neighbor: 35.507
-DEBUG[sss]: After fallback: 0/1 values are still NaN
-DEBUG[sat]: cross-product done in 0.13s  (T=1, N=1)
-DEBUG[sat]: Valid data counts - SSS: 1/1, SST: 1/1, SSH: 1/1
-DEBUG: Satellite data loaded - sss: (1, 1), sst: (1, 1), aviso: (1, 1)
-DEBUG: Filtering satellite data for NaN values...
-DEBUG: Satellite data filtering: 1/1 locations have valid satellite data
-DEBUG: All locations have valid satellite data, no filtering needed
-DEBUG: About to call prepare_inputs with shapes: dtime=(1,), lat_arr=(1,), lon_arr=(1,), sss=(1, 1), sst=(1, 1), aviso=(1, 1)
-DEBUG: Note: Satellite data filtering already completed, prepare_inputs will not filter again
-DEBUG[prepare_inputs]: Checking satellite data validity...
-DEBUG[prepare_inputs]: Current data shapes - time: (1,), lat: (1,), lon: (1,)
-DEBUG[prepare_inputs]: Current satellite data shapes - sss: (1, 1), sst: (1, 1), ssh: (1, 1)
-DEBUG[prepare_inputs]: Final dataset size: 1 time points × 1 locations = 1 total samples
-DEBUG[prepare_inputs]: Returning input tensor with shape: torch.Size([1, 9])
-DEBUG: prepare_inputs completed successfully, batch shape: torch.Size([1, 9])
-DEBUG: About to call infer with batch shape: torch.Size([1, 9])
-DEBUG: Inference completed successfully, pcs shape: (1, 30)
-DEBUG: About to get PCA objects
-DEBUG: PCA objects loaded successfully
-DEBUG: pcs shape: (1, 30)
-DEBUG: temp_pcs shape: (1, 15)
-DEBUG: sal_pcs shape: (1, 15)
-DEBUG: About to perform PCA inverse transform for temperature
-DEBUG: Temperature PCA inverse completed, shape: (1, 1801)
-DEBUG: About to perform PCA inverse transform for salinity
-DEBUG: Salinity PCA inverse completed, shape: (1, 1801)
-DEBUG: pred_T shape after transpose: (1801, 1)
-DEBUG: pred_S shape after transpose: (1801, 1)
-DEBUG: depth shape: (1801,)
-DEBUG: original sss shape: (1, 1)
-DEBUG: original sst shape: (1, 1)
-DEBUG: original aviso shape: (1, 1)
-DEBUG: Number of profiles from model: 1
-DEBUG: Number of profiles requested: 1
-DEBUG: Number of unique dates: 1
-DEBUG: sss_profile shape: (1,)
-DEBUG: sst_profile shape: (1,)
-DEBUG: aviso_profile shape: (1,)
-DEBUG: sss_profile sample: [35.507362]
-DEBUG: sst_profile sample: [297.895]
-DEBUG: aviso_profile sample: [-0.0381861]
-2025-09-07 11:45:07,568 WARNING h5netcdf in-memory failed; writing via secure temp file: unexpected encoding for scipy backend: ['zlib', 'complevel']
-146.201.220.35 - - [07/Sep/2025:11:45:07 -0400] "POST /v1_profile HTTP/1.1" 200 42108 "-" "curl/7.76.1" 184001
-2025-09-07 11:45:19,166 INFO Grid query request for date: 2024-01-01, BBOX: None, resolution: None
-2025-09-07 11:45:19,167 INFO Loaded grid with 1018 points inside mask
-2025-09-07 11:45:19,196 INFO Processing grid query for 1018 points
-2025-09-07 11:45:19,203 INFO Loading satellite data...
-2025-09-07 11:45:19,213 INFO Validating satellite data file availability...
-2025-09-07 11:45:19,213 INFO Checking satellite data availability for 1 unique dates
-2025-09-07 11:45:19,221 INFO SST data available for 2024-01-01: 2 files
-2025-09-07 11:45:19,237 INFO SSS data available for 2024-01-01 (DOY 1): 2 files
-2025-09-07 11:45:19,251 INFO AVISO data available for 2024-01-01: 1 files
-2025-09-07 11:45:19,264 INFO All required satellite data files are available. Proceeding with data loading...
+DEBUG[sat]: Valid data counts - SSS: 0/1018, SST: 0/1018, SSH: 1018/1018
+WARNING: No valid SSS data, using climatological fallback
+2025-09-10 09:22:29,688 INFO Satellite data loaded: sss=(1018,), sst=(1018,), aviso=(1018,)
+2025-09-10 09:22:29,688 INFO Validating satellite data quality...
+2025-09-10 09:22:29,688 INFO Satellite data validation: 0/1018 locations have complete satellite data
+2025-09-10 09:22:29,688 WARNING Filtering out 1018 locations (100.0%) with missing satellite data
+2025-09-10 09:22:29,688 INFO After satellite filtering: 0 locations remaining
+2025-09-10 09:22:29,688 ERROR Satellite accessor failed: No locations remaining after satellite data filtering
+146.201.220.35 - - [10/Sep/2025:09:22:29 -0400] "POST /v1_profile/grid HTTP/1.1" 503 119 "-" "python-requests/2.32.5" 714494
+2025-09-10 09:26:40,668 INFO Grid query request for date: 2019-07-08, BBOX: None, resolution: None
+2025-09-10 09:26:40,675 INFO Loaded grid with 1018 points inside mask
+2025-09-10 09:26:40,675 INFO Processing grid query for 1018 points
+2025-09-10 09:26:40,675 INFO Loading satellite data...
+2025-09-10 09:26:40,675 INFO Validating satellite data file availability...
+2025-09-10 09:26:40,675 INFO Checking satellite data availability for 1 unique dates
+2025-09-10 09:26:40,676 INFO SST data available for 2019-07-08: 1 files
+2025-09-10 09:26:40,679 INFO SSS data available for 2019-07-08 (DOY 189): 1 files
+2025-09-10 09:26:40,680 INFO AVISO data available for 2019-07-08: 1 files
+2025-09-10 09:26:40,680 INFO All required satellite data files are available. Proceeding with data loading...
 DEBUG[sat]: load_satellite_data: T=1018, N=1018
-DEBUG[sat]: Processing date 2024-01-01 with 1018 points
+DEBUG[sat]: Processing date 2019-07-08 with 1018 points
 DEBUG[sat]: Bounding box: lat[18.500, 29.500], lon[-97.500, -82.000]
 DEBUG[sat]: Points lat range: 19.000 to 29.000
 DEBUG[sat]: Points lon range: -97.000 to -82.500
-DEBUG[sat]: SSS data loaded for 2024-01-01, shape: (44, 62)
-DEBUG[sat]: SSS data within bbox - valid pixels: 2160/2728
-DEBUG[sat]: SSS data within bbox - range: 32.912 to 38.085
-DEBUG[sat]: SSS data source: CFG.SSS_ROOT=/Net/work/ozavala/DATA/GOFFISH/SSS/SMAP_Global/, year=2024, month=01, day=01
-DEBUG[sat]: SST data loaded for 2024-01-01, shape: (1101, 1551)
+DEBUG[sss]: Trying SSS file: /Net/work/ozavala/DATA/GOFFISH/SSS/SMAP_Global/2019/RSS_smap_SSS_L3_8day_running_2019_189_FNL_v06.0.nc
+DEBUG[sss]: Failed to open SSS file /Net/work/ozavala/DATA/GOFFISH/SSS/SMAP_Global/2019/RSS_smap_SSS_L3_8day_running_2019_189_FNL_v06.0.nc: [Errno 2] No such file or directory: '/Net/work/ozavala/DATA/GOFFISH/SSS/SMAP_Global/2019/RSS_smap_SSS_L3_8day_running_2019_189_FNL_v06.0.nc'
+DEBUG[sss]: Trying SSS file: /Net/work/ozavala/DATA/GOFFISH/SSS/SMAP_Global/2019/RSS_smap_SSS_L3_8day_running_2019_189_FNL_v05.0.nc
+DEBUG[sss]: Failed to open SSS file /Net/work/ozavala/DATA/GOFFISH/SSS/SMAP_Global/2019/RSS_smap_SSS_L3_8day_running_2019_189_FNL_v05.0.nc: did not find a match in any of xarray's currently installed IO backends ['netcdf4', 'h5netcdf', 'scipy', 'rasterio', 'zarr']. Consider explicitly selecting one of the installed engines via the ``engine`` parameter, or installing additional IO dependencies, see:
+https://docs.xarray.dev/en/stable/getting-started-guide/installing.html
+https://docs.xarray.dev/en/stable/user-guide/io.html
+DEBUG[sss]: Trying wildcard pattern: /Net/work/ozavala/DATA/GOFFISH/SSS/SMAP_Global/2019/RSS_smap_SSS_L3_8day_running_2019_189_FNL_v*.nc
+DEBUG[sss]: Found files: ['/Net/work/ozavala/DATA/GOFFISH/SSS/SMAP_Global/2019/RSS_smap_SSS_L3_8day_running_2019_189_FNL_v05.0.nc']
+DEBUG[sss]: Failed to open SSS file via wildcard: did not find a match in any of xarray's currently installed IO backends ['netcdf4', 'h5netcdf', 'scipy', 'rasterio', 'zarr']. Consider explicitly selecting one of the installed engines via the ``engine`` parameter, or installing additional IO dependencies, see:
+https://docs.xarray.dev/en/stable/getting-started-guide/installing.html
+https://docs.xarray.dev/en/stable/user-guide/io.html
+DEBUG[sat]: SSS data failed for 2019-07-08: SSS not found for 2019-07-08: did not find a match in any of xarray's currently installed IO backends ['netcdf4', 'h5netcdf', 'scipy', 'rasterio', 'zarr']. Consider explicitly selecting one of the installed engines via the ``engine`` parameter, or installing additional IO dependencies, see:
+https://docs.xarray.dev/en/stable/getting-started-guide/installing.html
+https://docs.xarray.dev/en/stable/user-guide/io.html
+DEBUG[sst]: Using SST file: /Net/work/ozavala/DATA/GOFFISH/SST/OISST/2019/20190708090000-JPL-L4_GHRSST-SSTfnd-MUR-GLOB-v02.0-fv04.1_subset.nc
+DEBUG[sat]: SST data failed for 2019-07-08: did not find a match in any of xarray's currently installed IO backends ['netcdf4', 'h5netcdf', 'scipy', 'rasterio', 'zarr']. Consider explicitly selecting one of the installed engines via the ``engine`` parameter, or installing additional IO dependencies, see:
+https://docs.xarray.dev/en/stable/getting-started-guide/installing.html
+https://docs.xarray.dev/en/stable/user-guide/io.html
+DEBUG[sat]: SSH data loaded for 2019-07-08, shape: (44, 62)
+DEBUG[sat]: SSH data within bbox - valid pixels: 2460/2728
+DEBUG[sat]: SSH data within bbox - range: 0.088 to 1.118
+DEBUG[sat]: SSH data source: aviso_root=/unity/f1/ozavala/DATA/GOFFISH/AVISO/GoM/, year=2019, month=07, day=08
+DEBUG[sat]: SSH bounds check - 1018/1018 coordinates within data bounds
+DEBUG[ssh]: 2/1018 interpolated values are NaN, applying fallback
+DEBUG[ssh]: Point 226 (lat=22.750, lon=-84.000) - fallback to nearest neighbor: 0.891
+DEBUG[ssh]: Point 262 (lat=23.000, lon=-83.250) - fallback to nearest neighbor: 0.864
+DEBUG[ssh]: After fallback: 0/1018 values are still NaN
+DEBUG[ssh]: Interpolated values range: 0.190 to 1.105
+DEBUG[ssh]: SSH interpolation successful for 1018 points
+DEBUG[sat]: one-to-one done in 0.15s  (N=1018)
+DEBUG[sat]: Valid data counts - SSS: 0/1018, SST: 0/1018, SSH: 1018/1018
+WARNING: No valid SSS data, using climatological fallback
+2025-09-10 09:26:40,831 INFO Satellite data loaded: sss=(1018,), sst=(1018,), aviso=(1018,)
+2025-09-10 09:26:40,831 INFO Validating satellite data quality...
+2025-09-10 09:26:40,831 INFO Satellite data validation: 0/1018 locations have complete satellite data
+2025-09-10 09:26:40,831 WARNING Filtering out 1018 locations (100.0%) with missing satellite data
+2025-09-10 09:26:40,832 INFO After satellite filtering: 0 locations remaining
+2025-09-10 09:26:40,832 ERROR Satellite accessor failed: No locations remaining after satellite data filtering
+146.201.220.35 - - [10/Sep/2025:09:26:40 -0400] "POST /v1_profile/grid HTTP/1.1" 503 119 "-" "python-requests/2.32.5" 164230
+2025-09-10 09:56:19,289 INFO Grid query request for date: 2019-07-08, BBOX: None, resolution: None
+2025-09-10 09:56:19,290 INFO Loaded grid with 1018 points inside mask
+2025-09-10 09:56:19,323 INFO Processing grid query for 1018 points
+2025-09-10 09:56:19,340 INFO Loading satellite data...
+2025-09-10 09:56:19,347 INFO Validating satellite data file availability...
+2025-09-10 09:56:19,358 INFO Checking satellite data availability for 1 unique dates
+2025-09-10 09:56:19,366 INFO SST data available for 2019-07-08: 1 files
+2025-09-10 09:56:19,372 INFO SSS data available for 2019-07-08 (DOY 189): 1 files
+2025-09-10 09:56:19,400 INFO AVISO data available for 2019-07-08: 1 files
+2025-09-10 09:56:19,406 INFO All required satellite data files are available. Proceeding with data loading...
+DEBUG[sat]: load_satellite_data: T=1018, N=1018
+DEBUG[sat]: Processing date 2019-07-08 with 1018 points
+DEBUG[sat]: Bounding box: lat[18.500, 29.500], lon[-97.500, -82.000]
+DEBUG[sat]: Points lat range: 19.000 to 29.000
+DEBUG[sat]: Points lon range: -97.000 to -82.500
+DEBUG[sss]: Trying SSS file: /Net/work/ozavala/DATA/GOFFISH/SSS/SMAP_Global/2019/RSS_smap_SSS_L3_8day_running_2019_189_FNL_v06.0.nc
+DEBUG[sss]: Failed to open SSS file /Net/work/ozavala/DATA/GOFFISH/SSS/SMAP_Global/2019/RSS_smap_SSS_L3_8day_running_2019_189_FNL_v06.0.nc: [Errno 2] No such file or directory: '/Net/work/ozavala/DATA/GOFFISH/SSS/SMAP_Global/2019/RSS_smap_SSS_L3_8day_running_2019_189_FNL_v06.0.nc'
+DEBUG[sss]: Trying SSS file: /Net/work/ozavala/DATA/GOFFISH/SSS/SMAP_Global/2019/RSS_smap_SSS_L3_8day_running_2019_189_FNL_v05.0.nc
+DEBUG[sss]: Failed to open SSS file /Net/work/ozavala/DATA/GOFFISH/SSS/SMAP_Global/2019/RSS_smap_SSS_L3_8day_running_2019_189_FNL_v05.0.nc: did not find a match in any of xarray's currently installed IO backends ['netcdf4', 'h5netcdf', 'scipy', 'rasterio', 'zarr']. Consider explicitly selecting one of the installed engines via the ``engine`` parameter, or installing additional IO dependencies, see:
+https://docs.xarray.dev/en/stable/getting-started-guide/installing.html
+https://docs.xarray.dev/en/stable/user-guide/io.html
+DEBUG[sss]: Trying wildcard pattern: /Net/work/ozavala/DATA/GOFFISH/SSS/SMAP_Global/2019/RSS_smap_SSS_L3_8day_running_2019_189_FNL_v*.nc
+DEBUG[sss]: Found files: ['/Net/work/ozavala/DATA/GOFFISH/SSS/SMAP_Global/2019/RSS_smap_SSS_L3_8day_running_2019_189_FNL_v05.0.nc']
+DEBUG[sss]: Failed to open SSS file via wildcard: did not find a match in any of xarray's currently installed IO backends ['netcdf4', 'h5netcdf', 'scipy', 'rasterio', 'zarr']. Consider explicitly selecting one of the installed engines via the ``engine`` parameter, or installing additional IO dependencies, see:
+https://docs.xarray.dev/en/stable/getting-started-guide/installing.html
+https://docs.xarray.dev/en/stable/user-guide/io.html
+DEBUG[sat]: SSS data failed for 2019-07-08: SSS not found for 2019-07-08: did not find a match in any of xarray's currently installed IO backends ['netcdf4', 'h5netcdf', 'scipy', 'rasterio', 'zarr']. Consider explicitly selecting one of the installed engines via the ``engine`` parameter, or installing additional IO dependencies, see:
+https://docs.xarray.dev/en/stable/getting-started-guide/installing.html
+https://docs.xarray.dev/en/stable/user-guide/io.html
+DEBUG[sst]: Using SST file: /Net/work/ozavala/DATA/GOFFISH/SST/OISST/2019/20190708090000-JPL-L4_GHRSST-SSTfnd-MUR-GLOB-v02.0-fv04.1_subset.nc
+DEBUG[sat]: SST data failed for 2019-07-08: did not find a match in any of xarray's currently installed IO backends ['netcdf4', 'h5netcdf', 'scipy', 'rasterio', 'zarr']. Consider explicitly selecting one of the installed engines via the ``engine`` parameter, or installing additional IO dependencies, see:
+https://docs.xarray.dev/en/stable/getting-started-guide/installing.html
+https://docs.xarray.dev/en/stable/user-guide/io.html
+DEBUG[aviso]: Loading monthly file: /unity/f1/ozavala/DATA/GOFFISH/AVISO/GoM/2019-07.nc
+DEBUG[aviso]: Successfully loaded adt data, shape: (44, 62)
+DEBUG[sat]: SSH data loaded for 2019-07-08, shape: (44, 62)
+DEBUG[sat]: SSH data within bbox - valid pixels: 2460/2728
+DEBUG[sat]: SSH data within bbox - range: 0.088 to 1.118
+DEBUG[sat]: SSH data source: aviso_root=/unity/f1/ozavala/DATA/GOFFISH/AVISO/GoM/, year=2019, month=07, day=08
+DEBUG[sat]: SSH bounds check - 1018/1018 coordinates within data bounds
+DEBUG[ssh]: 2/1018 interpolated values are NaN, applying fallback
+DEBUG[ssh]: Point 226 (lat=22.750, lon=-84.000) - fallback to nearest neighbor: 0.891
+DEBUG[ssh]: Point 262 (lat=23.000, lon=-83.250) - fallback to nearest neighbor: 0.864
+DEBUG[ssh]: After fallback: 0/1018 values are still NaN
+DEBUG[ssh]: Interpolated values range: 0.190 to 1.105
+DEBUG[ssh]: SSH interpolation successful for 1018 points
+DEBUG[sat]: one-to-one done in 1.06s  (N=1018)
+DEBUG[sat]: Valid data counts - SSS: 0/1018, SST: 0/1018, SSH: 1018/1018
+WARNING: No valid SSS data, using climatological fallback
+2025-09-10 09:56:20,470 INFO Satellite data loaded: sss=(1018,), sst=(1018,), aviso=(1018,)
+2025-09-10 09:56:20,470 INFO Validating satellite data quality...
+2025-09-10 09:56:20,470 INFO Satellite data validation: 0/1018 locations have complete satellite data
+2025-09-10 09:56:20,483 WARNING Filtering out 1018 locations (100.0%) with missing satellite data
+2025-09-10 09:56:20,497 INFO After satellite filtering: 0 locations remaining
+2025-09-10 09:56:20,504 ERROR Satellite accessor failed: No locations remaining after satellite data filtering
+146.201.220.35 - - [10/Sep/2025:09:56:20 -0400] "POST /v1_profile/grid HTTP/1.1" 503 119 "-" "python-requests/2.32.5" 1237978
+2025-09-10 10:01:02,646 INFO Grid query request for date: 2025-09-06, BBOX: None, resolution: None
+2025-09-10 10:01:02,647 INFO Loaded grid with 1018 points inside mask
+2025-09-10 10:01:02,651 INFO Grid query request for date: 2025-09-07, BBOX: None, resolution: None
+2025-09-10 10:01:02,659 INFO Processing grid query for 1018 points
+2025-09-10 10:01:02,660 INFO Loaded grid with 1018 points inside mask
+2025-09-10 10:01:02,666 INFO Loading satellite data...
+2025-09-10 10:01:02,666 INFO Processing grid query for 1018 points
+2025-09-10 10:01:02,678 INFO Validating satellite data file availability...
+2025-09-10 10:01:02,678 INFO Loading satellite data...
+2025-09-10 10:01:02,678 INFO Checking satellite data availability for 1 unique dates
+2025-09-10 10:01:02,685 INFO Validating satellite data file availability...
+2025-09-10 10:01:02,685 INFO SST data available for 2025-09-06: 1 files
+2025-09-10 10:01:02,691 INFO Checking satellite data availability for 1 unique dates
+2025-09-10 10:01:02,692 INFO SSS data available for 2025-09-06 (DOY 249): 1 files
+2025-09-10 10:01:02,697 INFO AVISO data available for 2025-09-06: 1 files
+2025-09-10 10:01:02,698 INFO SST data available for 2025-09-07: 1 files
+2025-09-10 10:01:02,703 INFO All required satellite data files are available. Proceeding with data loading...
+2025-09-10 10:01:02,709 INFO SSS data available for 2025-09-07 (DOY 250): 1 files
+2025-09-10 10:01:02,726 INFO AVISO data available for 2025-09-07: 1 files
+2025-09-10 10:01:02,749 INFO All required satellite data files are available. Proceeding with data loading...
+DEBUG[sat]: load_satellite_data: T=1018, N=1018
+DEBUG[sat]: Processing date 2025-09-07 with 1018 points
+DEBUG[sat]: Bounding box: lat[18.500, 29.500], lon[-97.500, -82.000]
+DEBUG[sat]: Points lat range: 19.000 to 29.000
+DEBUG[sat]: Points lon range: -97.000 to -82.500
+DEBUG[sss]: Trying SSS file: /Net/work/ozavala/DATA/GOFFISH/SSS/SMAP_Global/2025/RSS_smap_SSS_L3_8day_running_2025_250_FNL_v06.0.nc
+DEBUG[sss]: Successfully opened SSS file: /Net/work/ozavala/DATA/GOFFISH/SSS/SMAP_Global/2025/RSS_smap_SSS_L3_8day_running_2025_250_FNL_v06.0.nc
+DEBUG[sss]: SSS data loaded successfully, shape: (44, 62), range: 24.951 to 40.186
+DEBUG[sat]: SSS data loaded for 2025-09-07, shape: (44, 62)
+DEBUG[sat]: SSS data within bbox - valid pixels: 2163/2728
+DEBUG[sat]: SSS data within bbox - range: 24.951 to 40.186
+DEBUG[sat]: SSS data source: CFG.SSS_ROOT=/Net/work/ozavala/DATA/GOFFISH/SSS/SMAP_Global/, year=2025, month=09, day=07
+DEBUG[sst]: Using SST file: /Net/work/ozavala/DATA/GOFFISH/SST/OISST/2025/20250907090000-JPL-L4_GHRSST-SSTfnd-MUR-GLOB-v02.0-fv04.1_subset.nc
+DEBUG[sat]: SST data loaded for 2025-09-07, shape: (1101, 1551)
 DEBUG[sat]: SST data within bbox - valid pixels: 1515005/1707651
-DEBUG[sat]: SST data within bbox - range: 284.461 to 301.617
-DEBUG[sat]: SST data source: CFG.SST_ROOT=/Net/work/ozavala/DATA/GOFFISH/SST/OISST/, year=2024, month=01, day=01
-DEBUG[sat]: SSH data loaded for 2024-01-01, shape: (88, 124)
-DEBUG[sat]: SSH data within bbox - valid pixels: 9828/10912
-DEBUG[sat]: SSH data within bbox - range: 0.049 to 0.910
-DEBUG[sat]: SSH data source: aviso_root=/unity/f1/ozavala/DATA/GOFFISH/AVISO/GoM/, year=2024, month=01, day=01
+DEBUG[sat]: SST data within bbox - range: 301.342 to 305.121
+DEBUG[sat]: SST data source: CFG.SST_ROOT=/Net/work/ozavala/DATA/GOFFISH/SST/OISST/, year=2025, month=09, day=07
+DEBUG[aviso]: Loading monthly file: /Net/work/ozavala/DATA/GOFFISH/AVISO/GoM/CMEMS_GLOBAL_PHY_ANFC/2025-09.nc
+DEBUG[aviso]: Converted zos to ADT via linear transform, shape: (133, 187)
+DEBUG[sat]: SSH data loaded for 2025-09-07, shape: (133, 187)
+DEBUG[sat]: SSH data within bbox - valid pixels: 21938/24871
+DEBUG[sat]: SSH data within bbox - range: 0.211 to 1.075
+DEBUG[sat]: SSH data source: aviso_root=/Net/work/ozavala/DATA/GOFFISH/AVISO/GoM/CMEMS_GLOBAL_PHY_ANFC/, year=2025, month=09, day=07
 DEBUG[sat]: SSS bounds check - 1018/1018 coordinates within data bounds
 DEBUG[sat]: SST bounds check - 1018/1018 coordinates within data bounds
 DEBUG[sat]: SSH bounds check - 1018/1018 coordinates within data bounds
 DEBUG[sss]: Interpolating SSS for 1018 points
-DEBUG[sss]: SSS array shape: (44, 62), range: 32.912 to 38.085
+DEBUG[sss]: SSS array shape: (44, 62), range: 24.951 to 40.186
 DEBUG[sss]: SSS lats range: 18.625 to 29.375
 DEBUG[sss]: SSS lons range: -97.375 to -82.125
 DEBUG[sss]: Target coords range - lat: 19.000 to 29.000
 DEBUG[sss]: Target coords range - lon: -97.000 to -82.500
-DEBUG[sss]: 30/1018 interpolated values are NaN, applying fallback
+DEBUG[sss]: 29/1018 interpolated values are NaN, applying fallback
 DEBUG[sss]: Point 0 (lat=19.000, lon=-95.000) - nearest neighbor also NaN, keeping NaN
 DEBUG[sss]: Point 4 (lat=19.500, lon=-95.750) - nearest neighbor also NaN, keeping NaN
 DEBUG[sss]: Point 17 (lat=20.000, lon=-96.000) - nearest neighbor also NaN, keeping NaN
-DEBUG[sss]: Point 81 (lat=21.250, lon=-96.500) - nearest neighbor also NaN, keeping NaN
-DEBUG[sss]: Point 194 (lat=22.500, lon=-84.750) - fallback to nearest neighbor: 36.194
+DEBUG[sss]: Point 194 (lat=22.500, lon=-84.750) - fallback to nearest neighbor: 36.022
 DEBUG[sss]: Point 195 (lat=22.500, lon=-84.500) - nearest neighbor also NaN, keeping NaN
-DEBUG[sss]: Point 224 (lat=22.750, lon=-84.500) - fallback to nearest neighbor: 36.032
+DEBUG[sss]: Point 224 (lat=22.750, lon=-84.500) - fallback to nearest neighbor: 36.082
 DEBUG[sss]: Point 225 (lat=22.750, lon=-84.250) - nearest neighbor also NaN, keeping NaN
 DEBUG[sss]: Point 226 (lat=22.750, lon=-84.000) - nearest neighbor also NaN, keeping NaN
-DEBUG[sss]: Point 258 (lat=23.000, lon=-84.250) - fallback to nearest neighbor: 36.031
+DEBUG[sss]: Point 258 (lat=23.000, lon=-84.250) - fallback to nearest neighbor: 35.999
 DEBUG[sss]: Point 259 (lat=23.000, lon=-84.000) - nearest neighbor also NaN, keeping NaN
 DEBUG[sss]: Point 260 (lat=23.000, lon=-83.750) - nearest neighbor also NaN, keeping NaN
 DEBUG[sss]: Point 261 (lat=23.000, lon=-83.500) - nearest neighbor also NaN, keeping NaN
 DEBUG[sss]: Point 262 (lat=23.000, lon=-83.250) - nearest neighbor also NaN, keeping NaN
-DEBUG[sss]: Point 297 (lat=23.250, lon=-83.750) - fallback to nearest neighbor: 36.437
+DEBUG[sss]: Point 297 (lat=23.250, lon=-83.750) - fallback to nearest neighbor: 36.025
 DEBUG[sss]: Point 298 (lat=23.250, lon=-83.500) - nearest neighbor also NaN, keeping NaN
 DEBUG[sss]: Point 299 (lat=23.250, lon=-83.250) - nearest neighbor also NaN, keeping NaN
 DEBUG[sss]: Point 300 (lat=23.250, lon=-83.000) - nearest neighbor also NaN, keeping NaN
 DEBUG[sss]: Point 301 (lat=23.250, lon=-82.750) - nearest neighbor also NaN, keeping NaN
 DEBUG[sss]: Point 302 (lat=23.250, lon=-82.500) - nearest neighbor also NaN, keeping NaN
-DEBUG[sss]: Point 346 (lat=23.500, lon=-82.750) - fallback to nearest neighbor: 35.590
+DEBUG[sss]: Point 346 (lat=23.500, lon=-82.750) - fallback to nearest neighbor: 35.478
 DEBUG[sss]: Point 347 (lat=23.500, lon=-82.500) - nearest neighbor also NaN, keeping NaN
-DEBUG[sss]: Point 637 (lat=25.250, lon=-90.500) - fallback to nearest neighbor: 36.653
-DEBUG[sss]: Point 638 (lat=25.250, lon=-90.250) - fallback to nearest neighbor: 36.636
-DEBUG[sss]: Point 681 (lat=25.500, lon=-90.750) - fallback to nearest neighbor: 36.663
-DEBUG[sss]: Point 682 (lat=25.500, lon=-90.500) - fallback to nearest neighbor: 36.727
+DEBUG[sss]: Point 637 (lat=25.250, lon=-90.500) - fallback to nearest neighbor: 35.892
+DEBUG[sss]: Point 638 (lat=25.250, lon=-90.250) - fallback to nearest neighbor: 35.702
+DEBUG[sss]: Point 681 (lat=25.500, lon=-90.750) - fallback to nearest neighbor: 35.939
+DEBUG[sss]: Point 682 (lat=25.500, lon=-90.500) - fallback to nearest neighbor: 35.352
 DEBUG[sss]: Point 683 (lat=25.500, lon=-90.250) - nearest neighbor also NaN, keeping NaN
-DEBUG[sss]: Point 725 (lat=25.750, lon=-90.750) - fallback to nearest neighbor: 36.700
+DEBUG[sss]: Point 725 (lat=25.750, lon=-90.750) - fallback to nearest neighbor: 35.084
 DEBUG[sss]: Point 726 (lat=25.750, lon=-90.500) - nearest neighbor also NaN, keeping NaN
 DEBUG[sss]: Point 727 (lat=25.750, lon=-90.250) - nearest neighbor also NaN, keeping NaN
-DEBUG[sss]: After fallback: 20/1018 values are still NaN
+DEBUG[sss]: After fallback: 19/1018 values are still NaN
 DEBUG[sss]: Interpolation completed, result shape: (1018,)
-DEBUG[sss]: Interpolated values range: 35.590 to 37.048
-DEBUG[sss]: NaN count in interpolated values: 20
+DEBUG[sss]: Interpolated values range: 31.688 to 37.124
+DEBUG[sss]: NaN count in interpolated values: 19
 DEBUG[sss]: SSS interpolation successful for 1018 points
-DEBUG[sst]: Interpolated values range: 294.434 to 300.729
+DEBUG[sst]: Interpolated values range: 302.167 to 305.003
 DEBUG[sst]: SST interpolation successful for 1018 points
-DEBUG[ssh]: Interpolated values range: 0.085 to 0.892
+DEBUG[ssh]: Interpolated values range: 0.214 to 1.074
 DEBUG[ssh]: SSH interpolation successful for 1018 points
-DEBUG[sat]: one-to-one done in 0.13s  (N=1018)
-DEBUG[sat]: Valid data counts - SSS: 998/1018, SST: 1018/1018, SSH: 1018/1018
-2025-09-07 11:45:19,390 INFO Satellite data loaded: sss=(1018,), sst=(1018,), aviso=(1018,)
-2025-09-07 11:45:19,390 INFO Validating satellite data quality...
-2025-09-07 11:45:19,390 INFO Satellite data validation: 998/1018 locations have complete satellite data
-2025-09-07 11:45:19,415 WARNING Filtering out 20 locations (2.0%) with missing satellite data
-2025-09-07 11:45:19,431 INFO After satellite filtering: 998 locations remaining
-2025-09-07 11:45:19,445 INFO Sample satellite data after filtering:
-2025-09-07 11:45:19,445 INFO   SSS: min=35.590, max=37.048, mean=36.637
-2025-09-07 11:45:19,455 INFO   SST: min=294.434, max=300.729, mean=297.765
-2025-09-07 11:45:19,463 INFO   AVISO: min=-0.323, max=0.484, mean=0.024
-2025-09-07 11:45:19,470 INFO Preparing model inputs...
+DEBUG[sat]: one-to-one done in 0.47s  (N=1018)
+DEBUG[sat]: Valid data counts - SSS: 999/1018, SST: 1018/1018, SSH: 1018/1018
+2025-09-10 10:01:03,234 INFO Satellite data loaded: sss=(1018,), sst=(1018,), aviso=(1018,)
+2025-09-10 10:01:03,234 INFO Validating satellite data quality...
+2025-09-10 10:01:03,234 INFO Satellite data validation: 999/1018 locations have complete satellite data
+2025-09-10 10:01:03,234 WARNING Filtering out 19 locations (1.9%) with missing satellite data
+2025-09-10 10:01:03,249 INFO After satellite filtering: 999 locations remaining
+2025-09-10 10:01:03,256 INFO Sample satellite data after filtering:
+2025-09-10 10:01:03,264 INFO   SSS: min=31.688, max=37.124, mean=36.015
+2025-09-10 10:01:03,274 INFO   SST: min=302.167, max=305.003, mean=303.896
+2025-09-10 10:01:03,280 INFO   AVISO: min=-0.305, max=0.555, mean=0.019
+2025-09-10 10:01:03,292 INFO Preparing model inputs...
 DEBUG[prepare_inputs]: Checking satellite data validity...
-DEBUG[prepare_inputs]: Current data shapes - time: (998,), lat: (998,), lon: (998,)
-DEBUG[prepare_inputs]: Current satellite data shapes - sss: (998,), sst: (998,), ssh: (998,)
-DEBUG[prepare_inputs]: Final dataset size: 998 time points × 998 locations = 996004 total samples
-DEBUG[prepare_inputs]: Returning input tensor with shape: torch.Size([998, 9])
-2025-09-07 11:45:19,513 INFO Input preparation completed, batch shape: torch.Size([998, 9])
-2025-09-07 11:45:19,514 INFO Starting model inference...
-2025-09-07 11:45:19,519 INFO Inference completed, pcs shape: (998, 30)
-2025-09-07 11:45:19,522 INFO Performing PCA inverse transform...
-2025-09-07 11:45:19,541 INFO PCA inverse completed, pred_T: (1801, 998), pred_S: (1801, 998)
-2025-09-07 11:45:19,550 INFO Processing satellite data for grid mapping...
-2025-09-07 11:45:19,556 INFO Satellite data processed: sss=(998,), sst=(998,), aviso=(998,)
-2025-09-07 11:45:19,562 INFO Sample SST values: min=294.434, max=300.729, mean=297.765
-2025-09-07 11:45:19,568 INFO Sample SSS values: min=35.590, max=37.048, mean=36.637
-2025-09-07 11:45:19,584 INFO Sample AVISO values: min=-0.323, max=0.484, mean=0.024
-2025-09-07 11:45:19,597 INFO Building grid dataset...
-2025-09-07 11:45:19,612 INFO Creating grid with 40 lat points and 58 lon points
-2025-09-07 11:45:19,625 INFO Lat range: 19.250 to 29.000
-2025-09-07 11:45:19,636 INFO Lon range: -97.000 to -82.750
-2025-09-07 11:45:19,676 INFO Writing NetCDF file...
-2025-09-07 11:45:19,679 WARNING h5netcdf in-memory failed; writing via secure temp file: unexpected encoding for scipy backend: ['zlib', 'complevel']
-2025-09-07 11:45:20,156 INFO NetCDF file created successfully
-2025-09-07 11:45:20,156 INFO Grid query completed successfully: NeSPReSO_grid_2024-01-01.nc
-146.201.220.35 - - [07/Sep/2025:11:45:20 -0400] "POST /v1_profile/grid HTTP/1.1" 200 8445176 "-" "curl/7.76.1" 1164213
+DEBUG[prepare_inputs]: Current data shapes - time: (999,), lat: (999,), lon: (999,)
+DEBUG[prepare_inputs]: Current satellite data shapes - sss: (999,), sst: (999,), ssh: (999,)
+DEBUG[prepare_inputs]: Final dataset size: 999 time points × 999 locations = 998001 total samples
+DEBUG[prepare_inputs]: Returning input tensor with shape: torch.Size([999, 9])
+2025-09-10 10:01:03,399 INFO Input preparation completed, batch shape: torch.Size([999, 9])
+2025-09-10 10:01:03,399 INFO Starting model inference...
+DEBUG[sat]: load_satellite_data: T=1018, N=1018
+DEBUG[sat]: Processing date 2025-09-06 with 1018 points
+DEBUG[sat]: Bounding box: lat[18.500, 29.500], lon[-97.500, -82.000]
+DEBUG[sat]: Points lat range: 19.000 to 29.000
+DEBUG[sat]: Points lon range: -97.000 to -82.500
+DEBUG[sss]: Trying SSS file: /Net/work/ozavala/DATA/GOFFISH/SSS/SMAP_Global/2025/RSS_smap_SSS_L3_8day_running_2025_249_FNL_v06.0.nc
+DEBUG[sss]: Successfully opened SSS file: /Net/work/ozavala/DATA/GOFFISH/SSS/SMAP_Global/2025/RSS_smap_SSS_L3_8day_running_2025_249_FNL_v06.0.nc
+DEBUG[sss]: SSS data loaded successfully, shape: (44, 62), range: 23.905 to 40.186
+DEBUG[sat]: SSS data loaded for 2025-09-06, shape: (44, 62)
+DEBUG[sat]: SSS data within bbox - valid pixels: 2163/2728
+DEBUG[sat]: SSS data within bbox - range: 23.905 to 40.186
+DEBUG[sat]: SSS data source: CFG.SSS_ROOT=/Net/work/ozavala/DATA/GOFFISH/SSS/SMAP_Global/, year=2025, month=09, day=06
+DEBUG[sst]: Using SST file: /Net/work/ozavala/DATA/GOFFISH/SST/OISST/2025/20250906090000-JPL-L4_GHRSST-SSTfnd-MUR-GLOB-v02.0-fv04.1_subset.nc
+DEBUG[sat]: SST data loaded for 2025-09-06, shape: (1101, 1551)
+DEBUG[sat]: SST data within bbox - valid pixels: 1515005/1707651
+DEBUG[sat]: SST data within bbox - range: 301.548 to 305.167
+DEBUG[sat]: SST data source: CFG.SST_ROOT=/Net/work/ozavala/DATA/GOFFISH/SST/OISST/, year=2025, month=09, day=06
+DEBUG[aviso]: Loading monthly file: /Net/work/ozavala/DATA/GOFFISH/AVISO/GoM/CMEMS_GLOBAL_PHY_ANFC/2025-09.nc
+DEBUG[aviso]: Converted zos to ADT via linear transform, shape: (133, 187)
+DEBUG[sat]: SSH data loaded for 2025-09-06, shape: (133, 187)
+DEBUG[sat]: SSH data within bbox - valid pixels: 21938/24871
+DEBUG[sat]: SSH data within bbox - range: 0.208 to 1.070
+DEBUG[sat]: SSH data source: aviso_root=/Net/work/ozavala/DATA/GOFFISH/AVISO/GoM/CMEMS_GLOBAL_PHY_ANFC/, year=2025, month=09, day=06
+DEBUG[sat]: SSS bounds check - 1018/1018 coordinates within data bounds
+DEBUG[sat]: SST bounds check - 1018/1018 coordinates within data bounds
+DEBUG[sat]: SSH bounds check - 1018/1018 coordinates within data bounds
+DEBUG[sss]: Interpolating SSS for 1018 points
+DEBUG[sss]: SSS array shape: (44, 62), range: 23.905 to 40.186
+DEBUG[sss]: SSS lats range: 18.625 to 29.375
+DEBUG[sss]: SSS lons range: -97.375 to -82.125
+DEBUG[sss]: Target coords range - lat: 19.000 to 29.000
+DEBUG[sss]: Target coords range - lon: -97.000 to -82.500
+DEBUG[sss]: 29/1018 interpolated values are NaN, applying fallback
+DEBUG[sss]: Point 0 (lat=19.000, lon=-95.000) - nearest neighbor also NaN, keeping NaN
+DEBUG[sss]: Point 4 (lat=19.500, lon=-95.750) - nearest neighbor also NaN, keeping NaN
+DEBUG[sss]: Point 17 (lat=20.000, lon=-96.000) - nearest neighbor also NaN, keeping NaN
+DEBUG[sss]: Point 194 (lat=22.500, lon=-84.750) - fallback to nearest neighbor: 36.022
+DEBUG[sss]: Point 195 (lat=22.500, lon=-84.500) - nearest neighbor also NaN, keeping NaN
+DEBUG[sss]: Point 224 (lat=22.750, lon=-84.500) - fallback to nearest neighbor: 36.082
+DEBUG[sss]: Point 225 (lat=22.750, lon=-84.250) - nearest neighbor also NaN, keeping NaN
+DEBUG[sss]: Point 226 (lat=22.750, lon=-84.000) - nearest neighbor also NaN, keeping NaN
+DEBUG[sss]: Point 258 (lat=23.000, lon=-84.250) - fallback to nearest neighbor: 35.999
+DEBUG[sss]: Point 259 (lat=23.000, lon=-84.000) - nearest neighbor also NaN, keeping NaN
+DEBUG[sss]: Point 260 (lat=23.000, lon=-83.750) - nearest neighbor also NaN, keeping NaN
+DEBUG[sss]: Point 261 (lat=23.000, lon=-83.500) - nearest neighbor also NaN, keeping NaN
+DEBUG[sss]: Point 262 (lat=23.000, lon=-83.250) - nearest neighbor also NaN, keeping NaN
+DEBUG[sss]: Point 297 (lat=23.250, lon=-83.750) - fallback to nearest neighbor: 36.025
+DEBUG[sss]: Point 298 (lat=23.250, lon=-83.500) - nearest neighbor also NaN, keeping NaN
+DEBUG[sss]: Point 299 (lat=23.250, lon=-83.250) - nearest neighbor also NaN, keeping NaN
+DEBUG[sss]: Point 300 (lat=23.250, lon=-83.000) - nearest neighbor also NaN, keeping NaN
+DEBUG[sss]: Point 301 (lat=23.250, lon=-82.750) - nearest neighbor also NaN, keeping NaN
+DEBUG[sss]: Point 302 (lat=23.250, lon=-82.500) - nearest neighbor also NaN, keeping NaN
+DEBUG[sss]: Point 346 (lat=23.500, lon=-82.750) - fallback to nearest neighbor: 35.478
+DEBUG[sss]: Point 347 (lat=23.500, lon=-82.500) - nearest neighbor also NaN, keeping NaN
+DEBUG[sss]: Point 637 (lat=25.250, lon=-90.500) - fallback to nearest neighbor: 35.894
+DEBUG[sss]: Point 638 (lat=25.250, lon=-90.250) - fallback to nearest neighbor: 35.725
+DEBUG[sss]: Point 681 (lat=25.500, lon=-90.750) - fallback to nearest neighbor: 36.083
+DEBUG[sss]: Point 682 (lat=25.500, lon=-90.500) - fallback to nearest neighbor: 35.440
+DEBUG[sss]: Point 683 (lat=25.500, lon=-90.250) - nearest neighbor also NaN, keeping NaN
+DEBUG[sss]: Point 725 (lat=25.750, lon=-90.750) - fallback to nearest neighbor: 35.177
+DEBUG[sss]: Point 726 (lat=25.750, lon=-90.500) - nearest neighbor also NaN, keeping NaN
+DEBUG[sss]: Point 727 (lat=25.750, lon=-90.250) - nearest neighbor also NaN, keeping NaN
+DEBUG[sss]: After fallback: 19/1018 values are still NaN
+DEBUG[sss]: Interpolation completed, result shape: (1018,)
+DEBUG[sss]: Interpolated values range: 31.731 to 37.192
+DEBUG[sss]: NaN count in interpolated values: 19
+DEBUG[sss]: SSS interpolation successful for 1018 points
+DEBUG[sst]: Interpolated values range: 301.863 to 305.120
+DEBUG[sst]: SST interpolation successful for 1018 points
+DEBUG[ssh]: Interpolated values range: 0.213 to 1.070
+DEBUG[ssh]: SSH interpolation successful for 1018 points
+DEBUG[sat]: one-to-one done in 0.90s  (N=1018)
+DEBUG[sat]: Valid data counts - SSS: 999/1018, SST: 1018/1018, SSH: 1018/1018
+2025-09-10 10:01:03,611 INFO Satellite data loaded: sss=(1018,), sst=(1018,), aviso=(1018,)
+2025-09-10 10:01:03,611 INFO Validating satellite data quality...
+2025-09-10 10:01:03,611 INFO Satellite data validation: 999/1018 locations have complete satellite data
+2025-09-10 10:01:03,626 WARNING Filtering out 19 locations (1.9%) with missing satellite data
+2025-09-10 10:01:03,631 INFO Inference completed, pcs shape: (999, 30)
+2025-09-10 10:01:03,667 INFO Performing PCA inverse transform...
+2025-09-10 10:01:03,667 INFO After satellite filtering: 999 locations remaining
+2025-09-10 10:01:03,685 INFO Sample satellite data after filtering:
+2025-09-10 10:01:03,701 INFO   SSS: min=31.731, max=37.192, mean=36.027
+2025-09-10 10:01:03,722 INFO   SST: min=301.863, max=305.120, mean=303.844
+2025-09-10 10:01:03,762 INFO   AVISO: min=-0.303, max=0.554, mean=0.019
+2025-09-10 10:01:03,770 INFO Preparing model inputs...
+DEBUG[prepare_inputs]: Checking satellite data validity...
+DEBUG[prepare_inputs]: Current data shapes - time: (999,), lat: (999,), lon: (999,)
+DEBUG[prepare_inputs]: Current satellite data shapes - sss: (999,), sst: (999,), ssh: (999,)
+DEBUG[prepare_inputs]: Final dataset size: 999 time points × 999 locations = 998001 total samples
+DEBUG[prepare_inputs]: Returning input tensor with shape: torch.Size([999, 9])
+2025-09-10 10:01:03,835 INFO Input preparation completed, batch shape: torch.Size([999, 9])
+2025-09-10 10:01:03,837 INFO Starting model inference...
+DEBUG: PCA objects loaded successfully from /unity/g2/jmiranda/nespreso_api/models/pca_stats.pkl
+DEBUG: PCA temp type: <class 'sklearn.decomposition._pca.PCA'>, PCA sal type: <class 'sklearn.decomposition._pca.PCA'>
+2025-09-10 10:01:03,868 INFO PCA inverse completed, pred_T: (1801, 999), pred_S: (1801, 999)
+2025-09-10 10:01:03,869 INFO Processing satellite data for grid mapping...
+2025-09-10 10:01:03,901 INFO Satellite data processed: sss=(999,), sst=(999,), aviso=(999,)
+2025-09-10 10:01:03,926 INFO Sample SST values: min=302.167, max=305.003, mean=303.896
+2025-09-10 10:01:03,933 INFO Sample SSS values: min=31.688, max=37.124, mean=36.015
+2025-09-10 10:01:03,939 INFO Sample AVISO values: min=-0.305, max=0.555, mean=0.019
+2025-09-10 10:01:03,953 INFO Inference completed, pcs shape: (999, 30)
+2025-09-10 10:01:03,965 INFO Performing PCA inverse transform...
+2025-09-10 10:01:03,965 INFO Building grid dataset...
+2025-09-10 10:01:03,979 INFO Creating grid with 40 lat points and 58 lon points
+2025-09-10 10:01:03,985 INFO Lat range: 19.250 to 29.000
+2025-09-10 10:01:03,991 INFO Lon range: -97.000 to -82.750
+2025-09-10 10:01:04,031 INFO Writing NetCDF file...
+DEBUG: PCA objects loaded successfully from /unity/g2/jmiranda/nespreso_api/models/pca_stats.pkl
+DEBUG: PCA temp type: <class 'sklearn.decomposition._pca.PCA'>, PCA sal type: <class 'sklearn.decomposition._pca.PCA'>
+2025-09-10 10:01:04,046 INFO PCA inverse completed, pred_T: (1801, 999), pred_S: (1801, 999)
+2025-09-10 10:01:04,047 INFO Processing satellite data for grid mapping...
+2025-09-10 10:01:04,058 WARNING h5netcdf in-memory failed; writing via secure temp file: unexpected encoding for scipy backend: ['zlib', 'complevel']
+2025-09-10 10:01:04,066 INFO Satellite data processed: sss=(999,), sst=(999,), aviso=(999,)
+2025-09-10 10:01:04,080 INFO Sample SST values: min=301.863, max=305.120, mean=303.844
+2025-09-10 10:01:04,087 INFO Sample SSS values: min=31.731, max=37.192, mean=36.027
+2025-09-10 10:01:04,099 INFO Sample AVISO values: min=-0.303, max=0.554, mean=0.019
+2025-09-10 10:01:04,105 INFO Building grid dataset...
+2025-09-10 10:01:04,111 INFO Creating grid with 40 lat points and 58 lon points
+2025-09-10 10:01:04,117 INFO Lat range: 19.250 to 29.000
+2025-09-10 10:01:04,127 INFO Lon range: -97.000 to -82.750
+2025-09-10 10:01:04,162 INFO Writing NetCDF file...
+2025-09-10 10:01:04,178 WARNING h5netcdf in-memory failed; writing via secure temp file: unexpected encoding for scipy backend: ['zlib', 'complevel']
+2025-09-10 10:01:04,536 INFO NetCDF file created successfully
+2025-09-10 10:01:04,537 INFO Grid query completed successfully: NeSPReSO_grid_2025-09-07.nc
+146.201.220.35 - - [10/Sep/2025:10:01:04 -0400] "POST /v1_profile/grid HTTP/1.1" 200 8463276 "-" "python-requests/2.32.5" 1967578
+2025-09-10 10:01:04,619 INFO Grid query request for date: 2025-09-05, BBOX: None, resolution: None
+2025-09-10 10:01:04,626 INFO Loaded grid with 1018 points inside mask
+2025-09-10 10:01:04,642 INFO Processing grid query for 1018 points
+2025-09-10 10:01:04,648 INFO Loading satellite data...
+2025-09-10 10:01:04,648 INFO NetCDF file created successfully
+2025-09-10 10:01:04,663 INFO Validating satellite data file availability...
+2025-09-10 10:01:04,663 INFO Grid query completed successfully: NeSPReSO_grid_2025-09-06.nc
+2025-09-10 10:01:04,669 INFO Checking satellite data availability for 1 unique dates
+2025-09-10 10:01:04,676 INFO SST data available for 2025-09-05: 1 files
+2025-09-10 10:01:04,684 INFO SSS data available for 2025-09-05 (DOY 248): 1 files
+2025-09-10 10:01:04,689 INFO AVISO data available for 2025-09-05: 1 files
+2025-09-10 10:01:04,706 INFO All required satellite data files are available. Proceeding with data loading...
+146.201.220.35 - - [10/Sep/2025:10:01:04 -0400] "POST /v1_profile/grid HTTP/1.1" 200 8469607 "-" "python-requests/2.32.5" 2103488
+2025-09-10 10:01:04,750 INFO Grid query request for date: 2019-07-08, BBOX: None, resolution: None
+2025-09-10 10:01:04,761 INFO Loaded grid with 1018 points inside mask
+2025-09-10 10:01:04,761 INFO Processing grid query for 1018 points
+2025-09-10 10:01:04,761 INFO Loading satellite data...
+2025-09-10 10:01:04,761 INFO Validating satellite data file availability...
+2025-09-10 10:01:04,761 INFO Checking satellite data availability for 1 unique dates
+2025-09-10 10:01:04,762 INFO SST data available for 2019-07-08: 1 files
+2025-09-10 10:01:04,763 INFO SSS data available for 2019-07-08 (DOY 189): 1 files
+2025-09-10 10:01:04,764 INFO AVISO data available for 2019-07-08: 1 files
+2025-09-10 10:01:04,764 INFO All required satellite data files are available. Proceeding with data loading...
+DEBUG[sat]: load_satellite_data: T=1018, N=1018
+DEBUG[sat]: Processing date 2019-07-08 with 1018 points
+DEBUG[sat]: Bounding box: lat[18.500, 29.500], lon[-97.500, -82.000]
+DEBUG[sat]: Points lat range: 19.000 to 29.000
+DEBUG[sat]: Points lon range: -97.000 to -82.500
+DEBUG[sss]: Trying SSS file: /Net/work/ozavala/DATA/GOFFISH/SSS/SMAP_Global/2019/RSS_smap_SSS_L3_8day_running_2019_189_FNL_v06.0.nc
+DEBUG[sss]: Failed to open SSS file /Net/work/ozavala/DATA/GOFFISH/SSS/SMAP_Global/2019/RSS_smap_SSS_L3_8day_running_2019_189_FNL_v06.0.nc: [Errno 2] No such file or directory: '/Net/work/ozavala/DATA/GOFFISH/SSS/SMAP_Global/2019/RSS_smap_SSS_L3_8day_running_2019_189_FNL_v06.0.nc'
+DEBUG[sss]: Trying SSS file: /Net/work/ozavala/DATA/GOFFISH/SSS/SMAP_Global/2019/RSS_smap_SSS_L3_8day_running_2019_189_FNL_v05.0.nc
+DEBUG[sss]: Failed to open SSS file /Net/work/ozavala/DATA/GOFFISH/SSS/SMAP_Global/2019/RSS_smap_SSS_L3_8day_running_2019_189_FNL_v05.0.nc: did not find a match in any of xarray's currently installed IO backends ['netcdf4', 'h5netcdf', 'scipy', 'rasterio', 'zarr']. Consider explicitly selecting one of the installed engines via the ``engine`` parameter, or installing additional IO dependencies, see:
+https://docs.xarray.dev/en/stable/getting-started-guide/installing.html
+https://docs.xarray.dev/en/stable/user-guide/io.html
+DEBUG[sss]: Trying wildcard pattern: /Net/work/ozavala/DATA/GOFFISH/SSS/SMAP_Global/2019/RSS_smap_SSS_L3_8day_running_2019_189_FNL_v*.nc
+DEBUG[sss]: Found files: ['/Net/work/ozavala/DATA/GOFFISH/SSS/SMAP_Global/2019/RSS_smap_SSS_L3_8day_running_2019_189_FNL_v05.0.nc']
+DEBUG[sss]: Failed to open SSS file via wildcard: did not find a match in any of xarray's currently installed IO backends ['netcdf4', 'h5netcdf', 'scipy', 'rasterio', 'zarr']. Consider explicitly selecting one of the installed engines via the ``engine`` parameter, or installing additional IO dependencies, see:
+https://docs.xarray.dev/en/stable/getting-started-guide/installing.html
+https://docs.xarray.dev/en/stable/user-guide/io.html
+DEBUG[sat]: SSS data failed for 2019-07-08: SSS not found for 2019-07-08: did not find a match in any of xarray's currently installed IO backends ['netcdf4', 'h5netcdf', 'scipy', 'rasterio', 'zarr']. Consider explicitly selecting one of the installed engines via the ``engine`` parameter, or installing additional IO dependencies, see:
+https://docs.xarray.dev/en/stable/getting-started-guide/installing.html
+https://docs.xarray.dev/en/stable/user-guide/io.html
+DEBUG[sst]: Using SST file: /Net/work/ozavala/DATA/GOFFISH/SST/OISST/2019/20190708090000-JPL-L4_GHRSST-SSTfnd-MUR-GLOB-v02.0-fv04.1_subset.nc
+DEBUG[sat]: SST data failed for 2019-07-08: did not find a match in any of xarray's currently installed IO backends ['netcdf4', 'h5netcdf', 'scipy', 'rasterio', 'zarr']. Consider explicitly selecting one of the installed engines via the ``engine`` parameter, or installing additional IO dependencies, see:
+https://docs.xarray.dev/en/stable/getting-started-guide/installing.html
+https://docs.xarray.dev/en/stable/user-guide/io.html
+DEBUG[sat]: SSH data loaded for 2019-07-08, shape: (44, 62)
+DEBUG[sat]: SSH data within bbox - valid pixels: 2460/2728
+DEBUG[sat]: SSH data within bbox - range: 0.088 to 1.118
+DEBUG[sat]: SSH data source: aviso_root=/unity/f1/ozavala/DATA/GOFFISH/AVISO/GoM/, year=2019, month=07, day=08
+DEBUG[sat]: SSH bounds check - 1018/1018 coordinates within data bounds
+DEBUG[ssh]: 2/1018 interpolated values are NaN, applying fallback
+DEBUG[ssh]: Point 226 (lat=22.750, lon=-84.000) - fallback to nearest neighbor: 0.891
+DEBUG[ssh]: Point 262 (lat=23.000, lon=-83.250) - fallback to nearest neighbor: 0.864
+DEBUG[ssh]: After fallback: 0/1018 values are still NaN
+DEBUG[ssh]: Interpolated values range: 0.190 to 1.105
+DEBUG[ssh]: SSH interpolation successful for 1018 points
+DEBUG[sat]: one-to-one done in 0.10s  (N=1018)
+DEBUG[sat]: Valid data counts - SSS: 0/1018, SST: 0/1018, SSH: 1018/1018
+WARNING: No valid SSS data, using climatological fallback
+2025-09-10 10:01:04,861 INFO Satellite data loaded: sss=(1018,), sst=(1018,), aviso=(1018,)
+2025-09-10 10:01:04,861 INFO Validating satellite data quality...
+2025-09-10 10:01:04,861 INFO Satellite data validation: 0/1018 locations have complete satellite data
+2025-09-10 10:01:04,861 WARNING Filtering out 1018 locations (100.0%) with missing satellite data
+2025-09-10 10:01:04,877 INFO After satellite filtering: 0 locations remaining
+2025-09-10 10:01:04,877 ERROR Satellite accessor failed: No locations remaining after satellite data filtering
+146.201.220.35 - - [10/Sep/2025:10:01:04 -0400] "POST /v1_profile/grid HTTP/1.1" 503 119 "-" "python-requests/2.32.5" 127104
+2025-09-10 10:01:04,878 INFO Grid query request for date: 2025-09-08, BBOX: None, resolution: None
+2025-09-10 10:01:04,878 INFO Loaded grid with 1018 points inside mask
+2025-09-10 10:01:04,878 INFO Processing grid query for 1018 points
+2025-09-10 10:01:04,878 INFO Loading satellite data...
+2025-09-10 10:01:04,878 INFO Validating satellite data file availability...
+2025-09-10 10:01:04,878 INFO Checking satellite data availability for 1 unique dates
+2025-09-10 10:01:04,879 INFO SST data available for 2025-09-08: 1 files
+2025-09-10 10:01:04,880 INFO SSS data available for 2025-09-08 (DOY 251): 1 files
+2025-09-10 10:01:04,880 INFO AVISO data available for 2025-09-08: 1 files
+2025-09-10 10:01:04,880 INFO All required satellite data files are available. Proceeding with data loading...
+DEBUG[sat]: load_satellite_data: T=1018, N=1018
+DEBUG[sat]: Processing date 2025-09-05 with 1018 points
+DEBUG[sat]: Bounding box: lat[18.500, 29.500], lon[-97.500, -82.000]
+DEBUG[sat]: Points lat range: 19.000 to 29.000
+DEBUG[sat]: Points lon range: -97.000 to -82.500
+DEBUG[sss]: Trying SSS file: /Net/work/ozavala/DATA/GOFFISH/SSS/SMAP_Global/2025/RSS_smap_SSS_L3_8day_running_2025_248_FNL_v06.0.nc
+DEBUG[sss]: Successfully opened SSS file: /Net/work/ozavala/DATA/GOFFISH/SSS/SMAP_Global/2025/RSS_smap_SSS_L3_8day_running_2025_248_FNL_v06.0.nc
+DEBUG[sss]: SSS data loaded successfully, shape: (44, 62), range: 23.855 to 40.153
+DEBUG[sat]: SSS data loaded for 2025-09-05, shape: (44, 62)
+DEBUG[sat]: SSS data within bbox - valid pixels: 2163/2728
+DEBUG[sat]: SSS data within bbox - range: 23.855 to 40.153
+DEBUG[sat]: SSS data source: CFG.SSS_ROOT=/Net/work/ozavala/DATA/GOFFISH/SSS/SMAP_Global/, year=2025, month=09, day=05
+DEBUG[sst]: Using SST file: /Net/work/ozavala/DATA/GOFFISH/SST/OISST/2025/20250905090000-JPL-L4_GHRSST-SSTfnd-MUR-GLOB-v02.0-fv04.1_subset.nc
+DEBUG[sat]: SST data loaded for 2025-09-05, shape: (1101, 1551)
+DEBUG[sat]: SST data within bbox - valid pixels: 1515005/1707651
+DEBUG[sat]: SST data within bbox - range: 301.656 to 305.149
+DEBUG[sat]: SST data source: CFG.SST_ROOT=/Net/work/ozavala/DATA/GOFFISH/SST/OISST/, year=2025, month=09, day=05
+DEBUG[aviso]: Loading monthly file: /Net/work/ozavala/DATA/GOFFISH/AVISO/GoM/CMEMS_GLOBAL_PHY_ANFC/2025-09.nc
+DEBUG[aviso]: Converted zos to ADT via linear transform, shape: (133, 187)
+DEBUG[sat]: SSH data loaded for 2025-09-05, shape: (133, 187)
+DEBUG[sat]: SSH data within bbox - valid pixels: 21938/24871
+DEBUG[sat]: SSH data within bbox - range: 0.214 to 1.074
+DEBUG[sat]: SSH data source: aviso_root=/Net/work/ozavala/DATA/GOFFISH/AVISO/GoM/CMEMS_GLOBAL_PHY_ANFC/, year=2025, month=09, day=05
+DEBUG[sat]: SSS bounds check - 1018/1018 coordinates within data bounds
+DEBUG[sat]: SST bounds check - 1018/1018 coordinates within data bounds
+DEBUG[sat]: SSH bounds check - 1018/1018 coordinates within data bounds
+DEBUG[sss]: Interpolating SSS for 1018 points
+DEBUG[sss]: SSS array shape: (44, 62), range: 23.855 to 40.153
+DEBUG[sss]: SSS lats range: 18.625 to 29.375
+DEBUG[sss]: SSS lons range: -97.375 to -82.125
+DEBUG[sss]: Target coords range - lat: 19.000 to 29.000
+DEBUG[sss]: Target coords range - lon: -97.000 to -82.500
+DEBUG[sss]: 29/1018 interpolated values are NaN, applying fallback
+DEBUG[sss]: Point 0 (lat=19.000, lon=-95.000) - nearest neighbor also NaN, keeping NaN
+DEBUG[sss]: Point 4 (lat=19.500, lon=-95.750) - nearest neighbor also NaN, keeping NaN
+DEBUG[sss]: Point 17 (lat=20.000, lon=-96.000) - nearest neighbor also NaN, keeping NaN
+DEBUG[sss]: Point 194 (lat=22.500, lon=-84.750) - fallback to nearest neighbor: 35.749
+DEBUG[sss]: Point 195 (lat=22.500, lon=-84.500) - nearest neighbor also NaN, keeping NaN
+DEBUG[sss]: Point 224 (lat=22.750, lon=-84.500) - fallback to nearest neighbor: 36.042
+DEBUG[sss]: Point 225 (lat=22.750, lon=-84.250) - nearest neighbor also NaN, keeping NaN
+DEBUG[sss]: Point 226 (lat=22.750, lon=-84.000) - nearest neighbor also NaN, keeping NaN
+DEBUG[sss]: Point 258 (lat=23.000, lon=-84.250) - fallback to nearest neighbor: 35.817
+DEBUG[sss]: Point 259 (lat=23.000, lon=-84.000) - nearest neighbor also NaN, keeping NaN
+DEBUG[sss]: Point 260 (lat=23.000, lon=-83.750) - nearest neighbor also NaN, keeping NaN
+DEBUG[sss]: Point 261 (lat=23.000, lon=-83.500) - nearest neighbor also NaN, keeping NaN
+DEBUG[sss]: Point 262 (lat=23.000, lon=-83.250) - nearest neighbor also NaN, keeping NaN
+DEBUG[sss]: Point 297 (lat=23.250, lon=-83.750) - fallback to nearest neighbor: 35.473
+DEBUG[sss]: Point 298 (lat=23.250, lon=-83.500) - nearest neighbor also NaN, keeping NaN
+DEBUG[sss]: Point 299 (lat=23.250, lon=-83.250) - nearest neighbor also NaN, keeping NaN
+DEBUG[sss]: Point 300 (lat=23.250, lon=-83.000) - nearest neighbor also NaN, keeping NaN
+DEBUG[sss]: Point 301 (lat=23.250, lon=-82.750) - nearest neighbor also NaN, keeping NaN
+DEBUG[sss]: Point 302 (lat=23.250, lon=-82.500) - nearest neighbor also NaN, keeping NaN
+DEBUG[sss]: Point 346 (lat=23.500, lon=-82.750) - fallback to nearest neighbor: 35.761
+DEBUG[sss]: Point 347 (lat=23.500, lon=-82.500) - nearest neighbor also NaN, keeping NaN
+DEBUG[sss]: Point 637 (lat=25.250, lon=-90.500) - fallback to nearest neighbor: 35.843
+DEBUG[sss]: Point 638 (lat=25.250, lon=-90.250) - fallback to nearest neighbor: 35.650
+DEBUG[sss]: Point 681 (lat=25.500, lon=-90.750) - fallback to nearest neighbor: 36.061
+DEBUG[sss]: Point 682 (lat=25.500, lon=-90.500) - fallback to nearest neighbor: 35.441
+DEBUG[sss]: Point 683 (lat=25.500, lon=-90.250) - nearest neighbor also NaN, keeping NaN
+DEBUG[sss]: Point 725 (lat=25.750, lon=-90.750) - fallback to nearest neighbor: 35.249
+DEBUG[sss]: Point 726 (lat=25.750, lon=-90.500) - nearest neighbor also NaN, keeping NaN
+DEBUG[sss]: Point 727 (lat=25.750, lon=-90.250) - nearest neighbor also NaN, keeping NaN
+DEBUG[sss]: After fallback: 19/1018 values are still NaN
+DEBUG[sss]: Interpolation completed, result shape: (1018,)
+DEBUG[sss]: Interpolated values range: 31.702 to 37.192
+DEBUG[sss]: NaN count in interpolated values: 19
+DEBUG[sss]: SSS interpolation successful for 1018 points
+DEBUG[sst]: Interpolated values range: 302.115 to 305.011
+DEBUG[sst]: SST interpolation successful for 1018 points
+DEBUG[ssh]: Interpolated values range: 0.218 to 1.074
+DEBUG[ssh]: SSH interpolation successful for 1018 points
+DEBUG[sat]: one-to-one done in 0.57s  (N=1018)
+DEBUG[sat]: Valid data counts - SSS: 999/1018, SST: 1018/1018, SSH: 1018/1018
+2025-09-10 10:01:05,287 INFO Satellite data loaded: sss=(1018,), sst=(1018,), aviso=(1018,)
+2025-09-10 10:01:05,287 INFO Validating satellite data quality...
+2025-09-10 10:01:05,287 INFO Satellite data validation: 999/1018 locations have complete satellite data
+2025-09-10 10:01:05,294 WARNING Filtering out 19 locations (1.9%) with missing satellite data
+2025-09-10 10:01:05,294 INFO After satellite filtering: 999 locations remaining
+2025-09-10 10:01:05,307 INFO Sample satellite data after filtering:
+2025-09-10 10:01:05,307 INFO   SSS: min=31.702, max=37.192, mean=35.983
+2025-09-10 10:01:05,321 INFO   SST: min=302.115, max=305.011, mean=303.763
+DEBUG[sat]: load_satellite_data: T=1018, N=1018
+DEBUG[sat]: Processing date 2025-09-08 with 1018 points
+DEBUG[sat]: Bounding box: lat[18.500, 29.500], lon[-97.500, -82.000]
+DEBUG[sat]: Points lat range: 19.000 to 29.000
+DEBUG[sat]: Points lon range: -97.000 to -82.500
+DEBUG[sss]: Trying SSS file: /Net/work/ozavala/DATA/GOFFISH/SSS/SMAP_Global/2025/RSS_smap_SSS_L3_8day_running_2025_251_FNL_v06.0.nc
+DEBUG[sss]: Successfully opened SSS file: /Net/work/ozavala/DATA/GOFFISH/SSS/SMAP_Global/2025/RSS_smap_SSS_L3_8day_running_2025_251_FNL_v06.0.nc
+DEBUG[sss]: SSS data loaded successfully, shape: (44, 62), range: 24.951 to 40.251
+DEBUG[sat]: SSS data loaded for 2025-09-08, shape: (44, 62)
+DEBUG[sat]: SSS data within bbox - valid pixels: 2163/2728
+DEBUG[sat]: SSS data within bbox - range: 24.951 to 40.251
+DEBUG[sat]: SSS data source: CFG.SSS_ROOT=/Net/work/ozavala/DATA/GOFFISH/SSS/SMAP_Global/, year=2025, month=09, day=08
+DEBUG[sst]: Using SST file: /Net/work/ozavala/DATA/GOFFISH/SST/OISST/2025/20250908090000-JPL-L4_GHRSST-SSTfnd-MUR-GLOB-v02.0-fv04.1_subset.nc
+DEBUG[sat]: SST data loaded for 2025-09-08, shape: (1101, 1551)
+DEBUG[sat]: SST data within bbox - valid pixels: 1515005/1707651
+DEBUG[sat]: SST data within bbox - range: 301.718 to 305.128
+DEBUG[sat]: SST data source: CFG.SST_ROOT=/Net/work/ozavala/DATA/GOFFISH/SST/OISST/, year=2025, month=09, day=08
+DEBUG[aviso]: Loading monthly file: /Net/work/ozavala/DATA/GOFFISH/AVISO/GoM/CMEMS_GLOBAL_PHY_ANFC/2025-09.nc
+DEBUG[aviso]: Converted zos to ADT via linear transform, shape: (133, 187)
+DEBUG[sat]: SSH data loaded for 2025-09-08, shape: (133, 187)
+DEBUG[sat]: SSH data within bbox - valid pixels: 21938/24871
+DEBUG[sat]: SSH data within bbox - range: 0.204 to 1.070
+DEBUG[sat]: SSH data source: aviso_root=/Net/work/ozavala/DATA/GOFFISH/AVISO/GoM/CMEMS_GLOBAL_PHY_ANFC/, year=2025, month=09, day=08
+DEBUG[sat]: SSS bounds check - 1018/1018 coordinates within data bounds
+DEBUG[sat]: SST bounds check - 1018/1018 coordinates within data bounds
+DEBUG[sat]: SSH bounds check - 1018/1018 coordinates within data bounds
+DEBUG[sss]: Interpolating SSS for 1018 points
+DEBUG[sss]: SSS array shape: (44, 62), range: 24.951 to 40.251
+DEBUG[sss]: SSS lats range: 18.625 to 29.375
+DEBUG[sss]: SSS lons range: -97.375 to -82.125
+DEBUG[sss]: Target coords range - lat: 19.000 to 29.000
+DEBUG[sss]: Target coords range - lon: -97.000 to -82.500
+DEBUG[sss]: 29/1018 interpolated values are NaN, applying fallback
+DEBUG[sss]: Point 0 (lat=19.000, lon=-95.000) - nearest neighbor also NaN, keeping NaN
+DEBUG[sss]: Point 4 (lat=19.500, lon=-95.750) - nearest neighbor also NaN, keeping NaN
+DEBUG[sss]: Point 17 (lat=20.000, lon=-96.000) - nearest neighbor also NaN, keeping NaN
+DEBUG[sss]: Point 194 (lat=22.500, lon=-84.750) - fallback to nearest neighbor: 36.168
+DEBUG[sss]: Point 195 (lat=22.500, lon=-84.500) - nearest neighbor also NaN, keeping NaN
+DEBUG[sss]: Point 224 (lat=22.750, lon=-84.500) - fallback to nearest neighbor: 36.340
+DEBUG[sss]: Point 225 (lat=22.750, lon=-84.250) - nearest neighbor also NaN, keeping NaN
+DEBUG[sss]: Point 226 (lat=22.750, lon=-84.000) - nearest neighbor also NaN, keeping NaN
+DEBUG[sss]: Point 258 (lat=23.000, lon=-84.250) - fallback to nearest neighbor: 36.025
+DEBUG[sss]: Point 259 (lat=23.000, lon=-84.000) - nearest neighbor also NaN, keeping NaN
+DEBUG[sss]: Point 260 (lat=23.000, lon=-83.750) - nearest neighbor also NaN, keeping NaN
+DEBUG[sss]: Point 261 (lat=23.000, lon=-83.500) - nearest neighbor also NaN, keeping NaN
+DEBUG[sss]: Point 262 (lat=23.000, lon=-83.250) - nearest neighbor also NaN, keeping NaN
+DEBUG[sss]: Point 297 (lat=23.250, lon=-83.750) - fallback to nearest neighbor: 36.263
+DEBUG[sss]: Point 298 (lat=23.250, lon=-83.500) - nearest neighbor also NaN, keeping NaN
+DEBUG[sss]: Point 299 (lat=23.250, lon=-83.250) - nearest neighbor also NaN, keeping NaN
+DEBUG[sss]: Point 300 (lat=23.250, lon=-83.000) - nearest neighbor also NaN, keeping NaN
+DEBUG[sss]: Point 301 (lat=23.250, lon=-82.750) - nearest neighbor also NaN, keeping NaN
+DEBUG[sss]: Point 302 (lat=23.250, lon=-82.500) - nearest neighbor also NaN, keeping NaN
+DEBUG[sss]: Point 346 (lat=23.500, lon=-82.750) - fallback to nearest neighbor: 35.473
+DEBUG[sss]: Point 347 (lat=23.500, lon=-82.500) - nearest neighbor also NaN, keeping NaN
+DEBUG[sss]: Point 637 (lat=25.250, lon=-90.500) - fallback to nearest neighbor: 35.892
+DEBUG[sss]: Point 638 (lat=25.250, lon=-90.250) - fallback to nearest neighbor: 35.702
+DEBUG[sss]: Point 681 (lat=25.500, lon=-90.750) - fallback to nearest neighbor: 35.939
+DEBUG[sss]: Point 682 (lat=25.500, lon=-90.500) - fallback to nearest neighbor: 35.352
+DEBUG[sss]: Point 683 (lat=25.500, lon=-90.250) - nearest neighbor also NaN, keeping NaN
+DEBUG[sss]: Point 725 (lat=25.750, lon=-90.750) - fallback to nearest neighbor: 35.084
+DEBUG[sss]: Point 726 (lat=25.750, lon=-90.500) - nearest neighbor also NaN, keeping NaN
+DEBUG[sss]: Point 727 (lat=25.750, lon=-90.250) - nearest neighbor also NaN, keeping NaN
+DEBUG[sss]: After fallback: 19/1018 values are still NaN
+DEBUG[sss]: Interpolation completed, result shape: (1018,)
+DEBUG[sss]: Interpolated values range: 31.688 to 37.124
+DEBUG[sss]: NaN count in interpolated values: 19
+DEBUG[sss]: SSS interpolation successful for 1018 points
+DEBUG[sst]: Interpolated values range: 302.377 to 305.012
+DEBUG[sst]: SST interpolation successful for 1018 points
+DEBUG[ssh]: Interpolated values range: 0.206 to 1.070
+DEBUG[ssh]: SSH interpolation successful for 1018 points
+DEBUG[sat]: one-to-one done in 0.46s  (N=1018)
+DEBUG[sat]: Valid data counts - SSS: 999/1018, SST: 1018/1018, SSH: 1018/1018
+2025-09-10 10:01:05,335 INFO Satellite data loaded: sss=(1018,), sst=(1018,), aviso=(1018,)
+2025-09-10 10:01:05,336 INFO   AVISO: min=-0.303, max=0.553, mean=0.021
+2025-09-10 10:01:05,351 INFO Validating satellite data quality...
+2025-09-10 10:01:05,371 INFO Preparing model inputs...
+2025-09-10 10:01:05,371 INFO Satellite data validation: 999/1018 locations have complete satellite data
+2025-09-10 10:01:05,378 WARNING Filtering out 19 locations (1.9%) with missing satellite data
+2025-09-10 10:01:05,385 INFO After satellite filtering: 999 locations remaining
+2025-09-10 10:01:05,397 INFO Sample satellite data after filtering:
+DEBUG[prepare_inputs]: Checking satellite data validity...
+DEBUG[prepare_inputs]: Current data shapes - time: (999,), lat: (999,), lon: (999,)
+DEBUG[prepare_inputs]: Current satellite data shapes - sss: (999,), sst: (999,), ssh: (999,)
+DEBUG[prepare_inputs]: Final dataset size: 999 time points × 999 locations = 998001 total samples
+DEBUG[prepare_inputs]: Returning input tensor with shape: torch.Size([999, 9])
+2025-09-10 10:01:05,400 INFO Input preparation completed, batch shape: torch.Size([999, 9])
+2025-09-10 10:01:05,420 INFO Starting model inference...
+2025-09-10 10:01:05,420 INFO   SSS: min=31.688, max=37.124, mean=36.024
+2025-09-10 10:01:05,441 INFO   SST: min=302.377, max=305.012, mean=303.870
+2025-09-10 10:01:05,444 INFO Inference completed, pcs shape: (999, 30)
+2025-09-10 10:01:05,448 INFO   AVISO: min=-0.309, max=0.555, mean=0.017
+2025-09-10 10:01:05,453 INFO Performing PCA inverse transform...
+2025-09-10 10:01:05,453 INFO Preparing model inputs...
+DEBUG[prepare_inputs]: Checking satellite data validity...
+DEBUG[prepare_inputs]: Current data shapes - time: (999,), lat: (999,), lon: (999,)
+DEBUG[prepare_inputs]: Current satellite data shapes - sss: (999,), sst: (999,), ssh: (999,)
+DEBUG[prepare_inputs]: Final dataset size: 999 time points × 999 locations = 998001 total samples
+DEBUG[prepare_inputs]: Returning input tensor with shape: torch.Size([999, 9])
+2025-09-10 10:01:05,481 INFO Input preparation completed, batch shape: torch.Size([999, 9])
+2025-09-10 10:01:05,481 INFO Starting model inference...
+2025-09-10 10:01:05,579 INFO PCA inverse completed, pred_T: (1801, 999), pred_S: (1801, 999)
+2025-09-10 10:01:05,579 INFO Processing satellite data for grid mapping...
+2025-09-10 10:01:05,579 INFO Satellite data processed: sss=(999,), sst=(999,), aviso=(999,)
+2025-09-10 10:01:05,580 INFO Inference completed, pcs shape: (999, 30)
+2025-09-10 10:01:05,585 INFO Performing PCA inverse transform...
+2025-09-10 10:01:05,585 INFO Sample SST values: min=302.115, max=305.011, mean=303.763
+2025-09-10 10:01:05,595 INFO Sample SSS values: min=31.702, max=37.192, mean=35.983
+2025-09-10 10:01:05,608 INFO Sample AVISO values: min=-0.303, max=0.553, mean=0.021
+2025-09-10 10:01:05,618 INFO Building grid dataset...
+2025-09-10 10:01:05,625 INFO Creating grid with 40 lat points and 58 lon points
+2025-09-10 10:01:05,630 INFO Lat range: 19.250 to 29.000
+2025-09-10 10:01:05,640 INFO Lon range: -97.000 to -82.750
+2025-09-10 10:01:05,674 INFO PCA inverse completed, pred_T: (1801, 999), pred_S: (1801, 999)
+2025-09-10 10:01:05,674 INFO Processing satellite data for grid mapping...
+2025-09-10 10:01:05,674 INFO Satellite data processed: sss=(999,), sst=(999,), aviso=(999,)
+2025-09-10 10:01:05,681 INFO Sample SST values: min=302.377, max=305.012, mean=303.870
+2025-09-10 10:01:05,687 INFO Writing NetCDF file...
+2025-09-10 10:01:05,693 INFO Sample SSS values: min=31.688, max=37.124, mean=36.024
+2025-09-10 10:01:05,704 WARNING h5netcdf in-memory failed; writing via secure temp file: unexpected encoding for scipy backend: ['zlib', 'complevel']
+2025-09-10 10:01:05,706 INFO Sample AVISO values: min=-0.309, max=0.555, mean=0.017
+2025-09-10 10:01:05,713 INFO Building grid dataset...
+2025-09-10 10:01:05,764 INFO Creating grid with 40 lat points and 58 lon points
+2025-09-10 10:01:05,778 INFO Lat range: 19.250 to 29.000
+2025-09-10 10:01:05,784 INFO Lon range: -97.000 to -82.750
+2025-09-10 10:01:05,814 INFO Writing NetCDF file...
+2025-09-10 10:01:05,817 WARNING h5netcdf in-memory failed; writing via secure temp file: unexpected encoding for scipy backend: ['zlib', 'complevel']
+2025-09-10 10:01:06,183 INFO NetCDF file created successfully
+2025-09-10 10:01:06,183 INFO Grid query completed successfully: NeSPReSO_grid_2025-09-05.nc
+2025-09-10 10:01:06,289 INFO NetCDF file created successfully
+2025-09-10 10:01:06,289 INFO Grid query completed successfully: NeSPReSO_grid_2025-09-08.nc
+146.201.220.35 - - [10/Sep/2025:10:01:06 -0400] "POST /v1_profile/grid HTTP/1.1" 200 8464042 "-" "python-requests/2.32.5" 1700579
+2025-09-10 10:01:06,320 INFO Grid query request for date: 2025-09-09, BBOX: None, resolution: None
+2025-09-10 10:01:06,352 INFO Loaded grid with 1018 points inside mask
+2025-09-10 10:01:06,361 INFO Processing grid query for 1018 points
+2025-09-10 10:01:06,375 INFO Loading satellite data...
+146.201.220.35 - - [10/Sep/2025:10:01:06 -0400] "POST /v1_profile/grid HTTP/1.1" 200 8467753 "-" "python-requests/2.32.5" 1534608
+2025-09-10 10:01:06,426 INFO Validating satellite data file availability...
+2025-09-10 10:01:06,426 INFO Grid query request for date: 2025-09-10, BBOX: None, resolution: None
+2025-09-10 10:01:06,444 INFO Checking satellite data availability for 1 unique dates
+2025-09-10 10:01:06,444 INFO Loaded grid with 1018 points inside mask
+2025-09-10 10:01:06,472 INFO Processing grid query for 1018 points
+2025-09-10 10:01:06,476 INFO SST data available for 2025-09-09: 1 files
+2025-09-10 10:01:06,480 INFO Loading satellite data...
+2025-09-10 10:01:06,480 INFO Validating satellite data file availability...
+2025-09-10 10:01:06,480 INFO Checking satellite data availability for 1 unique dates
+2025-09-10 10:01:06,480 INFO SSS data available for 2025-09-09 (DOY 252): 1 files
+2025-09-10 10:01:06,480 INFO AVISO data available for 2025-09-09: 1 files
+2025-09-10 10:01:06,480 INFO All required satellite data files are available. Proceeding with data loading...
+2025-09-10 10:01:06,480 INFO SST data available for 2025-09-10: 1 files
+2025-09-10 10:01:06,481 INFO SSS data available for 2025-09-10 (DOY 253): 1 files
+2025-09-10 10:01:06,481 INFO AVISO data available for 2025-09-10: 1 files
+2025-09-10 10:01:06,481 INFO All required satellite data files are available. Proceeding with data loading...
+DEBUG[sat]: load_satellite_data: T=1018, N=1018
+DEBUG[sat]: Processing date 2025-09-10 with 1018 points
+DEBUG[sat]: Bounding box: lat[18.500, 29.500], lon[-97.500, -82.000]
+DEBUG[sat]: Points lat range: 19.000 to 29.000
+DEBUG[sat]: Points lon range: -97.000 to -82.500
+DEBUG[sss]: Trying SSS file: /Net/work/ozavala/DATA/GOFFISH/SSS/SMAP_Global/2025/RSS_smap_SSS_L3_8day_running_2025_253_FNL_v06.0.nc
+DEBUG[sss]: Successfully opened SSS file: /Net/work/ozavala/DATA/GOFFISH/SSS/SMAP_Global/2025/RSS_smap_SSS_L3_8day_running_2025_253_FNL_v06.0.nc
+DEBUG[sss]: SSS data loaded successfully, shape: (44, 62), range: 25.686 to 40.458
+DEBUG[sat]: SSS data loaded for 2025-09-10, shape: (44, 62)
+DEBUG[sat]: SSS data within bbox - valid pixels: 2163/2728
+DEBUG[sat]: SSS data within bbox - range: 25.686 to 40.458
+DEBUG[sat]: SSS data source: CFG.SSS_ROOT=/Net/work/ozavala/DATA/GOFFISH/SSS/SMAP_Global/, year=2025, month=09, day=10
+DEBUG[sst]: Using SST file: /Net/work/ozavala/DATA/GOFFISH/SST/OISST/2025/20250910090000-JPL-L4_GHRSST-SSTfnd-MUR-GLOB-v02.0-fv04.1_subset.nc
+DEBUG[sat]: SST data loaded for 2025-09-10, shape: (1101, 1551)
+DEBUG[sat]: SST data within bbox - valid pixels: 1515005/1707651
+DEBUG[sat]: SST data within bbox - range: 301.136 to 305.197
+DEBUG[sat]: SST data source: CFG.SST_ROOT=/Net/work/ozavala/DATA/GOFFISH/SST/OISST/, year=2025, month=09, day=10
+DEBUG[aviso]: Loading monthly file: /Net/work/ozavala/DATA/GOFFISH/AVISO/GoM/CMEMS_GLOBAL_PHY_ANFC/2025-09.nc
+DEBUG[aviso]: Converted zos to ADT via linear transform, shape: (133, 187)
+DEBUG[sat]: SSH data loaded for 2025-09-10, shape: (133, 187)
+DEBUG[sat]: SSH data within bbox - valid pixels: 21938/24871
+DEBUG[sat]: SSH data within bbox - range: 0.218 to 1.084
+DEBUG[sat]: SSH data source: aviso_root=/Net/work/ozavala/DATA/GOFFISH/AVISO/GoM/CMEMS_GLOBAL_PHY_ANFC/, year=2025, month=09, day=10
+DEBUG[sat]: SSS bounds check - 1018/1018 coordinates within data bounds
+DEBUG[sat]: SST bounds check - 1018/1018 coordinates within data bounds
+DEBUG[sat]: SSH bounds check - 1018/1018 coordinates within data bounds
+DEBUG[sss]: Interpolating SSS for 1018 points
+DEBUG[sss]: SSS array shape: (44, 62), range: 25.686 to 40.458
+DEBUG[sss]: SSS lats range: 18.625 to 29.375
+DEBUG[sss]: SSS lons range: -97.375 to -82.125
+DEBUG[sss]: Target coords range - lat: 19.000 to 29.000
+DEBUG[sss]: Target coords range - lon: -97.000 to -82.500
+DEBUG[sss]: 29/1018 interpolated values are NaN, applying fallback
+DEBUG[sss]: Point 0 (lat=19.000, lon=-95.000) - nearest neighbor also NaN, keeping NaN
+DEBUG[sss]: Point 4 (lat=19.500, lon=-95.750) - nearest neighbor also NaN, keeping NaN
+DEBUG[sss]: Point 17 (lat=20.000, lon=-96.000) - nearest neighbor also NaN, keeping NaN
+DEBUG[sss]: Point 194 (lat=22.500, lon=-84.750) - fallback to nearest neighbor: 36.006
+DEBUG[sss]: Point 195 (lat=22.500, lon=-84.500) - nearest neighbor also NaN, keeping NaN
+DEBUG[sss]: Point 224 (lat=22.750, lon=-84.500) - fallback to nearest neighbor: 35.993
+DEBUG[sss]: Point 225 (lat=22.750, lon=-84.250) - nearest neighbor also NaN, keeping NaN
+DEBUG[sss]: Point 226 (lat=22.750, lon=-84.000) - nearest neighbor also NaN, keeping NaN
+DEBUG[sss]: Point 258 (lat=23.000, lon=-84.250) - fallback to nearest neighbor: 35.917
+DEBUG[sss]: Point 259 (lat=23.000, lon=-84.000) - nearest neighbor also NaN, keeping NaN
+DEBUG[sss]: Point 260 (lat=23.000, lon=-83.750) - nearest neighbor also NaN, keeping NaN
+DEBUG[sss]: Point 261 (lat=23.000, lon=-83.500) - nearest neighbor also NaN, keeping NaN
+DEBUG[sss]: Point 262 (lat=23.000, lon=-83.250) - nearest neighbor also NaN, keeping NaN
+DEBUG[sss]: Point 297 (lat=23.250, lon=-83.750) - fallback to nearest neighbor: 36.342
+DEBUG[sss]: Point 298 (lat=23.250, lon=-83.500) - nearest neighbor also NaN, keeping NaN
+DEBUG[sss]: Point 299 (lat=23.250, lon=-83.250) - nearest neighbor also NaN, keeping NaN
+DEBUG[sss]: Point 300 (lat=23.250, lon=-83.000) - nearest neighbor also NaN, keeping NaN
+DEBUG[sss]: Point 301 (lat=23.250, lon=-82.750) - nearest neighbor also NaN, keeping NaN
+DEBUG[sss]: Point 302 (lat=23.250, lon=-82.500) - nearest neighbor also NaN, keeping NaN
+DEBUG[sss]: Point 346 (lat=23.500, lon=-82.750) - fallback to nearest neighbor: 35.450
+DEBUG[sss]: Point 347 (lat=23.500, lon=-82.500) - nearest neighbor also NaN, keeping NaN
+DEBUG[sss]: Point 637 (lat=25.250, lon=-90.500) - fallback to nearest neighbor: 36.316
+DEBUG[sss]: Point 638 (lat=25.250, lon=-90.250) - fallback to nearest neighbor: 36.120
+DEBUG[sss]: Point 681 (lat=25.500, lon=-90.750) - fallback to nearest neighbor: 36.053
+DEBUG[sss]: Point 682 (lat=25.500, lon=-90.500) - fallback to nearest neighbor: 36.070
+DEBUG[sss]: Point 683 (lat=25.500, lon=-90.250) - nearest neighbor also NaN, keeping NaN
+DEBUG[sss]: Point 725 (lat=25.750, lon=-90.750) - fallback to nearest neighbor: 35.593
+DEBUG[sss]: Point 726 (lat=25.750, lon=-90.500) - nearest neighbor also NaN, keeping NaN
+DEBUG[sss]: Point 727 (lat=25.750, lon=-90.250) - nearest neighbor also NaN, keeping NaN
+DEBUG[sss]: After fallback: 19/1018 values are still NaN
+DEBUG[sss]: Interpolation completed, result shape: (1018,)
+DEBUG[sss]: Interpolated values range: 31.477 to 37.108
+DEBUG[sss]: NaN count in interpolated values: 19
+DEBUG[sss]: SSS interpolation successful for 1018 points
+DEBUG[sst]: Interpolated values range: 301.724 to 305.111
+DEBUG[sst]: SST interpolation successful for 1018 points
+DEBUG[ssh]: Interpolated values range: 0.218 to 1.083
+DEBUG[ssh]: SSH interpolation successful for 1018 points
+DEBUG[sat]: one-to-one done in 0.32s  (N=1018)
+DEBUG[sat]: Valid data counts - SSS: 999/1018, SST: 1018/1018, SSH: 1018/1018
+2025-09-10 10:01:06,802 INFO Satellite data loaded: sss=(1018,), sst=(1018,), aviso=(1018,)
+2025-09-10 10:01:06,803 INFO Validating satellite data quality...
+2025-09-10 10:01:06,831 INFO Satellite data validation: 999/1018 locations have complete satellite data
+2025-09-10 10:01:06,831 WARNING Filtering out 19 locations (1.9%) with missing satellite data
+2025-09-10 10:01:06,851 INFO After satellite filtering: 999 locations remaining
+2025-09-10 10:01:06,869 INFO Sample satellite data after filtering:
+2025-09-10 10:01:06,899 INFO   SSS: min=31.477, max=37.108, mean=36.097
+2025-09-10 10:01:06,914 INFO   SST: min=301.724, max=305.111, mean=303.803
+2025-09-10 10:01:06,925 INFO   AVISO: min=-0.313, max=0.552, mean=0.014
+2025-09-10 10:01:06,939 INFO Preparing model inputs...
+DEBUG[sat]: load_satellite_data: T=1018, N=1018
+DEBUG[sat]: Processing date 2025-09-09 with 1018 points
+DEBUG[sat]: Bounding box: lat[18.500, 29.500], lon[-97.500, -82.000]
+DEBUG[sat]: Points lat range: 19.000 to 29.000
+DEBUG[sat]: Points lon range: -97.000 to -82.500
+DEBUG[sss]: Trying SSS file: /Net/work/ozavala/DATA/GOFFISH/SSS/SMAP_Global/2025/RSS_smap_SSS_L3_8day_running_2025_252_FNL_v06.0.nc
+DEBUG[sss]: Successfully opened SSS file: /Net/work/ozavala/DATA/GOFFISH/SSS/SMAP_Global/2025/RSS_smap_SSS_L3_8day_running_2025_252_FNL_v06.0.nc
+DEBUG[sss]: SSS data loaded successfully, shape: (44, 62), range: 25.314 to 40.458
+DEBUG[sat]: SSS data loaded for 2025-09-09, shape: (44, 62)
+DEBUG[sat]: SSS data within bbox - valid pixels: 2163/2728
+DEBUG[sat]: SSS data within bbox - range: 25.314 to 40.458
+DEBUG[sat]: SSS data source: CFG.SSS_ROOT=/Net/work/ozavala/DATA/GOFFISH/SSS/SMAP_Global/, year=2025, month=09, day=09
+DEBUG[sst]: Using SST file: /Net/work/ozavala/DATA/GOFFISH/SST/OISST/2025/20250909090000-JPL-L4_GHRSST-SSTfnd-MUR-GLOB-v02.0-fv04.1_subset.nc
+DEBUG[sat]: SST data loaded for 2025-09-09, shape: (1101, 1551)
+DEBUG[sat]: SST data within bbox - valid pixels: 1515005/1707651
+DEBUG[sat]: SST data within bbox - range: 301.638 to 305.214
+DEBUG[sat]: SST data source: CFG.SST_ROOT=/Net/work/ozavala/DATA/GOFFISH/SST/OISST/, year=2025, month=09, day=09
+DEBUG[aviso]: Loading monthly file: /Net/work/ozavala/DATA/GOFFISH/AVISO/GoM/CMEMS_GLOBAL_PHY_ANFC/2025-09.nc
+DEBUG[aviso]: Converted zos to ADT via linear transform, shape: (133, 187)
+DEBUG[sat]: SSH data loaded for 2025-09-09, shape: (133, 187)
+DEBUG[sat]: SSH data within bbox - valid pixels: 21938/24871
+DEBUG[sat]: SSH data within bbox - range: 0.205 to 1.073
+DEBUG[sat]: SSH data source: aviso_root=/Net/work/ozavala/DATA/GOFFISH/AVISO/GoM/CMEMS_GLOBAL_PHY_ANFC/, year=2025, month=09, day=09
+DEBUG[sat]: SSS bounds check - 1018/1018 coordinates within data bounds
+DEBUG[sat]: SST bounds check - 1018/1018 coordinates within data bounds
+DEBUG[sat]: SSH bounds check - 1018/1018 coordinates within data bounds
+DEBUG[sss]: Interpolating SSS for 1018 points
+DEBUG[sss]: SSS array shape: (44, 62), range: 25.314 to 40.458
+DEBUG[sss]: SSS lats range: 18.625 to 29.375
+DEBUG[sss]: SSS lons range: -97.375 to -82.125
+DEBUG[sss]: Target coords range - lat: 19.000 to 29.000
+DEBUG[sss]: Target coords range - lon: -97.000 to -82.500
+DEBUG[sss]: 29/1018 interpolated values are NaN, applying fallback
+DEBUG[sss]: Point 0 (lat=19.000, lon=-95.000) - nearest neighbor also NaN, keeping NaN
+DEBUG[sss]: Point 4 (lat=19.500, lon=-95.750) - nearest neighbor also NaN, keeping NaN
+DEBUG[sss]: Point 17 (lat=20.000, lon=-96.000) - nearest neighbor also NaN, keeping NaN
+DEBUG[sss]: Point 194 (lat=22.500, lon=-84.750) - fallback to nearest neighbor: 36.006
+DEBUG[sss]: Point 195 (lat=22.500, lon=-84.500) - nearest neighbor also NaN, keeping NaN
+DEBUG[sss]: Point 224 (lat=22.750, lon=-84.500) - fallback to nearest neighbor: 35.993
+DEBUG[sss]: Point 225 (lat=22.750, lon=-84.250) - nearest neighbor also NaN, keeping NaN
+DEBUG[sss]: Point 226 (lat=22.750, lon=-84.000) - nearest neighbor also NaN, keeping NaN
+DEBUG[sss]: Point 258 (lat=23.000, lon=-84.250) - fallback to nearest neighbor: 35.917
+DEBUG[sss]: Point 259 (lat=23.000, lon=-84.000) - nearest neighbor also NaN, keeping NaN
+DEBUG[sss]: Point 260 (lat=23.000, lon=-83.750) - nearest neighbor also NaN, keeping NaN
+DEBUG[sss]: Point 261 (lat=23.000, lon=-83.500) - nearest neighbor also NaN, keeping NaN
+DEBUG[sss]: Point 262 (lat=23.000, lon=-83.250) - nearest neighbor also NaN, keeping NaN
+DEBUG[sss]: Point 297 (lat=23.250, lon=-83.750) - fallback to nearest neighbor: 36.342
+DEBUG[sss]: Point 298 (lat=23.250, lon=-83.500) - nearest neighbor also NaN, keeping NaN
+DEBUG[sss]: Point 299 (lat=23.250, lon=-83.250) - nearest neighbor also NaN, keeping NaN
+DEBUG[sss]: Point 300 (lat=23.250, lon=-83.000) - nearest neighbor also NaN, keeping NaN
+DEBUG[sss]: Point 301 (lat=23.250, lon=-82.750) - nearest neighbor also NaN, keeping NaN
+DEBUG[sss]: Point 302 (lat=23.250, lon=-82.500) - nearest neighbor also NaN, keeping NaN
+DEBUG[sss]: Point 346 (lat=23.500, lon=-82.750) - fallback to nearest neighbor: 35.450
+DEBUG[sss]: Point 347 (lat=23.500, lon=-82.500) - nearest neighbor also NaN, keeping NaN
+DEBUG[sss]: Point 637 (lat=25.250, lon=-90.500) - fallback to nearest neighbor: 36.116
+DEBUG[sss]: Point 638 (lat=25.250, lon=-90.250) - fallback to nearest neighbor: 35.960
+DEBUG[sss]: Point 681 (lat=25.500, lon=-90.750) - fallback to nearest neighbor: 36.006
+DEBUG[sss]: Point 682 (lat=25.500, lon=-90.500) - fallback to nearest neighbor: 35.962
+DEBUG[sss]: Point 683 (lat=25.500, lon=-90.250) - nearest neighbor also NaN, keeping NaN
+DEBUG[sss]: Point 725 (lat=25.750, lon=-90.750) - fallback to nearest neighbor: 35.512
+DEBUG[sss]: Point 726 (lat=25.750, lon=-90.500) - nearest neighbor also NaN, keeping NaN
+DEBUG[sss]: Point 727 (lat=25.750, lon=-90.250) - nearest neighbor also NaN, keeping NaN
+DEBUG[sss]: After fallback: 19/1018 values are still NaN
+DEBUG[sss]: Interpolation completed, result shape: (1018,)
+DEBUG[sss]: Interpolated values range: 31.646 to 37.168
+DEBUG[sss]: NaN count in interpolated values: 19
+DEBUG[sss]: SSS interpolation successful for 1018 points
+DEBUG[sst]: Interpolated values range: 302.606 to 304.986
+DEBUG[sst]: SST interpolation successful for 1018 points
+DEBUG[ssh]: Interpolated values range: 0.207 to 1.073
+DEBUG[ssh]: SSH interpolation successful for 1018 points
+DEBUG[sat]: one-to-one done in 0.49s  (N=1018)
+DEBUG[sat]: Valid data counts - SSS: 999/1018, SST: 1018/1018, SSH: 1018/1018
+2025-09-10 10:01:06,974 INFO Satellite data loaded: sss=(1018,), sst=(1018,), aviso=(1018,)
+2025-09-10 10:01:06,974 INFO Validating satellite data quality...
+DEBUG[prepare_inputs]: Checking satellite data validity...
+DEBUG[prepare_inputs]: Current data shapes - time: (999,), lat: (999,), lon: (999,)
+DEBUG[prepare_inputs]: Current satellite data shapes - sss: (999,), sst: (999,), ssh: (999,)
+DEBUG[prepare_inputs]: Final dataset size: 999 time points × 999 locations = 998001 total samples
+DEBUG[prepare_inputs]: Returning input tensor with shape: torch.Size([999, 9])
+2025-09-10 10:01:06,975 INFO Input preparation completed, batch shape: torch.Size([999, 9])
+2025-09-10 10:01:06,991 INFO Starting model inference...
+2025-09-10 10:01:06,991 INFO Satellite data validation: 999/1018 locations have complete satellite data
+2025-09-10 10:01:07,019 WARNING Filtering out 19 locations (1.9%) with missing satellite data
+2025-09-10 10:01:07,021 INFO Inference completed, pcs shape: (999, 30)
+2025-09-10 10:01:07,029 INFO Performing PCA inverse transform...
+2025-09-10 10:01:07,029 INFO After satellite filtering: 999 locations remaining
+2025-09-10 10:01:07,035 INFO Sample satellite data after filtering:
+2025-09-10 10:01:07,062 INFO   SSS: min=31.646, max=37.168, mean=36.081
+2025-09-10 10:01:07,103 INFO   SST: min=302.606, max=304.986, mean=303.887
+2025-09-10 10:01:07,128 INFO PCA inverse completed, pred_T: (1801, 999), pred_S: (1801, 999)
+2025-09-10 10:01:07,153 INFO   AVISO: min=-0.311, max=0.555, mean=0.015
+2025-09-10 10:01:07,161 INFO Preparing model inputs...
+2025-09-10 10:01:07,161 INFO Processing satellite data for grid mapping...
+2025-09-10 10:01:07,191 INFO Satellite data processed: sss=(999,), sst=(999,), aviso=(999,)
+2025-09-10 10:01:07,202 INFO Sample SST values: min=301.724, max=305.111, mean=303.803
+2025-09-10 10:01:07,209 INFO Sample SSS values: min=31.477, max=37.108, mean=36.097
+2025-09-10 10:01:07,215 INFO Sample AVISO values: min=-0.313, max=0.552, mean=0.014
+DEBUG[prepare_inputs]: Checking satellite data validity...
+DEBUG[prepare_inputs]: Current data shapes - time: (999,), lat: (999,), lon: (999,)
+DEBUG[prepare_inputs]: Current satellite data shapes - sss: (999,), sst: (999,), ssh: (999,)
+DEBUG[prepare_inputs]: Final dataset size: 999 time points × 999 locations = 998001 total samples
+DEBUG[prepare_inputs]: Returning input tensor with shape: torch.Size([999, 9])
+2025-09-10 10:01:07,221 INFO Input preparation completed, batch shape: torch.Size([999, 9])
+2025-09-10 10:01:07,234 INFO Building grid dataset...
+2025-09-10 10:01:07,234 INFO Starting model inference...
+2025-09-10 10:01:07,234 INFO Creating grid with 40 lat points and 58 lon points
+2025-09-10 10:01:07,250 INFO Lat range: 19.250 to 29.000
+2025-09-10 10:01:07,251 INFO Inference completed, pcs shape: (999, 30)
+2025-09-10 10:01:07,256 INFO Lon range: -97.000 to -82.750
+2025-09-10 10:01:07,268 INFO Performing PCA inverse transform...
+2025-09-10 10:01:07,292 INFO Writing NetCDF file...
+2025-09-10 10:01:07,295 WARNING h5netcdf in-memory failed; writing via secure temp file: unexpected encoding for scipy backend: ['zlib', 'complevel']
+2025-09-10 10:01:07,368 INFO PCA inverse completed, pred_T: (1801, 999), pred_S: (1801, 999)
+2025-09-10 10:01:07,368 INFO Processing satellite data for grid mapping...
+2025-09-10 10:01:07,376 INFO Satellite data processed: sss=(999,), sst=(999,), aviso=(999,)
+2025-09-10 10:01:07,393 INFO Sample SST values: min=302.606, max=304.986, mean=303.887
+2025-09-10 10:01:07,405 INFO Sample SSS values: min=31.646, max=37.168, mean=36.081
+2025-09-10 10:01:07,440 INFO Sample AVISO values: min=-0.311, max=0.555, mean=0.015
+2025-09-10 10:01:07,449 INFO Building grid dataset...
+2025-09-10 10:01:07,455 INFO Creating grid with 40 lat points and 58 lon points
+2025-09-10 10:01:07,463 INFO Lat range: 19.250 to 29.000
+2025-09-10 10:01:07,468 INFO Lon range: -97.000 to -82.750
+2025-09-10 10:01:07,498 INFO Writing NetCDF file...
+2025-09-10 10:01:07,501 WARNING h5netcdf in-memory failed; writing via secure temp file: unexpected encoding for scipy backend: ['zlib', 'complevel']
+2025-09-10 10:01:07,798 INFO NetCDF file created successfully
+2025-09-10 10:01:07,799 INFO Grid query completed successfully: NeSPReSO_grid_2025-09-10.nc
+146.201.220.35 - - [10/Sep/2025:10:01:07 -0400] "POST /v1_profile/grid HTTP/1.1" 200 8471328 "-" "python-requests/2.32.5" 1447293
+2025-09-10 10:01:07,970 INFO NetCDF file created successfully
+2025-09-10 10:01:07,970 INFO Grid query completed successfully: NeSPReSO_grid_2025-09-09.nc
+146.201.220.35 - - [10/Sep/2025:10:01:08 -0400] "POST /v1_profile/grid HTTP/1.1" 200 8467992 "-" "python-requests/2.32.5" 1726246

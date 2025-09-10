@@ -33,6 +33,9 @@ Environment variables (override defaults):
   SATDB_LOG=/unity/g2/jmiranda/nespreso_api/scripts/sat_db/update.log
 
 Requires: earthaccess, copernicusmarine, xarray, netCDF4, h5netcdf
+
+usage:
+python update_sat_archive.py --reset-attempts --backfill --start-date 2025-09-03 --end-date 2025-09-10 --sources sss,aviso,sst --log-stdout
 """
 
 import os
@@ -250,8 +253,14 @@ def ensure_sss_available(sss_root: str, date_: datetime) -> Optional[str]:
     )
 
     if not results:
-        logger.info(f"SSS not available for {t0}")
-        return None
+        logger.info(f"SSS V6 not available for {t0}, trying V5...")
+        results = earthaccess.search_data(
+            short_name="SMAP_RSS_L3_SSS_SMI_8DAY-RUNNINGMEAN_V5",
+            temporal=(start_time, end_time)
+        )
+        if not results:
+            logger.info(f"SSS not available for {t0} (neither V6 nor V5)")
+            return None
 
     with tempfile.TemporaryDirectory(dir=year_dir) as tmp:
         tmpfile = earthaccess.download(results[0], local_path=tmp)[0]
@@ -275,9 +284,9 @@ def ensure_aviso_available(aviso_root: str, date_: datetime) -> Path:
     month_tag = f"{date_.year}-{date_.month:02d}"
     final = aviso_path / f"{month_tag}.nc"
 
-    if final.exists():
-        logger.debug(f"AVISO monthly exists {final}")
-        return final
+    # Determine days in month for completeness checks
+    import calendar
+    days_in_month = calendar.monthrange(date_.year, date_.month)[1]
 
     _assert_writable(aviso_path)
 
@@ -285,85 +294,72 @@ def ensure_aviso_available(aviso_root: str, date_: datetime) -> Path:
     use_duacs = (date_.year < 2024) or (date_.year == 2024 and date_.month <= 10)
 
     if use_duacs:
-        # Legacy path: download daily DUACS and aggregate monthly
+        # If a monthly file exists and appears complete for DUACS, return early
+        if final.exists():
+            try:
+                ds_existing = xr.open_dataset(final, decode_cf=True)
+                n_time = int(ds_existing.sizes.get("time", 0))
+                ds_existing.close()
+                if n_time >= days_in_month:
+                    logger.debug(f"AVISO monthly exists and complete {final} ({n_time}/{days_in_month} days)")
+                    return final
+                else:
+                    logger.info(f"AVISO monthly exists but incomplete {final} ({n_time}/{days_in_month} days) -> will refresh")
+            except Exception as _e:
+                logger.warning(f"AVISO monthly exists at {final} but could not read: {_e} -> will refresh")
+        # Legacy path: download daily DUACS and aggregate monthly, refreshing as new days arrive
         # Create daily downloads directory
         daily_dir = aviso_path / "daily_downloads" / month_tag
         daily_dir.mkdir(parents=True, exist_ok=True)
 
         tmpdir = tempfile.mkdtemp(dir=str(aviso_path))
         try:
-            # Download available daily files for this month
-            pattern = f"*{date_.year}{date_.month:02d}??*.nc"  # YYYYMMDD
-            logger.debug(f"AVISO DUACS download daily files for {month_tag}")
-            resp = copernicusmarine.get(
-                dataset_id=("cmems_obs-sl_glo_phy-ssh_my_allsat-l4-duacs-0.125deg_P1D"),
-                filter=pattern,
-                output_directory=tmpdir,
-                overwrite=False
-            )
+            # Download newly available daily files directly into daily_dir (skip existing)
+            existing_files = sorted(daily_dir.glob("*.nc"))
+            existing_count = len(existing_files)
+            if existing_count < days_in_month:
+                pattern = f"*{date_.year}{date_.month:02d}??*.nc"  # YYYYMMDD
+                logger.debug(f"AVISO DUACS fetching daily files for {month_tag} into {daily_dir} (have {existing_count}/{days_in_month})")
+                copernicusmarine.get(
+                    dataset_id=("cmems_obs-sl_glo_phy-ssh_my_allsat-l4-duacs-0.125deg_P1D"),
+                    filter=pattern,
+                    output_directory=str(daily_dir),
+                    overwrite=False
+                )
 
-            # Move downloaded files to daily directory
-            for file_info in resp.files:
-                src_path = Path(file_info.file_path)
-                dst_path = daily_dir / src_path.name
-                if not dst_path.exists():  # Don't overwrite existing files
-                    shutil.move(str(src_path), str(dst_path))
-
-            # Get all available daily files
+            # Get all available daily files after fetch
             daily_files = sorted(daily_dir.glob("*.nc"))
             if not daily_files:
                 logger.info(f"AVISO {month_tag}: no daily files available yet")
                 raise FileNotFoundError(f"No DUACS files for {month_tag}")
 
-            # Check if we have all days for the month
-            import calendar
-            days_in_month = calendar.monthrange(date_.year, date_.month)[1]
             available_days = len(daily_files)
 
             logger.info(f"AVISO {month_tag}: {available_days}/{days_in_month} daily files available")
 
-            # Only create final monthly file if we have all days
+            # Build or refresh monthly file from daily files (partial or complete)
+            ds = xr.open_mfdataset(
+                daily_files, combine="nested", concat_dim="time",
+                parallel=False, decode_times=False, engine="netcdf4"
+            )
+            ds = xr.decode_cf(ds)
+            ds = ds.chunk({"time": -1, "latitude": 171, "longitude": 173})
+            encoding = {v: {"zlib": True, "complevel": 0} for v in ds.data_vars}
+
+            tmp_month = Path(tmpdir) / f"{month_tag}.nc"
+            ds.to_netcdf(tmp_month, engine="h5netcdf", encoding=encoding)
+            ds.close(); del ds
+            gc.collect(); time.sleep(0.1)
+
+            final.parent.mkdir(parents=True, exist_ok=True)
+            _atomic_move(tmp_month, final)
+
             if available_days >= days_in_month:
-                ds = xr.open_mfdataset(
-                    daily_files, combine="nested", concat_dim="time",
-                    parallel=False, decode_times=False, engine="netcdf4"
-                )
-                ds = xr.decode_cf(ds)
-                ds = ds.chunk({"time": -1, "latitude": 171, "longitude": 173})
-                encoding = {v: {"zlib": True, "complevel": 0} for v in ds.data_vars}
-
-                tmp_month = Path(tmpdir) / f"{month_tag}.nc"
-                ds.to_netcdf(tmp_month, engine="h5netcdf", encoding=encoding)
-                ds.close(); del ds
-                gc.collect(); time.sleep(0.1)
-
-                _atomic_move(tmp_month, final)
-
-                # Clean up daily files after successful monthly creation
+                # Clean up daily files after successful monthly completion
                 shutil.rmtree(daily_dir, ignore_errors=True)
                 logger.info(f"AVISO {month_tag}: monthly file completed -> {final}")
             else:
-                # Create intermediate file for partial month
-                if available_days > 0:
-                    ds = xr.open_mfdataset(
-                        daily_files, combine="nested", concat_dim="time",
-                        parallel=False, decode_times=False, engine="netcdf4"
-                    )
-                    ds = xr.decode_cf(ds)
-                    ds = ds.chunk({"time": -1, "latitude": 171, "longitude": 173})
-                    encoding = {v: {"zlib": True, "complevel": 0} for v in ds.data_vars}
-
-                    tmp_month = Path(tmpdir) / f"{month_tag}.nc"
-                    ds.to_netcdf(tmp_month, engine="h5netcdf", encoding=encoding)
-                    ds.close(); del ds
-                    gc.collect(); time.sleep(0.1)
-
-                    final.parent.mkdir(parents=True, exist_ok=True)
-                    _atomic_move(tmp_month, final)
-                    logger.info(f"AVISO {month_tag}: partial monthly file created ({available_days}/{days_in_month} days) -> {final}")
-                else:
-                    logger.info(f"AVISO {month_tag}: no files found to build partial monthly file")
-                    raise FileNotFoundError(f"No DUACS files for {month_tag}")
+                logger.info(f"AVISO {month_tag}: partial monthly file created/refreshed ({available_days}/{days_in_month} days) -> {final}")
 
         finally:
             shutil.rmtree(tmpdir, ignore_errors=True)
@@ -373,38 +369,35 @@ def ensure_aviso_available(aviso_root: str, date_: datetime) -> Path:
     # New path (ANFC): subset monthly SSH, convert to ADT, and write compatible file
     tmpdir = tempfile.mkdtemp(dir=str(aviso_path))
     try:
-        # Use cached ANFC monthly subset if present, else download it
+        # Always fetch or refresh the ANFC monthly subset, then convert to ADT
         anfc_month = ANFC_ROOT / f"{month_tag}.nc"
-        if not anfc_month.exists() or anfc_month.stat().st_size == 0:
-            ANFC_ROOT.mkdir(parents=True, exist_ok=True)
-            _assert_writable(ANFC_ROOT)
+        ANFC_ROOT.mkdir(parents=True, exist_ok=True)
+        _assert_writable(ANFC_ROOT)
 
-            # Compute month start/end
-            import calendar
-            month_start = date_.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
-            last_day = calendar.monthrange(date_.year, date_.month)[1]
-            month_end = date_.replace(day=last_day, hour=23, minute=59, second=59, microsecond=0)
+        # Compute month start/end
+        month_start = date_.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+        month_end = date_.replace(day=days_in_month, hour=23, minute=59, second=59, microsecond=0)
 
-            lon_min, lon_max, lat_min, lat_max = _parse_bbox(ANFC_BBOX)
+        lon_min, lon_max, lat_min, lat_max = _parse_bbox(ANFC_BBOX)
 
-            subset_kwargs = dict(
-                dataset_id=ANFC_DATASET_ID,
-                variables=[ANFC_VARIABLE],
-                minimum_longitude=lon_min,
-                maximum_longitude=lon_max,
-                minimum_latitude=lat_min,
-                maximum_latitude=lat_max,
-                start_datetime=month_start.strftime("%Y-%m-%dT%H:%M:%S"),
-                end_datetime=month_end.strftime("%Y-%m-%dT%H:%M:%S"),
-                output_filename=str(Path(tmpdir) / f"{month_tag}.raw.nc"),
-            )
-            if ANFC_DATASET_VERSION:
-                subset_kwargs["dataset_version"] = ANFC_DATASET_VERSION
+        subset_kwargs = dict(
+            dataset_id=ANFC_DATASET_ID,
+            variables=[ANFC_VARIABLE],
+            minimum_longitude=lon_min,
+            maximum_longitude=lon_max,
+            minimum_latitude=lat_min,
+            maximum_latitude=lat_max,
+            start_datetime=month_start.strftime("%Y-%m-%dT%H:%M:%S"),
+            end_datetime=month_end.strftime("%Y-%m-%dT%H:%M:%S"),
+            output_filename=str(Path(tmpdir) / f"{month_tag}.raw.nc"),
+        )
+        if ANFC_DATASET_VERSION:
+            subset_kwargs["dataset_version"] = ANFC_DATASET_VERSION
 
-            logger.info(f"AVISO {month_tag}: downloading ANFC {ANFC_DATASET_ID} var={ANFC_VARIABLE} bbox={ANFC_BBOX}")
-            copernicusmarine.subset(**subset_kwargs)
-            os.replace(Path(tmpdir) / f"{month_tag}.raw.nc", anfc_month)
-            logger.info(f"AVISO {month_tag}: wrote ANFC subset {anfc_month}")
+        logger.info(f"AVISO {month_tag}: downloading ANFC {ANFC_DATASET_ID} var={ANFC_VARIABLE} bbox={ANFC_BBOX}")
+        copernicusmarine.subset(**subset_kwargs)
+        os.replace(Path(tmpdir) / f"{month_tag}.raw.nc", anfc_month)
+        logger.info(f"AVISO {month_tag}: wrote/updated ANFC subset {anfc_month}")
 
         # Open ANFC monthly and build ADT
         ds_src = xr.open_dataset(anfc_month, decode_cf=True)
@@ -672,15 +665,37 @@ def update_once(conn: sqlite3.Connection, rescan_days: Optional[int] = None):
     first_this_month = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
     mid_prev_month = first_this_month - timedelta(days=15)
     try:
+        import calendar
+        import xarray as xr
         mkey = f"{mid_prev_month.year:04d}-{mid_prev_month.month:02d}"
-        row = conn.execute("SELECT aviso FROM months WHERE month= ?", (mkey,)).fetchone()
-        if (row is None or int(row[0]) == 0) and should_retry(conn, mid_prev_month, "aviso"):
+        # Decide whether the monthly file needs refresh regardless of DB state
+        month_file = AVISO_ROOT / f"{mkey}.nc"
+        days_in_month = calendar.monthrange(mid_prev_month.year, mid_prev_month.month)[1]
+        needs_refresh = True
+        if month_file.exists():
+            try:
+                ds_tmp = xr.open_dataset(month_file, decode_cf=True)
+                n_time = int(ds_tmp.sizes.get("time", 0))
+                ds_tmp.close()
+                if n_time >= days_in_month:
+                    needs_refresh = False
+            except Exception:
+                needs_refresh = True
+
+        if needs_refresh and should_retry(conn, mid_prev_month, "aviso"):
             logging.getLogger("satdb").info(f"UPDATE AVISO monthly attempt for {mkey}")
             path = ensure_aviso_available(str(AVISO_ROOT), mid_prev_month)
             if path:
-                record_success(conn, mid_prev_month, "aviso")
-            else:
-                record_attempt(conn, mid_prev_month, "aviso", error="not-available")
+                try:
+                    ds_chk = xr.open_dataset(path, decode_cf=True)
+                    n_time = int(ds_chk.sizes.get("time", 0))
+                    ds_chk.close()
+                    if n_time >= days_in_month:
+                        record_success(conn, mid_prev_month, "aviso")
+                    else:
+                        record_attempt(conn, mid_prev_month, "aviso", error=f"partial-month {n_time}/{days_in_month}")
+                except Exception as e_chk:
+                    record_attempt(conn, mid_prev_month, "aviso", error=f"open-failed: {str(e_chk)[:300]}")
     except Exception as e:
         record_attempt(conn, mid_prev_month, "aviso", error=str(e)[:500])
 
@@ -789,15 +804,36 @@ def backfill_range(conn: sqlite3.Connection, start_date: datetime, end_date: dat
     if "aviso" in sources:
         for mid in _month_iter_midpoints(start_date, end_date):
             try:
+                import calendar
+                import xarray as xr
                 mkey = f"{mid.year:04d}-{mid.month:02d}"
-                row = conn.execute("SELECT aviso FROM months WHERE month= ?", (mkey,)).fetchone()
-                if (row is None or int(row[0]) == 0) and should_retry(conn, mid, "aviso"):
+                month_file = AVISO_ROOT / f"{mkey}.nc"
+                days_in_month = calendar.monthrange(mid.year, mid.month)[1]
+                needs_refresh = True
+                if month_file.exists():
+                    try:
+                        ds_tmp = xr.open_dataset(month_file, decode_cf=True)
+                        n_time = int(ds_tmp.sizes.get("time", 0))
+                        ds_tmp.close()
+                        if n_time >= days_in_month:
+                            needs_refresh = False
+                    except Exception:
+                        needs_refresh = True
+
+                if needs_refresh and should_retry(conn, mid, "aviso"):
                     logging.getLogger("satdb").info(f"BACKFILL AVISO monthly attempt {mkey}")
                     path = ensure_aviso_available(str(AVISO_ROOT), mid)
                     if path:
-                        record_success(conn, mid, "aviso")
-                    else:
-                        record_attempt(conn, mid, "aviso", error="not-available")
+                        try:
+                            ds_chk = xr.open_dataset(path, decode_cf=True)
+                            n_time = int(ds_chk.sizes.get("time", 0))
+                            ds_chk.close()
+                            if n_time >= days_in_month:
+                                record_success(conn, mid, "aviso")
+                            else:
+                                record_attempt(conn, mid, "aviso", error=f"partial-month {n_time}/{days_in_month}")
+                        except Exception as e_chk:
+                            record_attempt(conn, mid, "aviso", error=f"open-failed: {str(e_chk)[:300]}")
             except Exception as e:
                 record_attempt(conn, mid, "aviso", error=str(e)[:500])
 
@@ -821,6 +857,7 @@ def main(argv=None):
     p.add_argument("--start-date", type=str, default=None, help="Backfill start date YYYY-MM-DD")
     p.add_argument("--end-date", type=str, default=None, help="Backfill end date YYYY-MM-DD")
     p.add_argument("--sources", type=str, default="sst,sss,aviso", help="Comma list of sources to fetch: sst,sss,aviso")
+    p.add_argument("--reset-attempts", action="store_true", help="Reset all retry attempts to allow immediate retries")
     p.add_argument("--log", type=str, default=str(LOG_PATH), help="Log file path (default from SATDB_LOG)")
     p.add_argument("--log-level", type=str, default=os.environ.get("SATDB_LOG_LEVEL", "INFO"), help="Log level: DEBUG, INFO, WARNING, ERROR")
     p.add_argument("--log-stdout", action="store_true", help="Also emit logs to stdout")
@@ -833,6 +870,15 @@ def main(argv=None):
         print(f"Failed to initialize logging: {e}")
 
     conn = connect_db()
+
+    if args.reset_attempts:
+        logging.getLogger("satdb").info("Resetting all retry attempts...")
+        conn.execute("DELETE FROM attempts")
+        conn.commit()
+        print("All retry attempts have been reset. Previous failures can now be retried immediately.")
+        if not any([args.bootstrap, args.report, args.backfill]):
+            print("Use --backfill, --bootstrap, or normal update to retry failed downloads.")
+            return 0
 
     if args.bootstrap:
         bootstrap_scan(conn, args.start_year, args.end_year)

@@ -88,7 +88,7 @@ class ArchiveConfig:
     sss_root: str = "/Net/work/ozavala/DATA/GOFFISH/SSS/SMAP_Global/"
     aviso_root: str = "/Net/work/ozavala/DATA/GOFFISH/AVISO/GoM/"
     new_aviso_root: str = "/Net/work/ozavala/DATA/GOFFISH/AVISO/GoM/CMEMS_GLOBAL_PHY_ANFC/"
-    api_url: str = "http://146.201.220.56:5000/v1/profile/grid"
+    api_url: str = "https://ozavala.coaps.fsu.edu/nespreso_grid"
     output_dir: str = "/Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO"
     checkpoint_file: str = "/Net/work/ozavala/DATA/SubSurfaceFields/NeSPReSO/archive_checkpoint.json"
     max_workers: int = 4
@@ -594,6 +594,15 @@ class ArchiveBuilder:
             logger.info("No checkpoint found, starting fresh...")
             self.build_archive()
             return
+        
+        # Before resuming, rescan for newly available complete dates and update checkpoint
+        try:
+            logger.info("Scanning for newly available complete dates to update checkpoint...")
+            complete_dates = self._get_complete_dates()
+            # This will add any new dates and refresh existing availability flags in the checkpoint
+            self._initialize_date_statuses(complete_dates)
+        except Exception as e:
+            logger.error(f"Failed to scan for complete dates during resume: {e}")
         
         # Convert checkpoint data back to DateStatus objects for processing
         logger.info("Converting checkpoint data to date statuses...")

@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """
 WSGI entry point for NeSPReSO API
+usage:
+gunicorn -w 2 -c config/gunicorn.conf.py 'wsgi:app'
 """
 
 from services.api.app import create_app

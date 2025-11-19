@@ -15,12 +15,26 @@ Features:
 - Error handling and retry logic
 
 Usage examples:
-- Build the archive interactively (will prompt to resume if a checkpoint exists):
-- Start fresh even if a checkpoint exists (answer "n" when prompted):
+- Build or update the archive (default resumes if a checkpoint exists):
   python build_nespreso_archive.py
+
+- Start fresh even if a checkpoint exists:
+  python build_nespreso_archive.py --fresh
+
+- Explicitly resume from a checkpoint:
+  python build_nespreso_archive.py --resume
 
 - Show progress without running any jobs:
   python build_nespreso_archive.py --status
+
+- Rebuild archive for specific dates (comma-separated):
+  python build_nespreso_archive.py --dates 20230101,20230102,20230103
+
+- Rebuild archive for specific dates from a file:
+  python build_nespreso_archive.py --dates dates.txt
+
+- Force rebuild specific dates even if already processed:
+  python build_nespreso_archive.py --dates 20230101,20230102 --force-rebuild
 
 Notes:
 - AVISO availability is merged from two roots: `aviso_root` before 2024-11-01 and
@@ -41,6 +55,7 @@ from dataclasses import dataclass, asdict
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import signal
 import sys
+import argparse
 
 # Import our corrected scanner functions
 from scan_satellite_dates import (
@@ -397,8 +412,13 @@ class ArchiveBuilder:
             logger.error(f"Date {date_str}: {error_msg}")
             return False, error_msg
     
-    def _process_date(self, date_str: str) -> bool:
-        """Process a single date and update its status"""
+    def _process_date(self, date_str: str, force: bool = False) -> bool:
+        """Process a single date and update its status
+        
+        Args:
+            date_str: Date string in YYYYMMDD format
+            force: If True, process even if already processed (default: False)
+        """
         if not self.running:
             return False
         
@@ -409,8 +429,8 @@ class ArchiveBuilder:
             
         status = self.checkpoint_data[date_str]
         
-        # Skip if already processed successfully
-        if status.get('processed') and status.get('output_file'):
+        # Skip if already processed successfully (unless forced)
+        if not force and status.get('processed') and status.get('output_file'):
             logger.info(f"Date {date_str} already processed, skipping")
             return True
         
@@ -439,15 +459,24 @@ class ArchiveBuilder:
                 logger.warning(f"Date {date_str} failed, will retry (attempt {status['retry_count']}/{self.config.retry_attempts})")
             return False
     
-    def _process_dates_batch(self, date_statuses: Dict[str, DateStatus]) -> None:
-        """Process dates in batches with progress tracking"""
+    def _process_dates_batch(self, date_statuses: Dict[str, DateStatus], force: bool = False) -> None:
+        """Process dates in batches with progress tracking
+        
+        Args:
+            date_statuses: Dictionary of date strings to DateStatus objects
+            force: If True, process even if already processed (default: False)
+        """
         logger.info("Starting batch processing of dates...")
         
-        # Get unprocessed dates
-        unprocessed_dates = [
-            date_str for date_str, status in date_statuses.items()
-            if not status.processed or not status.output_file
-        ]
+        # Get unprocessed dates (or all dates if forcing)
+        if force:
+            unprocessed_dates = list(date_statuses.keys())
+            logger.info(f"Force rebuild enabled: processing all {len(unprocessed_dates)} specified dates")
+        else:
+            unprocessed_dates = [
+                date_str for date_str, status in date_statuses.items()
+                if not status.processed or not status.output_file
+            ]
         
         if not unprocessed_dates:
             logger.info("All dates have been processed successfully!")
@@ -466,7 +495,7 @@ class ArchiveBuilder:
                 # Submit all tasks
                 logger.info(f"Submitting {len(unprocessed_dates)} tasks to thread pool...")
                 future_to_date = {
-                    executor.submit(self._process_date, date_str): date_str
+                    executor.submit(self._process_date, date_str, force): date_str
                     for date_str in unprocessed_dates
                 }
                 
@@ -639,38 +668,166 @@ class ArchiveBuilder:
         # Continue processing
         self._process_dates_batch(date_statuses)
         self._generate_summary_report()
+    
+    def rebuild_specific_dates(self, date_strings: List[str], force: bool = False) -> None:
+        """Rebuild archive for specific dates
+        
+        Args:
+            date_strings: List of date strings in YYYYMMDD format
+            force: If True, rebuild even if already processed (default: False)
+        """
+        logger.info(f"Rebuilding archive for {len(date_strings)} specific dates (force={force})...")
+        
+        # Validate date format and ensure dates are in checkpoint
+        valid_dates = []
+        
+        # Get complete dates once (for checking if dates have complete satellite data)
+        complete_dates = None
+        try:
+            complete_dates = set(self._get_complete_dates())
+        except Exception as e:
+            logger.warning(f"Could not get complete dates list: {e}. Will add dates to checkpoint anyway.")
+        
+        for date_str in date_strings:
+            # Validate format
+            if len(date_str) != 8 or not date_str.isdigit():
+                logger.warning(f"Invalid date format: {date_str} (expected YYYYMMDD), skipping")
+                continue
+            
+            # Ensure date is in checkpoint
+            if date_str not in self.checkpoint_data:
+                logger.info(f"Date {date_str} not in checkpoint, adding it...")
+                # Check if date has complete satellite data
+                if complete_dates is not None and date_str in complete_dates:
+                    self.checkpoint_data[date_str] = asdict(DateStatus(
+                        date=date_str,
+                        sst_available=True,
+                        sss_available=True,
+                        aviso_available=True,
+                        complete=True,
+                        processed=False
+                    ))
+                    logger.info(f"Added date {date_str} to checkpoint (has complete satellite data)")
+                else:
+                    logger.warning(f"Date {date_str} does not have complete satellite data, but adding to checkpoint anyway")
+                    self.checkpoint_data[date_str] = asdict(DateStatus(
+                        date=date_str,
+                        sst_available=False,
+                        sss_available=False,
+                        aviso_available=False,
+                        complete=False,
+                        processed=False
+                    ))
+            
+            # If forcing rebuild, mark as unprocessed
+            if force:
+                self.checkpoint_data[date_str]['processed'] = False
+                self.checkpoint_data[date_str]['output_file'] = None
+                self.checkpoint_data[date_str]['error'] = None
+                # Don't reset retry_count to allow tracking total attempts
+            
+            valid_dates.append(date_str)
+        
+        if not valid_dates:
+            logger.error("No valid dates to process")
+            return
+        
+        logger.info(f"Processing {len(valid_dates)} valid dates")
+        
+        # Convert checkpoint data to DateStatus objects for processing
+        date_statuses = {}
+        for date_str in valid_dates:
+            if date_str in self.checkpoint_data:
+                status_data = self.checkpoint_data[date_str]
+                date_statuses[date_str] = DateStatus(
+                    date=date_str,
+                    sst_available=status_data.get('sst_available', False),
+                    sss_available=status_data.get('sss_available', False),
+                    aviso_available=status_data.get('aviso_available', False),
+                    complete=status_data.get('complete', False),
+                    processed=status_data.get('processed', False),
+                    error=status_data.get('error'),
+                    retry_count=status_data.get('retry_count', 0),
+                    last_attempt=status_data.get('last_attempt'),
+                    output_file=status_data.get('output_file')
+                )
+        
+        # Save checkpoint before processing
+        self._save_checkpoint()
+        
+        # Process the specified dates
+        self._process_dates_batch(date_statuses, force=force)
+        self._generate_summary_report()
+        
+        logger.info(f"Finished rebuilding {len(valid_dates)} specific dates")
 
 def main():
-    """Main entry point"""
-    # Configuration
+    """Main entry point (defaults to resume/update behavior without prompting)."""
     config = ArchiveConfig()
-    
-    # Create archive builder
     builder = ArchiveBuilder(config)
     
-    # Check if resuming
     if os.path.exists(config.checkpoint_file):
-        logger.info("Checkpoint file found. Do you want to resume? (y/n): ")
-        response = input().lower().strip()
-        if response in ['y', 'yes']:
-            logger.info("Resuming archive building...")
-            builder.resume_archive()
-        else:
-            logger.info("Starting fresh archive building...")
-            builder.build_archive()
+        logger.info("Checkpoint found, resuming archive building...")
+        builder.resume_archive()
     else:
         logger.info("No checkpoint found, starting fresh archive building...")
         builder.build_archive()
 
-if __name__ == "__main__":
-    import sys
+def parse_dates_argument(dates_arg: str) -> List[str]:
+    """Parse dates from either a comma-separated string or a file path
     
-    # Check if user wants to just check status
-    if len(sys.argv) > 1 and sys.argv[1] == "--status":
-        # Just check status without running
+    Args:
+        dates_arg: Either comma-separated dates (YYYYMMDD) or path to file with dates (one per line)
+    
+    Returns:
+        List of date strings in YYYYMMDD format
+    """
+    dates = []
+    
+    # Check if it's a file path
+    if os.path.exists(dates_arg):
+        try:
+            with open(dates_arg, 'r') as f:
+                for line in f:
+                    line = line.strip()
+                    if line and not line.startswith('#'):  # Skip empty lines and comments
+                        dates.append(line)
+            logger.info(f"Loaded {len(dates)} dates from file: {dates_arg}")
+        except Exception as e:
+            logger.error(f"Failed to read dates from file {dates_arg}: {e}")
+            return []
+    else:
+        # Treat as comma-separated string
+        dates = [d.strip() for d in dates_arg.split(',') if d.strip()]
+        logger.info(f"Parsed {len(dates)} dates from comma-separated string")
+    
+    return dates
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="NeSPReSO Data Archive Builder")
+    group = parser.add_mutually_exclusive_group()
+    group.add_argument("--resume", action="store_true", help="Resume from checkpoint (default if checkpoint exists)")
+    group.add_argument("--fresh", action="store_true", help="Start fresh, ignoring any existing checkpoint")
+    parser.add_argument("--status", action="store_true", help="Show checkpoint/build status and exit")
+    parser.add_argument("--dates", type=str, help="Comma-separated dates (YYYYMMDD) or path to file with dates (one per line)")
+    parser.add_argument("--force-rebuild", action="store_true", help="Force rebuild even if date is already processed (only used with --dates)")
+    args = parser.parse_args()
+
+    # Handle specific dates rebuild mode (takes precedence)
+    if args.dates:
         config = ArchiveConfig()
         builder = ArchiveBuilder(config)
-        
+        dates_list = parse_dates_argument(args.dates)
+        if not dates_list:
+            logger.error("No valid dates provided. Exiting.")
+            sys.exit(1)
+        logger.info(f"Rebuilding archive for {len(dates_list)} specific dates")
+        builder.rebuild_specific_dates(dates_list, force=args.force_rebuild)
+        sys.exit(0)
+
+    if args.status:
+        config = ArchiveConfig()
+        builder = ArchiveBuilder(config)
         if not builder.checkpoint_data:
             print("No checkpoint found - no archive building has been started yet.")
         else:
@@ -678,8 +835,7 @@ if __name__ == "__main__":
             processed = sum(1 for status in builder.checkpoint_data.values() if status.get('processed'))
             failed = sum(1 for status in builder.checkpoint_data.values() if status.get('error'))
             remaining = total - processed - failed
-            
-            print(f"Archive Status:")
+            print("Archive Status:")
             print(f"  Total dates: {total}")
             print(f"  Processed: {processed}")
             print(f"  Failed: {failed}")
@@ -687,5 +843,29 @@ if __name__ == "__main__":
             if total > 0:
                 progress = (processed / total) * 100
                 print(f"  Progress: {progress:.1f}%")
-    else:
-        main()
+        sys.exit(0)
+
+    # Build/run modes
+    config = ArchiveConfig()
+    # Fresh mode explicitly requested: remove checkpoint (if any) and start fresh
+    if args.fresh:
+        if os.path.exists(config.checkpoint_file):
+            try:
+                os.remove(config.checkpoint_file)
+                logger.info(f"Removed existing checkpoint at {config.checkpoint_file} for a fresh start")
+            except Exception as e:
+                logger.warning(f"Failed to remove checkpoint file: {e}. Proceeding to start fresh regardless.")
+        builder = ArchiveBuilder(config)
+        logger.info("Starting fresh archive building...")
+        builder.build_archive()
+        sys.exit(0)
+
+    # Resume explicitly requested
+    if args.resume:
+        builder = ArchiveBuilder(config)
+        logger.info("Resuming archive building...")
+        builder.resume_archive()
+        sys.exit(0)
+
+    # Default behavior: resume if checkpoint exists, else fresh build
+    main()

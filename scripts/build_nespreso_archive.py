@@ -128,6 +128,8 @@ class DateStatus:
     retry_count: int = 0
     last_attempt: Optional[str] = None
     output_file: Optional[str] = None
+    abandoned: bool = False
+    abandon_reason: Optional[str] = None
 
 class ArchiveBuilder:
     """Main class for building the NeSPReSO data archive"""
@@ -357,8 +359,23 @@ class ArchiveBuilder:
                     error=status_data.get('error'),
                     retry_count=status_data.get('retry_count', 0),
                     last_attempt=status_data.get('last_attempt'),
-                    output_file=status_data.get('output_file')
+                    output_file=status_data.get('output_file'),
+                    abandoned=status_data.get('abandoned', False),
+                    abandon_reason=status_data.get('abandon_reason'),
                 )
+                # Auto-abandon if already over the retry cap
+                if (
+                    not date_status.processed
+                    and not date_status.abandoned
+                    and date_status.retry_count >= self.config.retry_attempts
+                ):
+                    date_status.abandoned = True
+                    date_status.abandon_reason = (
+                        date_status.abandon_reason
+                        or f"exceeded max retries ({self.config.retry_attempts})"
+                    )
+                    status_data['abandoned'] = True
+                    status_data['abandon_reason'] = date_status.abandon_reason
                 date_statuses[date_str] = date_status
         
         self._save_checkpoint()
@@ -428,11 +445,29 @@ class ArchiveBuilder:
             return False
             
         status = self.checkpoint_data[date_str]
+
+        # Permanently skipped dates
+        if status.get('abandoned'):
+            logger.info(
+                f"Date {date_str} abandoned ({status.get('abandon_reason') or 'max retries'}); skipping"
+            )
+            return False
         
         # Skip if already processed successfully (unless forced)
         if not force and status.get('processed') and status.get('output_file'):
             logger.info(f"Date {date_str} already processed, skipping")
             return True
+
+        # Cap retries: abandon and skip (unless force rebuild resets handled by caller)
+        if not force and status.get('retry_count', 0) >= self.config.retry_attempts:
+            status['abandoned'] = True
+            if not status.get('abandon_reason'):
+                status['abandon_reason'] = f"exceeded max retries ({self.config.retry_attempts})"
+            self.checkpoint_data[date_str] = status
+            logger.error(
+                f"Date {date_str} abandoned after {status['retry_count']} attempts: {status.get('error')}"
+            )
+            return False
         
         # Update attempt info
         status['last_attempt'] = datetime.now().isoformat()
@@ -447,6 +482,7 @@ class ArchiveBuilder:
             # Update status for successful processing
             status['processed'] = True
             status['error'] = None
+            status['abandoned'] = False
             status['output_file'] = result
             logger.info(f"Date {date_str} processed successfully")
             return True
@@ -454,7 +490,9 @@ class ArchiveBuilder:
             # Update status for failed processing
             status['error'] = result
             if status['retry_count'] >= self.config.retry_attempts:
-                logger.error(f"Date {date_str} failed after {status['retry_count']} attempts")
+                status['abandoned'] = True
+                status['abandon_reason'] = f"exceeded max retries ({self.config.retry_attempts})"
+                logger.error(f"Date {date_str} failed after {status['retry_count']} attempts; marked abandoned")
             else:
                 logger.warning(f"Date {date_str} failed, will retry (attempt {status['retry_count']}/{self.config.retry_attempts})")
             return False
@@ -470,12 +508,17 @@ class ArchiveBuilder:
         
         # Get unprocessed dates (or all dates if forcing)
         if force:
-            unprocessed_dates = list(date_statuses.keys())
-            logger.info(f"Force rebuild enabled: processing all {len(unprocessed_dates)} specified dates")
+            unprocessed_dates = [
+                date_str for date_str, status in date_statuses.items()
+                if not status.abandoned
+            ]
+            logger.info(f"Force rebuild enabled: processing {len(unprocessed_dates)} non-abandoned dates")
         else:
             unprocessed_dates = [
                 date_str for date_str, status in date_statuses.items()
-                if not status.processed or not status.output_file
+                if (not status.processed or not status.output_file)
+                and not status.abandoned
+                and status.retry_count < self.config.retry_attempts
             ]
         
         if not unprocessed_dates:
@@ -615,9 +658,41 @@ class ArchiveBuilder:
         logger.info(f"Summary report saved to {report_path}")
         logger.info(f"Archive Summary: {processed_dates}/{total_dates} dates processed successfully ({report['summary']['success_rate']})")
     
+    def seed_known_abandoned_dates(self) -> None:
+        """Mark permanently unavailable dates so --resume never requeues them."""
+        known = {
+            "20190708": "SMAP safehold 2019 (no SSS L3)",
+        }
+        changed = False
+        for date_str, reason in known.items():
+            row = self.checkpoint_data.get(date_str)
+            if row is None:
+                self.checkpoint_data[date_str] = asdict(
+                    DateStatus(
+                        date=date_str,
+                        complete=False,
+                        processed=False,
+                        abandoned=True,
+                        abandon_reason=reason,
+                        error=reason,
+                        retry_count=self.config.retry_attempts,
+                    )
+                )
+                changed = True
+                logger.info(f"Seeded abandoned date {date_str}: {reason}")
+            elif not row.get("abandoned"):
+                row["abandoned"] = True
+                row["abandon_reason"] = reason
+                row["error"] = row.get("error") or reason
+                changed = True
+                logger.info(f"Marked {date_str} abandoned: {reason}")
+        if changed:
+            self._save_checkpoint()
+
     def resume_archive(self):
         """Resume archive building from checkpoint"""
         logger.info("Resuming archive building from checkpoint...")
+        self.seed_known_abandoned_dates()
         
         if not self.checkpoint_data:
             logger.info("No checkpoint found, starting fresh...")
@@ -655,8 +730,13 @@ class ArchiveBuilder:
         logger.info(f"Converted {len(date_statuses)} date statuses from checkpoint")
         
         # Check if there are any unprocessed dates
-        unprocessed_count = sum(1 for status in date_statuses.values() 
-                              if not status.processed or not status.output_file)
+        unprocessed_count = sum(
+            1
+            for status in date_statuses.values()
+            if (not status.processed or not status.output_file)
+            and not status.abandoned
+            and status.retry_count < self.config.retry_attempts
+        )
         
         if unprocessed_count == 0:
             logger.info("All dates in checkpoint have been processed successfully!")
@@ -719,12 +799,14 @@ class ArchiveBuilder:
                         processed=False
                     ))
             
-            # If forcing rebuild, mark as unprocessed
+            # If forcing rebuild, mark as unprocessed and clear abandon so it can run again
             if force:
                 self.checkpoint_data[date_str]['processed'] = False
                 self.checkpoint_data[date_str]['output_file'] = None
                 self.checkpoint_data[date_str]['error'] = None
-                # Don't reset retry_count to allow tracking total attempts
+                self.checkpoint_data[date_str]['abandoned'] = False
+                self.checkpoint_data[date_str]['abandon_reason'] = None
+                self.checkpoint_data[date_str]['retry_count'] = 0
             
             valid_dates.append(date_str)
         
@@ -749,7 +831,9 @@ class ArchiveBuilder:
                     error=status_data.get('error'),
                     retry_count=status_data.get('retry_count', 0),
                     last_attempt=status_data.get('last_attempt'),
-                    output_file=status_data.get('output_file')
+                    output_file=status_data.get('output_file'),
+                    abandoned=status_data.get('abandoned', False),
+                    abandon_reason=status_data.get('abandon_reason'),
                 )
         
         # Save checkpoint before processing
@@ -811,11 +895,14 @@ if __name__ == "__main__":
     parser.add_argument("--status", action="store_true", help="Show checkpoint/build status and exit")
     parser.add_argument("--dates", type=str, help="Comma-separated dates (YYYYMMDD) or path to file with dates (one per line)")
     parser.add_argument("--force-rebuild", action="store_true", help="Force rebuild even if date is already processed (only used with --dates)")
+    parser.add_argument("--max-retries", type=int, default=None, help="Max attempts before abandoning a date (default: ArchiveConfig.retry_attempts)")
     args = parser.parse_args()
 
     # Handle specific dates rebuild mode (takes precedence)
     if args.dates:
         config = ArchiveConfig()
+        if args.max_retries is not None:
+            config.retry_attempts = args.max_retries
         builder = ArchiveBuilder(config)
         dates_list = parse_dates_argument(args.dates)
         if not dates_list:
@@ -827,18 +914,29 @@ if __name__ == "__main__":
 
     if args.status:
         config = ArchiveConfig()
+        if args.max_retries is not None:
+            config.retry_attempts = args.max_retries
         builder = ArchiveBuilder(config)
+        builder.seed_known_abandoned_dates()
         if not builder.checkpoint_data:
             print("No checkpoint found - no archive building has been started yet.")
         else:
             total = len(builder.checkpoint_data)
             processed = sum(1 for status in builder.checkpoint_data.values() if status.get('processed'))
-            failed = sum(1 for status in builder.checkpoint_data.values() if status.get('error'))
-            remaining = total - processed - failed
+            failed = sum(1 for status in builder.checkpoint_data.values() if status.get('error') and not status.get('processed'))
+            abandoned = sum(1 for status in builder.checkpoint_data.values() if status.get('abandoned'))
+            remaining = sum(
+                1
+                for status in builder.checkpoint_data.values()
+                if not status.get('processed')
+                and not status.get('abandoned')
+                and status.get('retry_count', 0) < config.retry_attempts
+            )
             print("Archive Status:")
             print(f"  Total dates: {total}")
             print(f"  Processed: {processed}")
             print(f"  Failed: {failed}")
+            print(f"  Abandoned: {abandoned}")
             print(f"  Remaining: {remaining}")
             if total > 0:
                 progress = (processed / total) * 100
@@ -847,6 +945,8 @@ if __name__ == "__main__":
 
     # Build/run modes
     config = ArchiveConfig()
+    if args.max_retries is not None:
+        config.retry_attempts = args.max_retries
     # Fresh mode explicitly requested: remove checkpoint (if any) and start fresh
     if args.fresh:
         if os.path.exists(config.checkpoint_file):

@@ -289,6 +289,7 @@ def get_sss_by_date(sss_folder: str, c_date: datetime, bbox=None):
     candidates = [
         join(sss_folder, str(c_date.year), f"RSS_smap_SSS_L3_8day_running_{c_date.year}_{doy:03d}_FNL_v06.0.nc"),
         join(sss_folder, str(c_date.year), f"RSS_smap_SSS_L3_8day_running_{c_date.year}_{doy:03d}_FNL_v05.0.nc"),
+        join(sss_folder, str(c_date.year), f"RSS_smap_SSS_L3_8day_running_{c_date.year}_{doy:03d}_FNL_v06.0_l2c.nc"),
     ]
     last_err = None
     ds = None
@@ -344,7 +345,15 @@ def check_data_availability(dates: list[datetime], sss_root: str, sst_root: str,
     def sss_exists(d): 
         ydir = os.path.join(sss_root, f"{d.year:04d}")
         doy  = d.timetuple().tm_yday
-        return os.path.isfile(os.path.join(ydir, f"RSS_smap_SSS_L3_8day_running_{d.year}_{doy:03d}_FNL_v06.0.nc"))
+        base = f"RSS_smap_SSS_L3_8day_running_{d.year}_{doy:03d}"
+        return any(
+            os.path.isfile(os.path.join(ydir, name))
+            for name in (
+                f"{base}_FNL_v06.0.nc",
+                f"{base}_FNL_v05.0.nc",
+                f"{base}_FNL_v06.0_l2c.nc",
+            )
+        ) or bool(glob.glob(os.path.join(ydir, f"{base}_FNL_v*.nc")))
     def sst_exists(d):
         ydir = os.path.join(sst_root, f"{d.year:04d}")
         pattern = os.path.join(ydir, f"{d.strftime('%Y%m%d')}090000-JPL-L4_GHRSST-SSTfnd-MUR-GLOB-v02.0-fv04.1*.nc")

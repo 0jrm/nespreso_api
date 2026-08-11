@@ -48,7 +48,7 @@ import sqlite3
 import shutil
 import tempfile
 from pathlib import Path
-from typing import Optional, Tuple, Dict, Set
+from typing import Optional, Tuple, Dict, Set, List
 from datetime import datetime, timedelta, timezone
 
 # ---------------------------- config ----------------------------
@@ -221,53 +221,108 @@ def ensure_sst_available(sst_root: str, date_: datetime) -> Optional[str]:
     logger.info(f"SST downloaded {final}")
     return final
 
+def _sss_l3_candidates(sss_root: str, date_: datetime) -> List[str]:
+    """Preferred local SSS paths for a calendar date (exact DOY naming)."""
+    year_dir = os.path.join(sss_root, f"{date_.year:04d}")
+    doy = date_.timetuple().tm_yday
+    base = f"RSS_smap_SSS_L3_8day_running_{date_.year}_{doy:03d}"
+    return [
+        os.path.join(year_dir, f"{base}_FNL_v06.0.nc"),
+        os.path.join(year_dir, f"{base}_FNL_v05.0.nc"),
+        os.path.join(year_dir, f"{base}_FNL_v06.0_l2c.nc"),
+    ]
+
+
+def _download_sss_granule_by_name(
+    short_name: str,
+    year: int,
+    doy: int,
+    year_dir: str,
+) -> Optional[str]:
+    """Download exact L3 granule by native basename; keep provider filename."""
+    pattern = f"*_{year}_{doy:03d}_*"
+    logger = logging.getLogger("satdb")
+    results = earthaccess.search_data(short_name=short_name, granule_name=pattern, count=10)
+    if not results:
+        return None
+
+    # Prefer exact DOY match in basename
+    chosen = None
+    needle = f"_{year}_{doy:03d}_"
+    for g in results:
+        for link in g.data_links():
+            if needle in os.path.basename(link) and link.endswith(".nc"):
+                chosen = g
+                break
+        if chosen is not None:
+            break
+    if chosen is None:
+        chosen = results[0]
+
+    with tempfile.TemporaryDirectory(dir=year_dir) as tmp:
+        tmpfile = earthaccess.download(chosen, local_path=tmp)[0]
+        native = os.path.basename(tmpfile)
+        # Normalize to expected FNL naming if provider uses slightly different casing
+        if f"_{year}_{doy:03d}_" not in native:
+            logger.warning(
+                f"SSS download basename {native} does not contain _{year}_{doy:03d}_; refusing rename"
+            )
+            return None
+        final = os.path.join(year_dir, native)
+        if os.path.exists(final):
+            return final
+        os.replace(tmpfile, final)
+        logger.info(f"SSS downloaded {final}")
+        return final
+
+
 def ensure_sss_available(sss_root: str, date_: datetime) -> Optional[str]:
     """
-    SMAP SSS (8-day running mean). Publishes:
-    <SSS_ROOT>/<YYYY>/RSS_smap_SSS_L3_8day_running_<YYYY>_<DOY>_FNL_v06.0.nc
+    SMAP SSS for calendar date D (exact DOY naming).
+
+    Order:
+      1) Local L3 V6 / V5 / prior L2C aggregate for DOY(D)
+      2) Earthdata L3 V6 then V5 via exact granule_name
+      3) L2C 8-day aggregate fallback written as *_l2c.nc
     """
     _lazy_import_ingest_libs()
     logger = logging.getLogger("satdb")
-    from datetime import timedelta
     year_dir = os.path.join(sss_root, f"{date_.year:04d}")
-    doy      = date_.timetuple().tm_yday
-    fname    = f"RSS_smap_SSS_L3_8day_running_{date_.year}_{doy:03d}_FNL_v06.0.nc"
-    final    = os.path.join(year_dir, fname)
+    doy = date_.timetuple().tm_yday
 
-    if os.path.exists(final):
-        logger.debug(f"SSS exists for {date_.date()} -> {final}")
-        return final
+    for path in _sss_l3_candidates(sss_root, date_):
+        if os.path.exists(path):
+            logger.debug(f"SSS exists for {date_.date()} -> {path}")
+            return path
 
     if not os.path.exists(year_dir):
         os.makedirs(year_dir)
-
     _assert_writable(Path(year_dir))
 
-    t0 = date_.strftime("%Y-%m-%dT12:00:00Z")
-    start_time = (date_ - timedelta(days=8)).strftime("%Y-%m-%dT%H:%M:%SZ")
-    end_time = date_.strftime("%Y-%m-%dT%H:%M:%SZ")
-    logger.debug(f"SSS search {start_time}..{end_time} short_name=SMAP_RSS_L3_SSS_SMI_8DAY-RUNNINGMEAN_V6")
-    results = earthaccess.search_data(
-        short_name="SMAP_RSS_L3_SSS_SMI_8DAY-RUNNINGMEAN_V6",
-        temporal=(start_time, end_time)
-    )
+    for short in (
+        "SMAP_RSS_L3_SSS_SMI_8DAY-RUNNINGMEAN_V6",
+        "SMAP_RSS_L3_SSS_SMI_8DAY-RUNNINGMEAN_V5",
+    ):
+        try:
+            path = _download_sss_granule_by_name(short, date_.year, doy, year_dir)
+        except Exception as e:
+            logger.warning(f"SSS L3 download error ({short}) for {date_.date()}: {e}")
+            path = None
+        if path:
+            return path
 
-    if not results:
-        logger.info(f"SSS V6 not available for {t0}, trying V5...")
-        results = earthaccess.search_data(
-            short_name="SMAP_RSS_L3_SSS_SMI_8DAY-RUNNINGMEAN_V5",
-            temporal=(start_time, end_time)
-        )
-        if not results:
-            logger.info(f"SSS not available for {t0} (neither V6 nor V5)")
-            return None
+    logger.info(f"SSS L3 not available for {date_.date()} DOY {doy:03d}; trying L2C aggregate fallback")
+    try:
+        # Local import so --report/--bootstrap work without this module on PYTHONPATH issues
+        from sss_l2c_aggregate import build_l2c_aggregate
+        path = build_l2c_aggregate(sss_root, date_)
+        if path:
+            return path
+    except Exception as e:
+        logger.warning(f"SSS L2C fallback failed for {date_.date()}: {e}")
 
-    with tempfile.TemporaryDirectory(dir=year_dir) as tmp:
-        tmpfile = earthaccess.download(results[0], local_path=tmp)[0]
-        os.replace(tmpfile, final)
-
-    logger.info(f"SSS downloaded {final}")
-    return final
+    logger.info(f"SSS not available for {date_.date()} (L3 V6/V5 and L2C fallback)")
+    return None
 
 def ensure_aviso_available(aviso_root: str, date_: datetime) -> Path:
     """
@@ -586,10 +641,7 @@ def _exists_sst(sst_root: Path, d: datetime) -> bool:
     return (year_dir / fname).exists()
 
 def _exists_sss(sss_root: Path, d: datetime) -> bool:
-    year_dir = sss_root / f"{d.year:04d}"
-    doy = d.timetuple().tm_yday
-    fname = f"RSS_smap_SSS_L3_8day_running_{d.year}_{doy:03d}_FNL_v06.0.nc"
-    return (year_dir / fname).exists()
+    return any(Path(p).exists() for p in _sss_l3_candidates(str(sss_root), d))
 
 def _exists_aviso_month(aviso_root: Path, d: datetime) -> bool:
     return (aviso_root / f"{d.year:04d}-{d.month:02d}.nc").exists()

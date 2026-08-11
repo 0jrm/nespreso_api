@@ -16,7 +16,12 @@ tests/
 nespreso-ui/
 uses/
 nespreso/
-scripts/sat_db/
+
+# sat_db: track Python/README; ignore logs, manifests, quarantine notes
+scripts/sat_db/*.log
+scripts/sat_db/rename_manifest_*.json
+scripts/sat_db/_quarantine*/
+scripts/rebuild_dates/
 
 # Ignore compiled Python files
 *.py[cod]

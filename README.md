@@ -6,8 +6,8 @@ NeSPReSO is a scientific service for generating **synthetic temperature and sali
 
 This repository provides:
 - A **modular Flask-based API** with two main endpoints:
-  - `/v1/profile` - For individual point predictions
-  - `/v1/profile/grid` - For complete grid coverage with optional filtering and configurable resolution
+  - `/v1_profile` - For individual point predictions
+  - `/v1_profile/grid` - For complete grid coverage with optional filtering and configurable resolution
 - **Python clients** for easy integration
 - **Comprehensive examples** and documentation
 - OpenAPI documentation, CI/CD, and Prometheus observability
@@ -37,8 +37,8 @@ gunicorn -w 2 -c config/gunicorn.conf.py 'wsgi:app'
 ```
 
 The API will be available at:
-- **Profile endpoint**: `http://localhost:5000/v1/profile`
-- **Grid endpoint**: `http://localhost:5000/v1/profile/grid`
+- **Profile endpoint**: `http://localhost:5000/v1_profile`
+- **Grid endpoint**: `http://localhost:5000/v1_profile/grid`
 - **Metrics**: `http://localhost:5000/metrics`
 
 ### 3. Use the Python Clients
@@ -68,7 +68,7 @@ result = query_grid("2016-12-31", bbox=gulf_bbox)
 
 ## API Endpoints
 
-### 1. Profile Endpoint (`/v1/profile`)
+### 1. Profile Endpoint (`/v1_profile`)
 
 **Purpose**: Generate predictions for specific latitude/longitude coordinates and dates.
 
@@ -90,7 +90,7 @@ result = query_grid("2016-12-31", bbox=gulf_bbox)
 - Batch processing for large datasets
 - File merging capabilities
 
-### 2. Grid Endpoint (`/v1/profile/grid`)
+### 2. Grid Endpoint (`/v1_profile/grid`)
 
 **Purpose**: Query all predefined grid points for complete spatial coverage.
 
@@ -112,6 +112,49 @@ result = query_grid("2016-12-31", bbox=gulf_bbox)
 - Optional resolution override: resample the mask to a new regular grid (e.g., 0.10°)
 - Resampling respects the hard mask via nearest-neighbor sampling; no points are added outside the original mask
 - Proper NetCDF structure for visualization
+
+## Fetch a v2 DA profile
+
+The SAT cell stays on `POST /v1_profile`. For a served DA cell, POST to `/v1_profile/{model}`. Cell keys, NetCDF fields, and errors are in [v2 DA profile cells](docs/v2_profile.md). OpenAPI is [docs/api.yaml](docs/api.yaml).
+
+If you want μ Temperature, Salinity, and the σ_o sidecar from `ops`, POST to `/v1_profile/ops`.
+
+```bash
+curl -X POST "http://localhost:5000/v1_profile/ops" \
+	-H "Content-Type: application/json" \
+	-o ops_profile.nc \
+	-d '{"lat":[26.0],"lon":[-86.0],"date":["2020-01-15"]}'
+```
+
+Open the file and read `Temperature`, `Salinity`, `sigma_o_T`, and `sigma_o_S`.
+
+```python
+import xarray as xr
+
+ds = xr.open_dataset("ops_profile.nc")
+print(ds["Temperature"])
+print(ds["Salinity"])
+print(ds["sigma_o_T"])
+print(ds["sigma_o_S"])
+print(ds.attrs["model"], ds.attrs["r_kind"])
+```
+
+If you want the same request from `nespreso_client`, pass `model` and a self-hosted `api_url`.
+
+```python
+from nespreso_client import get_predictions
+
+get_predictions(
+	lat=[26.0],
+	lon=[-86.0],
+	date=["2020-01-15"],
+	filename="ops_profile.nc",
+	api_url="http://localhost:5000/v1_profile",
+	model="ops",
+)
+```
+
+If you want the Ozavala SAT cell, omit `model`. `get_predictions` then posts to `https://ozavala.coaps.fsu.edu/nespreso_profile`.
 
 ---
 
@@ -280,18 +323,18 @@ print(f"Failed: {summary['failed']}")
 export NESPRESO_MAX_PROFILES=10000
 
 # Set custom API URL
-export NESPRESO_API_URL=http://your-server:5000/v1/profile
+export NESPRESO_API_URL=http://your-server:5000/v1_profile
 ```
 
 ### Client Configuration
 ```python
 # Custom API endpoint
 from profile_client import get_predictions
-result = get_predictions(lat, lon, date, api_url="http://custom-server:5000/v1/profile")
+result = get_predictions(lat, lon, date, api_url="http://custom-server:5000/v1_profile")
 
 # Custom timeout
 from grid_client_example import query_grid
-result = query_grid("2016-12-31", api_url="http://custom-server:5000/v1/profile/grid")
+result = query_grid("2016-12-31", api_url="http://custom-server:5000/v1_profile/grid")
 ```
 
 ---

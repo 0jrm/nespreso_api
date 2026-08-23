@@ -1,31 +1,17 @@
 openapi: 3.0.0
 info:
   title: NeSPReSO API
-  version: 1.0.0
+  version: 1.1.0
 paths:
-  /v1/profile:
+  /v1_profile:
     post:
-      summary: Predict synthetic temperature and salinity profiles
+      summary: SAT TorchScript profiles (Ozavala 15-PC cell). Unchanged.
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                lat:
-                  type: array
-                  items:
-                    type: number
-                lon:
-                  type: array
-                  items:
-                    type: number
-                date:
-                  type: array
-                  items:
-                    type: string
-                    format: date
+              $ref: '#/components/schemas/ProfileRequest'
       responses:
         '200':
           description: NetCDF file with predicted profiles
@@ -37,4 +23,129 @@ paths:
         '400':
           description: Invalid input
         '503':
-          description: Satellite data unavailable 
+          description: Satellite data unavailable
+  /v1_profile/grid:
+    post:
+      summary: SAT TorchScript grid (Ozavala). Unchanged.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GridRequest'
+      responses:
+        '200':
+          description: NetCDF grid
+          content:
+            application/x-netcdf:
+              schema:
+                type: string
+                format: binary
+  /v1_profile/{model}:
+    post:
+      summary: Frozen NeSPReSO v2 DA profile (μ only; Dai σ_o after H is R)
+      parameters:
+        - name: model
+          in: path
+          required: true
+          schema:
+            type: string
+            enum: [A_CRPS, HeaveFast, ops]
+        - name: seed
+          in: query
+          required: false
+          description: A_CRPS only. Default 42. Allowed 42, 43, 44.
+          schema:
+            type: integer
+            enum: [42, 43, 44]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProfileRequest'
+      responses:
+        '200':
+          description: NetCDF with Temperature, Salinity, native 1 m depth, cell attrs
+          headers:
+            MODEL_SHA:
+              schema:
+                type: string
+              description: Checkpoint parent directory name (run stem)
+          content:
+            application/x-netcdf:
+              schema:
+                type: string
+                format: binary
+        '400':
+          description: Invalid input or seed
+        '404':
+          description: Unknown model
+        '503':
+          description: Missing satellite (ops operators from SAT archive at request time); never NaN profiles
+  /v1_profile/{model}/grid:
+    post:
+      summary: v2 grid query (same body as SAT grid)
+      parameters:
+        - name: model
+          in: path
+          required: true
+          schema:
+            type: string
+            enum: [A_CRPS, HeaveFast, ops]
+        - name: seed
+          in: query
+          required: false
+          schema:
+            type: integer
+            enum: [42, 43, 44]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GridRequest'
+      responses:
+        '200':
+          description: NetCDF grid
+          content:
+            application/x-netcdf:
+              schema:
+                type: string
+                format: binary
+        '503':
+          description: Missing satellite
+components:
+  schemas:
+    ProfileRequest:
+      type: object
+      required: [lat, lon, date]
+      properties:
+        lat:
+          type: array
+          items:
+            type: number
+        lon:
+          type: array
+          items:
+            type: number
+        date:
+          type: array
+          items:
+            type: string
+            format: date
+    GridRequest:
+      type: object
+      required: [date]
+      properties:
+        date:
+          type: string
+          format: date
+        bbox:
+          type: array
+          items:
+            type: number
+          minItems: 4
+          maxItems: 4
+        resolution:
+          type: number

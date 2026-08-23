@@ -1035,6 +1035,11 @@ def create_app(config: dict | None = None) -> Flask:
             logger.exception("Grid query error")
             return jsonify({"error": str(e)}), 500
 
+    # Frozen v2 DA cells. SAT routes above stay on "" and "/grid".
+    from services.api.v2_profile import register_v2_routes
+
+    register_v2_routes(bp)
+
     # Legacy shim
     @app.route("/predict", methods=["POST"])
     def predict_legacy():

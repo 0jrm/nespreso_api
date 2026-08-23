@@ -33,7 +33,7 @@ def _mock_get_pca_objects():
 # Pytest fixtures (global)
 # ---------------------------------------------------------------------------
 
-@pytest.fixture(scope="session")
+@pytest.fixture()
 def app(monkeypatch) -> Flask:  # type: ignore[override]
     """Flask app with heavy I/O patched out for ultra-fast tests."""
     monkeypatch.setattr(

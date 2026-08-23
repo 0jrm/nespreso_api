@@ -158,8 +158,16 @@ def _sat_batch(
     sst: np.ndarray,
     ssh: np.ndarray,
 ) -> np.ndarray:
+    """Build the SAT 9-d matrix. ``prepare_inputs`` wants ``(T, 1)`` when N=1."""
     dtime = _matlab_datenum(times)
-    batch = prepare_inputs(dtime, lat, lon, sss, sst, ssh, _SAT_PARAMS)
+    sss_b = np.asarray(sss, dtype=np.float64).reshape(-1)
+    sst_b = np.asarray(sst, dtype=np.float64).reshape(-1)
+    ssh_b = np.asarray(ssh, dtype=np.float64).reshape(-1)
+    if sss_b.shape[0] == 1:
+        sss_b = sss_b.reshape(1, 1)
+        sst_b = sst_b.reshape(1, 1)
+        ssh_b = ssh_b.reshape(1, 1)
+    batch = prepare_inputs(dtime, lat, lon, sss_b, sst_b, ssh_b, _SAT_PARAMS)
     return np.asarray(
         batch.detach().cpu().numpy() if isinstance(batch, torch.Tensor) else batch,
         dtype=np.float32,

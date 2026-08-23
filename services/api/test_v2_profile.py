@@ -171,6 +171,21 @@ def test_v2_netcdf_property_model_attr(
         ds.close()
 
 
+def test_sat_batch_single_profile_is_n1() -> None:
+    from services.accessor.v2_inputs import _sat_batch
+
+    x = _sat_batch(
+        [datetime(2016, 12, 31)],
+        np.array([25.0]),
+        np.array([-83.0]),
+        np.array([36.0]),
+        np.array([300.0]),
+        np.array([0.1]),
+    )
+    assert x.shape == (1, 9)
+    assert np.isfinite(x).all()
+
+
 def test_ops_columns_come_from_sat_planes_not_cube(monkeypatch) -> None:  # type: ignore[no-untyped-def]
     calls: list[str] = []
     lats = np.linspace(23.0, 27.0, 41)

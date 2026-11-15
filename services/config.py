@@ -72,6 +72,10 @@ class Config:
         "NESPRESO_V2_SPEC_PATH",
         os.path.join(V2_ROOT, "reports/heave_da_serve_spec.json"),
     )
+    GEOF_ROOT: str = os.getenv(
+        "NESPRESO_GEOF_ROOT",
+        "/unity/g2/jmiranda/geof",
+    )
 
     # Grid/mask artifact
     GRID_MASK_PATH: str = os.getenv(

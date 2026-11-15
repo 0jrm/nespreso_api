@@ -343,24 +343,31 @@ def _group_by_day(
 
 
 def sample_ops_or_503(
-    times: Sequence[datetime], lat: np.ndarray, lon: np.ndarray
+    times: Sequence[datetime],
+    lat: np.ndarray,
+    lon: np.ndarray,
+    *,
+    strict: bool = True,
 ) -> np.ndarray:
     """Compute the 19 heave-ops columns from the live SAT archive.
 
     Uses the same ``apply_operator`` / bilinear sample path as training, on
     MUR / SMAP / AVISO planes instead of ``gom_cube.zarr``. Missing days or
-    non-finite samples are 503. Never zero-filled.
+    non-finite samples are 503 when ``strict`` is true. Never zero-filled.
 
     Args:
         times: Profile timestamps.
         lat: Latitudes.
         lon: Longitudes.
+        strict: If true (API default), any non-finite sample is a 503. If
+            false, return the matrix and let the caller drop bad rows.
 
     Returns:
         Array of shape ``(N, 19)`` in ``OP_NAMES`` order.
 
     Raises:
-        V2UnavailableError: Archive hole, empty neighborhood, or NaN sample.
+        V2UnavailableError: Archive hole, empty neighborhood, or NaN sample
+            when ``strict`` is true.
     """
     ensure_v2_on_path()
     from preproc.features.operators import GRAVITY, apply_operator
@@ -493,10 +500,11 @@ def sample_ops_or_503(
                 valid[idx_arr, j] = val_w
 
     if not (valid.all() and np.isfinite(values).all()):
-        raise V2UnavailableError(
-            "Satellite data unavailable: operator sample is non-finite "
-            "(not zero-filled)"
-        )
+        if strict:
+            raise V2UnavailableError(
+                "Satellite data unavailable: operator sample is non-finite "
+                "(not zero-filled)"
+            )
     return values
 
 
@@ -508,6 +516,7 @@ def build_v2_inputs(
     sss: np.ndarray,
     sst: np.ndarray,
     ssh: np.ndarray,
+    ops: np.ndarray | None = None,
 ) -> np.ndarray:
     """Assemble the cell feature matrix from SAT (+ ENSO / sat-archive ops).
 
@@ -519,6 +528,8 @@ def build_v2_inputs(
         sss: 1-D SSS.
         sst: 1-D SST in Kelvin (``prepare_inputs`` subtracts 273.15).
         ssh: 1-D SSH.
+        ops: Optional precomputed ops matrix ``(N, 19)``. When omitted, ops
+            is sampled from the SAT archive (API 503 on holes).
 
     Returns:
         Float32 array of shape ``(N, input_dim)``.
@@ -552,8 +563,12 @@ def build_v2_inputs(
                 f"HeaveFast input width {x.shape[1]} != {spec.input_dim}"
             )
         return np.asarray(x, dtype=np.float32)
-    ops = sample_ops_or_503(times, lat, lon)
-    x = np.concatenate([np.asarray(x, dtype=np.float32), ops], axis=1)
+    if ops is None:
+        ops = sample_ops_or_503(times, lat, lon)
+    x = np.concatenate(
+        [np.asarray(x, dtype=np.float32), np.asarray(ops, dtype=np.float32)],
+        axis=1,
+    )
     if x.shape[1] != spec.input_dim:
         raise V2UnavailableError(f"ops input width {x.shape[1]} != {spec.input_dim}")
     return x

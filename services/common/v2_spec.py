@@ -109,6 +109,15 @@ def ensure_v2_on_path(code_home: Path | None = None) -> Path:
     return home
 
 
+def ensure_geof_on_path(geof_root: Path | None = None) -> Path:
+    """Put ``geof`` on ``sys.path`` so A_CRPS PCA decode uses the science package."""
+    root = Path(geof_root or CFG.GEOF_ROOT).resolve()
+    s = str(root)
+    if s not in sys.path:
+        sys.path.insert(0, s)
+    return root
+
+
 def _as_repo_path(repo_root: Path, raw: str) -> Path:
     p = Path(raw)
     return p if p.is_absolute() else (repo_root / p)

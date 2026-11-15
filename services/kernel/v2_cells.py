@@ -20,6 +20,7 @@ from services.common.v2_spec import (
     V2ModelSpec,
     V2Registry,
     V2UnavailableError,
+    ensure_geof_on_path,
     ensure_v2_on_path,
     load_serve_spec,
     resolve_seed,
@@ -218,10 +219,15 @@ class V2Cell:
         """Map μ to native-z T/S using the paired cache (never another cell's PCA)."""
         mu = np.asarray(mu, dtype=np.float32)
         if self.spec.decode == DECODE_PCA:
+            ensure_geof_on_path()
+            from geof.cell import pca_arrays
+            from geof.decode import decode_temperature_salinity
+
             pca = self.cache["pca_models"]
             n_t = int(self.ckcfg.get("outputs", {}).get("temperature", 16))
-            t = pca["temperature"].inverse_transform(mu[:, :n_t])
-            s = pca["salinity"].inverse_transform(mu[:, n_t : n_t + n_t])
+            n_s = int(self.ckcfg.get("outputs", {}).get("salinity", n_t))
+            t_c, t_m, s_c, s_m = pca_arrays(pca)
+            t, s = decode_temperature_salinity(mu, t_c, t_m, s_c, s_m, n_t=n_t, n_s=n_s)
             mld = None
             d26 = None
         else:
